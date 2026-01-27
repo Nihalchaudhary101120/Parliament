@@ -10,7 +10,7 @@ function App() {
     <>
        <Routes>
           <Route path="/" index element={<DashBoard />} />
-          <Route path="/ParliamentGame" element={<Board />} />
+          <Route path="/parliamentGame" element={<Board />} />
         </Routes>
     </>
   )

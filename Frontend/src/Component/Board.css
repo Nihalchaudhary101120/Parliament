@@ -1,3 +1,16 @@
-.hero{
+.hero2{
     background-image: url('../assets/backofboard.png');
+}
+.players{
+
+    position:relative;
+
+}
+.hp{
+    position:relative;
+    top:1vh;
+
+}
+.players image{
+    position:absolute;
 }

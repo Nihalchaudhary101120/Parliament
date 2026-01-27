@@ -1,6 +1,6 @@
 import React from 'react';
 import "./Dashboard.css";
-import accountimg from"../assets/account.png";
+import accounting from"../assets/parliament.jpeg";
 
 const DashBoard = () => {
     return (
@@ -13,7 +13,7 @@ const DashBoard = () => {
             
 
             <div>
-                 <img src={accountimg} className="profile"></img>
+                 <img src={accounting} className="profile"></img>
             </div>
 
             <div className="glass-panel">
