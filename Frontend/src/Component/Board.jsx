@@ -1,5 +1,5 @@
 import React from 'react'
-
+import './Board.css'
 const Board = () => {
   const size = 9;
   const border = [];
@@ -10,13 +10,13 @@ const Board = () => {
   for (let i = size - 2; i > 0; i--) border.push({ r: i, c: 0 });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-black flex justify-center items-center p-6">
-      <div className="bg-slate-900 p-6 rounded-3xl shadow-2xl">
+    <div className="hero min-h-screen bg-gradient-to-br from-indigo-950 to-black flex justify-center items-center p-6">
+      <div className="bg-transparent p-6 rounded-3xl shadow-2xl">
 
         <div
-          className="grid gap-2 bg-slate-800 p-4 rounded-2xl"
+          className="grid gap-2 bg-transparent p-4 rounded-2xl"
           style={{
-            gridTemplateColumns: `repeat(${size}, 70px)`,
+            gridTemplateColumns: `repeat(${size}, 85px)`,
             gridTemplateRows: `repeat(${size}, 70px)`
           }}
         >

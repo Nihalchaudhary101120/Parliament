@@ -5,10 +5,12 @@ import accountimg from"../assets/account.png";
 const DashBoard = () => {
     return (
 
-        <>
-
+        <div className='hero'>
+            <div class='kuch'>
             <h1 className="logo-name">PARLIAMENT  BATTLEGROUND</h1>
             <h2 className="quote">Control The Flow Of Nation</h2>
+            </div>
+            
 
             <div>
                  <img src={accountimg} className="profile"></img>
@@ -42,7 +44,7 @@ const DashBoard = () => {
 
             </div>
 
-        </>
+        </div>
 
     );
 }

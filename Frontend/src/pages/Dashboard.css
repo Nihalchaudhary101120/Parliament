@@ -1,13 +1,30 @@
-body{
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+.hero {
+  background-image: url("../assets/parliament.jpeg");
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
-.logo-name{
-  color:whitesmoke;
+
+.kuch{
+  display: flex;
+  align-items: center;
+  flex-direction:column ;
+  margin-top: 1.5em;
 }
-.quote{
-font-style:italic;
-color :rgb(255, 204, 204);
+.logo-name {
+  color: whitesmoke;
 }
+
+.quote {
+  font-style: italic;
+  color: rgb(255, 204, 204);
+}
+
 .glass-panel {
   position: absolute;
   left: 40px;
@@ -15,7 +32,8 @@ color :rgb(255, 204, 204);
   width: 300px;
   padding: 20px;
 
-  background: rgba(0, 80, 140, 0.25); /* transparent */
+  background: rgba(0, 80, 140, 0.25);
+  /* transparent */
   border-radius: 18px;
 
   backdrop-filter: blur(2px);
@@ -23,7 +41,7 @@ color :rgb(255, 204, 204);
 
   border: 1px solid rgba(0, 200, 255, 0.5);
 
-  box-shadow: 
+  box-shadow:
     0 0 25px rgba(0, 180, 255, 0.4),
     inset 0 0 20px rgba(0, 180, 255, 0.2);
 }
@@ -78,14 +96,12 @@ color :rgb(255, 204, 204);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(5px);
 
-  clip-path: polygon(
-    0% 0%,
-    92% 0%,
-    100% 50%,
-    92% 100%,
-    0% 100%,
-    4% 50%
-  );
+  clip-path: polygon(0% 0%,
+      92% 0%,
+      100% 50%,
+      92% 100%,
+      0% 100%,
+      4% 50%);
 
   cursor: pointer;
   transition: 0.25s ease;
@@ -142,25 +158,27 @@ color :rgb(255, 204, 204);
   letter-spacing: 1px;
 }
 
-.nav-btn:hover  {
+.nav-btn:hover {
   transform: translateY(-5px) scale(1.05);
   color: white;
   text-shadow: 0 0 10px cyan;
 }
 
-.friend{
-  display:flex;
-  flex-direction:column;
-  gap:0;
+.friend {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
 }
-.glass-panel2{
+
+.glass-panel2 {
   position: absolute;
   right: 40px;
   top: 120px;
   width: 300px;
   padding: 20px;
 
-  background: rgba(0, 80, 140, 0.25); /* transparent */
+  background: rgba(0, 80, 140, 0.25);
+  /* transparent */
   border-radius: 18px;
 
   backdrop-filter: blur(2px);
@@ -168,36 +186,41 @@ color :rgb(255, 204, 204);
 
   border: 1px solid rgba(0, 200, 255, 0.5);
 
-  box-shadow: 
+  box-shadow:
     0 0 25px rgba(0, 180, 255, 0.4),
     inset 0 0 20px rgba(0, 180, 255, 0.2);
 }
-.glass-panel2 p{
-  color:white;
-  font-size:1.2em;
-  display:flex;
-  justify-content:flex-start;
+
+.glass-panel2 p {
+  color: white;
+  font-size: 1.2em;
+  display: flex;
+  justify-content: flex-start;
   gap: 20px;
-  font-weight:500;
+  font-weight: 500;
 }
-.glass-panel2 button{
-  font-weight:900;
-  background-color:transparent;
-  color:white;
+
+.glass-panel2 button {
+  font-weight: 900;
+  background-color: transparent;
+  color: white;
   border: 3px solid rgba(0, 200, 255, 0.4);
 }
-.glass-panel2 button:active{
-   transform: scale(0.8);
+
+.glass-panel2 button:active {
+  transform: scale(0.8);
 }
-.glass-panel2 span{
-  position:fixed;
-  right:2vw;
+
+.glass-panel2 span {
+  position: fixed;
+  right: 2vw;
 }
-.profile{
-  position:fixed;
-right:2em;
-top:1em;
-  width:3vw;
-  background-color:white;
-  border-radius:50%;
+
+.profile {
+  position: fixed;
+  right: 2em;
+  top: 1em;
+  width: 3vw;
+  background-color: white;
+  border-radius: 50%;
 }

@@ -1,17 +1,8 @@
 @import "tailwindcss";
+*{
+margin:0px;
+padding:0px
 
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
 }
-body{
-  margin: 0;
-  /* background-image:url("./assets/parliament.jpeg"); */
-  background-size:cover;
-  background-position: center;
-  background-repeat:no-repeat;
-  background-attachment:fixed;
-}
+
 
