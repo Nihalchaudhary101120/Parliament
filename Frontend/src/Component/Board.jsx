@@ -1,10 +1,10 @@
 import React from 'react'
 import './Board.css'
 import logo from "../assets/parliamentlogo.png";
+
 const Board = () => {
   const size = 9;
   const border = [];
-  
 
   for (let i = 0; i < size; i++) border.push({ r: 0, c: i });
   for (let i = 1; i < size; i++) border.push({ r: i, c: size - 1 });
@@ -18,8 +18,9 @@ const Board = () => {
         <div
           className="grid gap-2 bg-transparent p-4 rounded-2xl"
           style={{
-            gridTemplateColumns: `repeat(${size}, 85px)`,
-            gridTemplateRows: `repeat(${size}, 70px)`
+            gridTemplateColumns: `repeat(${size}, 90px)`,
+            gridTemplateRows: `repeat(${size}, 70px)`,
+            
           }}
         >
           {border.map((cell, i) => {
@@ -46,25 +47,23 @@ const Board = () => {
 
           {/* Center Area */}
           <div
-            className="bg-transparent backdrop-blur-sm rounded-2xl flex items-center justify-center"
+            className="bg-transparent center-area backdrop-blur-sm rounded-2xl"
             style={{
               gridRow: "2 / span 7",
               gridColumn: "2 / span 7"
-
             }}
           >
-            <div className="grid  grid-cols-2 gap-5">
-              {[1, 2, 3, 4 , 5 , 6].map(i => (
-                <div
-                  key={i}
-                  className="bg-transparent players  rounded-xl px-6 py-5 text-center text-yellow-200 font-bold shadow-lg"
-                > 
-                   {i}
-                  <img src={logo} className="w-60 h-30" />
-                  <div className="hp"> HP {i} 650 / 1000</div>
-                   
-
-                   <div className="shield">  shield{i} 650 / 1000</div>
+            <div className="center-grid">
+              {["Nihal","tanmay jhatu" , "dhanagar ", "shlok bhatia", "gopesh ", "saurav  "].map(i => (
+                <div key={i} className="player-cell">
+                  <div className="image-parent">
+                    <div className="absolute name top-0 left-0 bg-black/70 text-yellow-300 px-2 py-1 rounded text-sm font-bold z-10 ">
+                     <span> {i}</span>
+                    </div>
+                    <img src={logo} className="parl" alt={`Player ${i}`} />
+                    <div className="hp">HP  650 / 1000</div>
+                    <div className="shield">shield 650 / 1000</div>
+                  </div>
                 </div>
               ))}
             </div>
