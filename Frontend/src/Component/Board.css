@@ -92,7 +92,7 @@
 
 
 .right-container{
-  width: 30vw;
+  width: 10vw;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -101,7 +101,8 @@
 
 /* Right side 2x2 grid */
 .right-grid {
-  width: 30vw;
+  width: 220px;
+  height: 300px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
@@ -131,8 +132,8 @@
 }
 
 .dice-container {
-  width: 140px;
-  height: 140px;
+  width: 100px;
+  height: 100px;
   position: relative;
   border-radius: 18px;
   background: radial-gradient(circle, #0ff 0%, #003 70%);
@@ -145,6 +146,6 @@
 }
 
 .dice-container img{
-  width: 130px;
+  width: 90px;
 
 }
