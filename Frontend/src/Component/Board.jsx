@@ -10,6 +10,10 @@ import dice from "../assets/dice.png";
 const Board = () => {
   const size = 9;
   const border = [];
+  const currentHP = 400;
+  const maxHP = 1000;
+  const hpPercent = (currentHP / maxHP) * 100;
+
 
   for (let i = 0; i < size; i++) border.push({ r: 0, c: i });
   for (let i = 1; i < size; i++) border.push({ r: i, c: size - 1 });
@@ -63,13 +67,20 @@ const Board = () => {
           >
             <div className="center-grid">
               {["Nihal", "tanmay jhatu", "dhanagar ", "shlok bhatia", "gopesh ", "saurav  "].map(i => (
-                <div key={i} className="player-cell">
+                <div className={`player-cell ${hpPercent <= 30 ? "low" : ""}`}>
+
                   <div className="image-parent">
                     <div className="absolute name top-0 left-0 bg-black/70 text-yellow-300 px-2 py-1 rounded text-sm font-bold z-10 ">
                       <span> {i}</span>
                     </div>
                     <img src={logo} className="parl" alt={`Player ${i}`} />
-                    <div className="hp">HP  650 / 1000</div>
+                    <div className={`hp-bar ${hpPercent <= 30 ? "low" : ""}`}>
+                      <div className="hp-fill" style={{ width: `${hpPercent}%` }} />
+                      <span className="hp-text">{currentHP} / {maxHP}</span>
+                    </div>
+
+
+
                     <div className="shield">shield 650 / 1000</div>
                   </div>
                 </div>

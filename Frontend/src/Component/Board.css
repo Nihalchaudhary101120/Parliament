@@ -77,18 +77,79 @@
   min-height: 180px;
 }
 
+
+
+/* ===== PLAYER NAME PLATE ===== */
 .name {
-  width: 100%;
-  text-align: center;
-  background: transparent;
-  color: aqua;
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  padding: 4px 12px;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+
+  color: #7ffcff;
+
+  background: linear-gradient(
+    180deg,
+    rgba(0,255,255,0.25),
+    rgba(0,120,120,0.6)
+  );
+
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.4);
+
+  backdrop-filter: blur(6px);
+
+  box-shadow:
+    0 0 10px rgba(0,255,255,0.8),
+    inset 0 0 6px rgba(255,255,255,0.3);
+
+  text-shadow:
+    0 0 6px #00ffff,
+    1px 1px 2px black;
+
+  white-space: nowrap;
 }
 
+/* remove old span styling */
 .name span {
-  background-color: rgba(0, 0, 0, 0.386);
-  border-radius: 2px;
-  padding: 2px;
+  background: none;
+  padding: 0;
 }
+
+/* Name glows when player is dying */
+.player-cell.low .name {
+  color: #ffd6d6;
+
+  box-shadow:
+    0 0 14px red,
+    0 0 30px rgba(255,0,0,0.8),
+    inset 0 0 6px rgba(255,0,0,0.6);
+
+  text-shadow:
+    0 0 8px red,
+    0 0 14px red,
+    1px 1px 2px black;
+}
+.player-cell.low .name {
+  animation: namePulse 0.6s infinite alternate;
+}
+
+@keyframes namePulse {
+  from { transform: translateX(-50%) scale(1); }
+  to { transform: translateX(-50%) scale(1.08); }
+}
+
+
+.player-cell:hover .name {
+  transform: translateX(-50%) scale(1.05);
+}
+
 
 
 .right-container{
@@ -148,4 +209,145 @@
 .dice-container img{
   width: 90px;
 
+}
+
+/* ===== HP BAR FRAME ===== */
+.hp-bar {
+  position: absolute;
+  bottom: 34%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 78%;
+  height: 14px;
+  background: linear-gradient(180deg, #300000, #800000);
+  border-radius: 12px;
+  overflow: hidden;
+
+  border: 2px solid rgba(255,255,255,0.25);
+
+  box-shadow:
+    0 0 12px rgba(255,0,0,0.6),
+    inset 0 0 6px rgba(0,0,0,0.9);
+}
+
+/* ===== LOST HP BASE ===== */
+.hp-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #7a0000,
+    #ff1a1a
+  );
+  opacity: 0.6;
+}
+
+/* ===== ACTIVE HP ===== */
+.hp-fill {
+  position: relative;
+  height: 100%;
+  z-index: 2;
+
+  background: linear-gradient(
+    180deg,
+    #7dffb2,
+    #00ff66,
+    #00b84d
+  );
+
+  box-shadow:
+    0 0 14px rgba(0,255,120,1),
+    inset 0 0 6px rgba(255,255,255,0.6);
+
+  border-radius: 10px;
+
+  transition: width 0.45s cubic-bezier(.25,.9,.35,1);
+}
+
+/* ===== GLASS SHINE ===== */
+.hp-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.6),
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* ===== LOW HP WARNING ===== */
+/* ===== LOW HP WARNING ===== */
+.hp-bar.low {
+  animation: dangerPulse 0.6s infinite;
+  border-color: #ff2a2a;
+}
+
+/* Pulse effect */
+@keyframes dangerPulse {
+  0% {
+    box-shadow:
+      0 0 8px rgba(255, 0, 0, 0.903),
+      0 0 18px rgba(255, 0, 0, 0.605),
+      inset 0 0 6px rgba(0,0,0,0.9);
+  }
+  100% {
+    box-shadow:
+      0 0 16px rgba(255,60,60,1),
+      0 0 30px rgba(255,0,0,0.9),
+      inset 0 0 6px rgba(0,0,0,0.9);
+  }
+}
+
+
+@keyframes dangerPulse {
+  from { box-shadow: 0 0 8px red; }
+  to { box-shadow: 0 0 18px red; }
+}
+
+/* ===== TEXT ===== */
+.hp-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: -17px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #b7ffe1;
+  text-shadow: 0 0 8px #00ff88;
+}
+
+/* ===== HP NUMBER OVERLAY ===== */
+.hp-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+
+  color: #e6fff5;
+  text-shadow:
+    0 0 4px #00ff88,
+    0 0 10px rgba(0,255,120,0.8),
+    1px 1px 2px black;
+
+  pointer-events: none;
+  z-index: 3;
+}
+
+.hp-bar.low .hp-text {
+  color: #ffd6d6;
+  text-shadow:
+    0 0 6px red,
+    0 0 12px red,
+    1px 1px 2px black;
 }
