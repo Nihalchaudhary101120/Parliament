@@ -1,34 +1,36 @@
-.hero2{
-    background-image: url('../assets/backofboard.png');
+.hero2 {
+  background-image: url('../assets/backofboard.png');
 }
+
 .image-parent {
   position: relative;
   display: inline-block;
   width: 90%;
   height: 90%;
-  bottom:0;
+  bottom: 0;
 }
 
 /* Player image */
 .parl {
-    position:absolute;
+  position: absolute;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
   border-radius: 12px;
-clip-path: ellipse(50% 43% at 50% 47%);
-bottom:0;
+  clip-path: ellipse(50% 43% at 50% 47%);
+  bottom: 0;
 
 }
 
 /* HP text on image */
 .hp {
   position: absolute;
-  bottom: 35%;   /* move up/down */
+  bottom: 35%;
+  /* move up/down */
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   padding: 2px 6px;
   border-radius: 6px;
   color: #00ff88;
@@ -40,10 +42,11 @@ bottom:0;
 /* Shield text on image */
 .shield {
   position: absolute;
-  bottom: 20%;   /* below HP */
+  bottom: 20%;
+  /* below HP */
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   padding: 2px 6px;
   border-radius: 6px;
   color: #4db8ff;
@@ -51,8 +54,9 @@ bottom:0;
   font-weight: bold;
   white-space: nowrap;
 }
-.players{
-clip-path: ellipse(50% 43% at 50% 47%);
+
+.players {
+  clip-path: ellipse(50% 43% at 50% 47%);
 }
 
 /* Center grid container */
@@ -73,14 +77,74 @@ clip-path: ellipse(50% 43% at 50% 47%);
   min-height: 180px;
 }
 
-.name{
-    width:100%;
-    text-align:center;
-    background:transparent;
-    color:aqua;
+.name {
+  width: 100%;
+  text-align: center;
+  background: transparent;
+  color: aqua;
 }
-.name span{
-    background-color:rgba(0, 0, 0, 0.386);
-    border-radius:2px;
-    padding:2px;
+
+.name span {
+  background-color: rgba(0, 0, 0, 0.386);
+  border-radius: 2px;
+  padding: 2px;
+}
+
+
+.right-container{
+  width: 30vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Right side 2x2 grid */
+.right-grid {
+  width: 30vw;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+}
+
+/* Each small image cell */
+.right-cell {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Small images */
+.right-cell img {
+  width: 90%;
+  height: 90%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.dice-container {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  border-radius: 18px;
+  background: radial-gradient(circle, #0ff 0%, #003 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dice-container img{
+  width: 130px;
+
 }
