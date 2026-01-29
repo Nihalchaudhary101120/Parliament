@@ -1,5 +1,6 @@
 .hero2 {
   background-image: url('../assets/backofboard.png');
+  position: relative;
 }
 
 .image-parent {
@@ -20,14 +21,12 @@
   border-radius: 12px;
   clip-path: ellipse(50% 43% at 50% 47%);
   bottom: 0;
-
 }
 
 /* HP text on image */
 .hp {
   position: absolute;
   bottom: 35%;
-  /* move up/down */
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.6);
@@ -43,7 +42,6 @@
 .shield {
   position: absolute;
   bottom: 20%;
-  /* below HP */
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.6);
@@ -77,8 +75,6 @@
   min-height: 180px;
 }
 
-
-
 /* ===== PLAYER NAME PLATE ===== */
 .name {
   position: absolute;
@@ -87,56 +83,44 @@
   transform: translateX(-50%);
   width: auto;
   padding: 4px 12px;
-
   font-size: 12px;
   font-weight: 700;
+  z-index:10;
   letter-spacing: 0.6px;
-
   color: #7ffcff;
-
   background: linear-gradient(
     180deg,
     rgba(0,255,255,0.25),
     rgba(0,120,120,0.6)
   );
-
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.4);
-
   backdrop-filter: blur(6px);
-
   box-shadow:
     0 0 10px rgba(0,255,255,0.8),
     inset 0 0 6px rgba(255,255,255,0.3);
-
   text-shadow:
     0 0 6px #00ffff,
     1px 1px 2px black;
-
   white-space: nowrap;
 }
 
-/* remove old span styling */
 .name span {
   background: none;
   padding: 0;
+  z-index:1;
 }
 
-/* Name glows when player is dying */
 .player-cell.low .name {
   color: #ffd6d6;
-
   box-shadow:
     0 0 14px red,
     0 0 30px rgba(255,0,0,0.8),
     inset 0 0 6px rgba(255,0,0,0.6);
-
   text-shadow:
     0 0 8px red,
     0 0 14px red,
     1px 1px 2px black;
-}
-.player-cell.low .name {
   animation: namePulse 0.6s infinite alternate;
 }
 
@@ -145,24 +129,33 @@
   to { transform: translateX(-50%) scale(1.08); }
 }
 
-
 .player-cell:hover .name {
   transform: translateX(-50%) scale(1.05);
 }
 
+/* Board wrapper - centered */
+.board-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
-
-.right-container{
-  width: 10vw;
+/* Right container - positioned on right side */
+.right-container {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 20px;
 }
 
 /* Right side 2x2 grid */
 .right-grid {
-  width: 220px;
+  width: 250px;
   height: 300px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -206,9 +199,57 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.dice-container img{
-  width: 90px;
+.dice-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 35px rgba(0, 255, 255, 0.9);
+}
 
+.dice-container:active {
+  transform: scale(0.95);
+}
+
+/* Dice rolling animation */
+.dice-container.rolling {
+  animation: diceRoll 0.2s infinite;
+}
+
+@keyframes diceRoll {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.1); }
+  50% { transform: rotate(180deg) scale(1); }
+  75% { transform: rotate(270deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* Dice display */
+.dice-display {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.dice-number {
+  font-size: 48px;
+  font-weight: bold;
+  color: #003;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Pulse effect when rolling stops */
+@keyframes dicePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.dice-container img {
+  width: 90px;
 }
 
 /* ===== HP BAR FRAME ===== */
@@ -222,9 +263,7 @@
   background: linear-gradient(180deg, #300000, #800000);
   border-radius: 12px;
   overflow: hidden;
-
   border: 2px solid rgba(255,255,255,0.25);
-
   box-shadow:
     0 0 12px rgba(255,0,0,0.6),
     inset 0 0 6px rgba(0,0,0,0.9);
@@ -248,20 +287,16 @@
   position: relative;
   height: 100%;
   z-index: 2;
-
   background: linear-gradient(
     180deg,
     #7dffb2,
     #00ff66,
     #00b84d
   );
-
   box-shadow:
     0 0 14px rgba(0,255,120,1),
     inset 0 0 6px rgba(255,255,255,0.6);
-
   border-radius: 10px;
-
   transition: width 0.45s cubic-bezier(.25,.9,.35,1);
 }
 
@@ -282,13 +317,11 @@
 }
 
 /* ===== LOW HP WARNING ===== */
-/* ===== LOW HP WARNING ===== */
 .hp-bar.low {
   animation: dangerPulse 0.6s infinite;
   border-color: #ff2a2a;
 }
 
-/* Pulse effect */
 @keyframes dangerPulse {
   0% {
     box-shadow:
@@ -304,24 +337,6 @@
   }
 }
 
-
-@keyframes dangerPulse {
-  from { box-shadow: 0 0 8px red; }
-  to { box-shadow: 0 0 18px red; }
-}
-
-/* ===== TEXT ===== */
-.hp-text {
-  position: absolute;
-  width: 100%;
-  text-align: center;
-  top: -17px;
-  font-size: 10px;
-  font-weight: bold;
-  color: #b7ffe1;
-  text-shadow: 0 0 8px #00ff88;
-}
-
 /* ===== HP NUMBER OVERLAY ===== */
 .hp-text {
   position: absolute;
@@ -329,17 +344,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.5px;
-
   color: #e6fff5;
   text-shadow:
     0 0 4px #00ff88,
     0 0 10px rgba(0,255,120,0.8),
     1px 1px 2px black;
-
   pointer-events: none;
   z-index: 3;
 }
@@ -352,7 +364,6 @@
     1px 1px 2px black;
 }
 
-
 /* ===== SHIELD BAR ===== */
 .shield-bar {
   position: absolute;
@@ -361,13 +372,10 @@
   transform: translateX(-50%);
   width: 59%;
   height: 12px;
-
   background: linear-gradient(180deg, #001a33, #003366);
   border-radius: 10px;
   overflow: hidden;
-
   border: 1.5px solid rgba(150,200,255,0.6);
-
   box-shadow:
     0 0 12px rgba(0,120,255,0.7),
     inset 0 0 6px rgba(0,0,0,0.9);
@@ -382,13 +390,10 @@
     #1ea0ff,
     #0066ff
   );
-
   box-shadow:
     0 0 12px rgba(0,150,255,1),
     inset 0 0 6px rgba(255,255,255,0.6);
-
   border-radius: 10px;
-
   transition: width 0.4s ease;
 }
 
@@ -399,14 +404,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 10px;
   font-weight: bold;
-
   color: #e0f4ff;
   text-shadow:
     0 0 6px #4db8ff,
     1px 1px 2px black;
-
   pointer-events: none;
 }
