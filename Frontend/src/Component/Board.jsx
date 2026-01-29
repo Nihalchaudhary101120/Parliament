@@ -13,6 +13,29 @@ const Board = () => {
   const currentHP = 400;
   const maxHP = 1000;
   const hpPercent = (currentHP / maxHP) * 100;
+  // WALL HP VALUES
+  const wallHP = {
+    maria: 200,
+    rose: 250,
+    sina: 300
+  };
+
+  // simulate purchased walls (change later dynamically)
+  const purchasedWalls = ["maria", "rose" ];
+  // try: ["maria"], ["maria","rose"], ["maria","rose","sina"]
+
+  const maxShield = purchasedWalls.reduce(
+    (sum, wall) => sum + wallHP[wall],
+    0
+  );
+
+  // for now shield is full
+  const currentShield = maxShield;
+
+  const shieldPercent = maxShield
+    ? (currentShield / maxShield) * 100
+    : 0;
+
 
 
   for (let i = 0; i < size; i++) border.push({ r: 0, c: i });
@@ -81,7 +104,16 @@ const Board = () => {
 
 
 
-                    <div className="shield">shield 650 / 1000</div>
+                    <div className="shield-bar">
+                      <div
+                        className="shield-fill"
+                        style={{ width: `${shieldPercent}%` }}
+                      />
+                      <span className="shield-text">
+                        {currentShield} / {maxShield}
+                      </span>
+                    </div>
+
                   </div>
                 </div>
               ))}
