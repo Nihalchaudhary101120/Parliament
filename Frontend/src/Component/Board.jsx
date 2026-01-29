@@ -9,8 +9,105 @@ import emergency from "../assets/emergency.png";
 import dice from "../assets/dice.png";
 import diceAudio from "../assets/diceAudio.mp3";
 import whitePawn from "../assets/whitePawn.png";
+import mineIcon from "../assets/icons/mine.png";
+import missileIcon from "../assets/icons/missile.png";
+import radiationIcon from "../assets/icons/radiation.png";
+import grenadeIcon from "../assets/icons/grenade.png";
+import hammerIcon from "../assets/icons/hammer.png";
+import mysteryIcon from "../assets/icons/mystery.png";
+import scientistIcon from "../assets/icons/scientist.png";
+import tankIcon from "../assets/icons/tank.png";
+import laserIcon from "../assets/icons/lasergun.png";
+import shockwaveIcon from "../assets/icons/shock.png";
+import agentIcon from "../assets/icons/agent.png";
+import engineerIcon from "../assets/icons/engineer.png";
+import startIcon from "../assets/icons/flag.png";
+import terroristIcon from "../assets/icons/terrorist.png";
+import airStrikeIcon from "../assets/icons/air.png";
+import nuclearAttackIcon from "../assets/icons/nuclear.png";
+import canonIcon from "../assets/icons/canon.png";
+import shotgunIcon from "../assets/icons/shotgun.png";
+import revolverIcon from "../assets/icons/revolver.png";
+import machineGunIcon from "../assets/icons/machinegun.png";
+import tsunamiIcon from "../assets/icons/tsunami.png";
+import timeBombIcon from "../assets/icons/time-bomb.png"; 
+import torpedoIcon from "../assets/icons/torpedo.png"; 
+import safeZoneIcon from "../assets/icons/safe-zone.png"; 
+import brahmosIcon from "../assets/icons/brahmos.png"; 
+
 
 const Board = () => {
+
+  const tileIcons = {
+    "terrorist-attack":terroristIcon,
+    "air-strike":airStrikeIcon,
+    "nuclear-attack":nuclearAttackIcon,
+    "mine": mineIcon,
+    "ballistic-missile": missileIcon,
+    "dragon-cannon": canonIcon,
+    "radiation-zone": radiationIcon,
+    "grenade": grenadeIcon,
+    "hammer": hammerIcon,
+    "mystery": mysteryIcon,
+    "scientist": scientistIcon,
+    "tank": tankIcon,
+    "laser": laserIcon,
+    "shock-wave": shockwaveIcon,
+    "agent": agentIcon,
+    "revolver": revolverIcon,
+    "engineer": engineerIcon,
+    "start": startIcon,
+    "double-barrel": shotgunIcon,
+    "tsunami": tsunamiIcon,
+    "machine-gun": machineGunIcon,
+    "time-bomb": timeBombIcon,
+    "torpedo": torpedoIcon,
+    "brahmos": brahmosIcon,
+    "safe-zone": safeZoneIcon,
+  };
+
+
+
+  const tileData = [
+    "Start",
+    "Mine",
+    "Mystery",
+    "Radiation Zone",
+    "Scientist",
+    "Dragon Cannon",
+    "Engineer",
+    "Ballistic Missile",
+    "Terrorist Attack",
+
+    "Agent",
+    "Tsunami",
+    "Mystery",
+    "Revolver",
+    "Engineer",
+    "Time Bomb",
+    "Air Strike",
+    "Safe Zone",
+
+    "Hammer",
+    "Double Barrel",
+    "Mystery",
+    "Scientist",
+    "Torpedo",
+    "Brahmos",
+    "Laser",
+    "Shock Wave",
+
+    "Nuclear Attack",
+    "Grenade",
+    "Engineer",
+    "Mystery",
+    "Machine Gun",
+    "Tank",
+    "Agent"
+  ];
+
+
+
   const [players, setPlayers] = useState([
     { id: 1, name: "Nihal", pos: 0, pawn: whitePawn },
     { id: 2, name: "Tanmay", pos: 0, pawn: whitePawn },
@@ -168,16 +265,23 @@ const Board = () => {
             {border.map((cell, i) => {
               const tilePlayers = players.filter(p => p.pos === i);
               const layout = tileLayouts[tilePlayers.length] || tileLayouts[6];
-
+              const key = tileData[i].toLowerCase().replace(/\s+/g, "-");
               return (
+
                 <div
                   key={i}
-                  className="border-cell"
+                  className={`border-cell weapon-tile ${tileData[i].toLowerCase().replace(/\s+/g, '-')}`}
                   style={{
                     gridRow: cell.r + 1,
                     gridColumn: cell.c + 1
                   }}
                 >
+                  {tileIcons[key] && (
+                    <img className="tile-icon" src={tileIcons[key]} alt={tileData[i]} />
+                  )}
+
+
+                  <div className="tile-label">{tileData[i]}</div>
                   {tilePlayers.map((player, idx) => {
                     const slot = layout[idx];
 
