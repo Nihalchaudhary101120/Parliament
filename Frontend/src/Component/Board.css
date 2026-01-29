@@ -85,20 +85,18 @@
   padding: 4px 12px;
   font-size: 12px;
   font-weight: 700;
-  z-index:10;
+  z-index: 10;
   letter-spacing: 0.6px;
   color: #7ffcff;
-  background: linear-gradient(
-    180deg,
-    rgba(0,255,255,0.25),
-    rgba(0,120,120,0.6)
-  );
+  background: linear-gradient(180deg,
+      rgba(0, 255, 255, 0.25),
+      rgba(0, 120, 120, 0.6));
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.4);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(6px);
   box-shadow:
-    0 0 10px rgba(0,255,255,0.8),
-    inset 0 0 6px rgba(255,255,255,0.3);
+    0 0 10px rgba(0, 255, 255, 0.8),
+    inset 0 0 6px rgba(255, 255, 255, 0.3);
   text-shadow:
     0 0 6px #00ffff,
     1px 1px 2px black;
@@ -108,15 +106,15 @@
 .name span {
   background: none;
   padding: 0;
-  z-index:1;
+  z-index: 1;
 }
 
 .player-cell.low .name {
   color: #ffd6d6;
   box-shadow:
     0 0 14px red,
-    0 0 30px rgba(255,0,0,0.8),
-    inset 0 0 6px rgba(255,0,0,0.6);
+    0 0 30px rgba(255, 0, 0, 0.8),
+    inset 0 0 6px rgba(255, 0, 0, 0.6);
   text-shadow:
     0 0 8px red,
     0 0 14px red,
@@ -125,8 +123,13 @@
 }
 
 @keyframes namePulse {
-  from { transform: translateX(-50%) scale(1); }
-  to { transform: translateX(-50%) scale(1.08); }
+  from {
+    transform: translateX(-50%) scale(1);
+  }
+
+  to {
+    transform: translateX(-50%) scale(1.08);
+  }
 }
 
 .player-cell:hover .name {
@@ -214,11 +217,25 @@
 }
 
 @keyframes diceRoll {
-  0% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(90deg) scale(1.1); }
-  50% { transform: rotate(180deg) scale(1); }
-  75% { transform: rotate(270deg) scale(1.1); }
-  100% { transform: rotate(360deg) scale(1); }
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  25% {
+    transform: rotate(90deg) scale(1.1);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1);
+  }
+
+  75% {
+    transform: rotate(270deg) scale(1.1);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
 }
 
 /* Dice display */
@@ -230,7 +247,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 
+  box-shadow:
     0 4px 8px rgba(0, 0, 0, 0.3),
     inset 0 2px 4px rgba(255, 255, 255, 0.5);
 }
@@ -244,10 +261,19 @@
 
 /* Pulse effect when rolling stops */
 @keyframes dicePulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
+
 .dice-container img {
   width: 90px;
 }
@@ -263,10 +289,10 @@
   background: linear-gradient(180deg, #300000, #800000);
   border-radius: 12px;
   overflow: hidden;
-  border: 2px solid rgba(255,255,255,0.25);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   box-shadow:
-    0 0 12px rgba(255,0,0,0.6),
-    inset 0 0 6px rgba(0,0,0,0.9);
+    0 0 12px rgba(255, 0, 0, 0.6),
+    inset 0 0 6px rgba(0, 0, 0, 0.9);
 }
 
 /* ===== LOST HP BASE ===== */
@@ -274,11 +300,9 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    #7a0000,
-    #ff1a1a
-  );
+  background: linear-gradient(180deg,
+      #7a0000,
+      #ff1a1a);
   opacity: 0.6;
 }
 
@@ -287,17 +311,15 @@
   position: relative;
   height: 100%;
   z-index: 2;
-  background: linear-gradient(
-    180deg,
-    #7dffb2,
-    #00ff66,
-    #00b84d
-  );
+  background: linear-gradient(180deg,
+      #7dffb2,
+      #00ff66,
+      #00b84d);
   box-shadow:
-    0 0 14px rgba(0,255,120,1),
-    inset 0 0 6px rgba(255,255,255,0.6);
+    0 0 14px rgba(0, 255, 120, 1),
+    inset 0 0 6px rgba(255, 255, 255, 0.6);
   border-radius: 10px;
-  transition: width 0.45s cubic-bezier(.25,.9,.35,1);
+  transition: width 0.45s cubic-bezier(.25, .9, .35, 1);
 }
 
 /* ===== GLASS SHINE ===== */
@@ -308,11 +330,9 @@
   left: 0;
   width: 100%;
   height: 45%;
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.6),
-    transparent
-  );
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.6),
+      transparent);
   pointer-events: none;
 }
 
@@ -327,13 +347,14 @@
     box-shadow:
       0 0 8px rgba(255, 0, 0, 0.903),
       0 0 18px rgba(255, 0, 0, 0.605),
-      inset 0 0 6px rgba(0,0,0,0.9);
+      inset 0 0 6px rgba(0, 0, 0, 0.9);
   }
+
   100% {
     box-shadow:
-      0 0 16px rgba(255,60,60,1),
-      0 0 30px rgba(255,0,0,0.9),
-      inset 0 0 6px rgba(0,0,0,0.9);
+      0 0 16px rgba(255, 60, 60, 1),
+      0 0 30px rgba(255, 0, 0, 0.9),
+      inset 0 0 6px rgba(0, 0, 0, 0.9);
   }
 }
 
@@ -350,7 +371,7 @@
   color: #e6fff5;
   text-shadow:
     0 0 4px #00ff88,
-    0 0 10px rgba(0,255,120,0.8),
+    0 0 10px rgba(0, 255, 120, 0.8),
     1px 1px 2px black;
   pointer-events: none;
   z-index: 3;
@@ -375,24 +396,22 @@
   background: linear-gradient(180deg, #001a33, #003366);
   border-radius: 10px;
   overflow: hidden;
-  border: 1.5px solid rgba(150,200,255,0.6);
+  border: 1.5px solid rgba(150, 200, 255, 0.6);
   box-shadow:
-    0 0 12px rgba(0,120,255,0.7),
-    inset 0 0 6px rgba(0,0,0,0.9);
+    0 0 12px rgba(0, 120, 255, 0.7),
+    inset 0 0 6px rgba(0, 0, 0, 0.9);
 }
 
 /* Blue shield fill */
 .shield-fill {
   height: 100%;
-  background: linear-gradient(
-    180deg,
-    #8fd3ff,
-    #1ea0ff,
-    #0066ff
-  );
+  background: linear-gradient(180deg,
+      #8fd3ff,
+      #1ea0ff,
+      #0066ff);
   box-shadow:
-    0 0 12px rgba(0,150,255,1),
-    inset 0 0 6px rgba(255,255,255,0.6);
+    0 0 12px rgba(0, 150, 255, 1),
+    inset 0 0 6px rgba(255, 255, 255, 0.6);
   border-radius: 10px;
   transition: width 0.4s ease;
 }
@@ -411,4 +430,92 @@
     0 0 6px #4db8ff,
     1px 1px 2px black;
   pointer-events: none;
+}
+
+
+/* for player movement */
+/* ===== BOARD BORDER TILE ===== */
+.border-cell {
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.15),
+      rgba(0, 0, 0, 0.4));
+  border-radius: 14px;
+  border: 2px solid rgba(255, 215, 0, 0.55);
+  /* GOLD outline  */
+  box-shadow:
+    inset 0 0 8px rgba(255, 255, 255, 0.2),
+    0 6px 14px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.25s ease;
+  overflow: visible;
+}
+
+/* subtle path indicator */
+.border-cell::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 10px;
+  border: 1px dashed rgba(0, 255, 255, 0.25);
+  pointer-events: none;
+}
+
+.border-cell:has(.player-token:nth-child(2)) {
+  border-color: cyan;
+  box-shadow: 0 0 18px cyan;
+}
+
+
+.center-area {
+  background: rgba(0, 0, 0, 0.23);
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.8);
+}
+
+.player-token {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease;
+  filter:
+    drop-shadow(0 6px 8px rgba(0, 0, 0, 0.7));
+}
+
+.player-3d::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 18px;
+  border: 2px solid rgba(0, 255, 255, 0.9);
+  box-shadow:
+    0 0 18px rgba(0, 255, 255, 0.9);
+}
+
+/* active tile */
+.player-3d {
+  transform: scale(1.18) translateY(-10px);
+  z-index: 50;
+  box-shadow:
+    0 20px 35px rgba(0, 0, 0, 0.9),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes stepPop {
+  0% {
+    transform: scale(0.8);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
