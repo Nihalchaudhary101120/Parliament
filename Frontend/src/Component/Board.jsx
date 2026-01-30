@@ -97,13 +97,13 @@ const Board = () => {
     "Laser",
     "Shock Wave",
 
-    "Nuclear Attack",
-    "Grenade",
-    "Engineer",
-    "Mystery",
-    "Machine Gun",
+    "Agent",
     "Tank",
-    "Agent"
+    "Machine Gun",
+    "Mystery",
+    "Engineer",
+    "Grenade",
+    "Nuclear Attack"
   ];
 
 
