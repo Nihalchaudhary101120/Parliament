@@ -35,6 +35,7 @@ import timeBombIcon from "../assets/icons/time-bomb.png";
 import torpedoIcon from "../assets/icons/torpedo.png"; 
 import safeZoneIcon from "../assets/icons/safe-zone.png"; 
 import brahmosIcon from "../assets/icons/brahmos.png"; 
+import airStrike from "../assets/weapons/airStrike.png";
 
 
 const Board = () => {
