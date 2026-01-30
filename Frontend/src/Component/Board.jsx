@@ -1,12 +1,12 @@
 import React from 'react'
 import './Board.css'
+import './chatSystem.css';
 import { useState, useEffect, useRef } from 'react'
 import logo from "../assets/parliamentlogo.png";
 import wallMaria from "../assets/wallMaria.png";
 import wallSena from "../assets/wallSena.png";
 import wallRose from "../assets/wallRose.png";
 import emergency from "../assets/emergency.png";
-import dice from "../assets/dice.png";
 import diceAudio from "../assets/diceAudio.mp3";
 import whitePawn from "../assets/whitePawn.png";
 import mineIcon from "../assets/icons/mine.png";
@@ -128,12 +128,40 @@ const Board = () => {
   const maxShield = 1000;
   const shieldPercent = (currentShield / maxShield) * 100;
 
+  const [messages, setMessages] = useState([
+    { id: 1, sender: 'System', content: 'Welcome to Parliament Game!', time: '14:30', type: 'system' },
+    { id: 2, sender: 'Nihal', content: 'Ready to play!', time: '14:31', type: 'user' },
+    { id: 3, sender: 'tanmay jhatu', content: 'Let\'s start the battle!', time: '14:32', type: 'user' },
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+  const messagesEndRef = useRef(null);
+
+  // Scroll to bottom when new message arrives
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const border = [];
+
+  // Bottom row (right → left)
+  for (let i = size - 1; i >= 0; i--) border.push({ r: size - 1, c: i });
+  // Left column (bottom → top)
+  for (let i = size - 2; i >= 0; i--) border.push({ r: i, c: 0 });
+  // Top row (left → right)
+  for (let i = 1; i < size; i++) border.push({ r: 0, c: i });
+  // Right column (top → bottom)
+  for (let i = 1; i < size - 1; i++) border.push({ r: i, c: size - 1 });
+
   const [diceValue, setDiceValue] = useState(1);
   const [isRolling, setIsRolling] = useState(false);
   const audioRef = useRef(null);
+  const stepAudio = useRef(null);
+
   useEffect(() => {
     audioRef.current = new Audio(diceAudio);
-    audioRef.current.volume = 1.0; // Adjust volume (0.0 to 1.0)
+    audioRef.current.volume = 1.0;
+    stepAudio.current = new Audio(pawnMoveSound);
+    stepAudio.current.volume = 0.4;
   }, []);
 
   const tileLayouts = {
@@ -170,16 +198,40 @@ const Board = () => {
     ],
   };
 
-  const border = [];
+  // Add message helper function
+  const addMessage = (sender, content, type = 'user') => {
+    const newMessage = {
+      id: messages.length + 1,
+      sender,
+      content,
+      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      type
+    };
+    setMessages(prev => [...prev, newMessage]);
+  };
 
-  // Bottom row (right → left)
-  for (let i = size - 1; i >= 0; i--) border.push({ r: size - 1, c: i });
-  // Left column (bottom → top)
-  for (let i = size - 2; i >= 0; i--) border.push({ r: i, c: 0 });
-  // Top row (left → right)
-  for (let i = 1; i < size; i++) border.push({ r: 0, c: i });
-  // Right column (top → bottom)
-  for (let i = 1; i < size - 1; i++) border.push({ r: i, c: size - 1 });
+  // Handle send message
+  const handleSendMessage = () => {
+    if (inputMessage.trim() === '') return;
+    
+    const newMessage = {
+      id: messages.length + 1,
+      sender: 'You',
+      content: inputMessage,
+      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      type: 'user'
+    };
+    
+    setMessages([...messages, newMessage]);
+    setInputMessage('');
+  };
+
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  };
 
   const rollDice = () => {
     if (isRolling) return;
@@ -195,7 +247,7 @@ const Board = () => {
       setDiceValue(Math.floor(Math.random() * 6) + 1);
       rollCount++;
 
-      if (rollCount >= 15) { // Roll animation for 15 times
+      if (rollCount >= 15) {
         clearInterval(rollInterval);
         const finalValue = Math.floor(Math.random() * 6) + 1;
         setDiceValue(finalValue);
@@ -206,33 +258,17 @@ const Board = () => {
         }, 300);
 
         console.log(`Dice rolled: ${finalValue}`);
+        addMessage('System', `${players[currentTurn].name} rolled: ${finalValue}`, 'system');
       }
-    }, 35);  // Change dice value every 35ms
+    }, 35);
   }
-
-
-  const stepAudio = useRef(null);
-
-  useEffect(() => {
-    stepAudio.current = new Audio(pawnMoveSound); // add small tick sound
-    stepAudio.current.volume = 0.4;
-  }, []);
-
-  const playersOnTile = {};
-
-  players.forEach(player => {
-    if (!playersOnTile[player.pos]) {
-      playersOnTile[player.pos] = [];
-    }
-    playersOnTile[player.pos].push(player);
-  });
 
   const movePlayer = (steps) => {
     let step = 0;
 
     const interval = setInterval(() => {
       if (stepAudio.current) {
-        stepAudio.current.currentTime = 0; // reset so it can replay
+        stepAudio.current.currentTime = 0;
         stepAudio.current.playbackRate = 0.95 + Math.random() * 0.1;
         stepAudio.current.play().catch(() => { });
       }
@@ -247,6 +283,9 @@ const Board = () => {
       step++;
       if (step >= steps) {
         clearInterval(interval);
+        const newPos = (players[currentTurn].pos + steps) % border.length;
+        const landedTile = tileData[newPos];
+        addMessage('System', `${players[currentTurn].name} landed on ${landedTile}`, 'system');
         setCurrentTurn((prev) => (prev + 1) % players.length);
       }
     }, 320);
@@ -255,6 +294,44 @@ const Board = () => {
 
   return (
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
+
+      <div className="chat-container">
+        <div className="chat-header">
+          <div className="chat-title">GAME CHAT</div>
+          <div className="chat-status">
+            <span className="status-dot"></span>
+            <span>6 Players</span>
+          </div>
+        </div>
+        <div className="chat-messages">
+          {messages.map((message) => (
+            <div key={message.id} className={`message ${message.type}`}>
+              <div className="message-sender">{message.sender}</div>
+              <div className="message-content">{message.content}</div>
+              <div className="message-time">{message.time}</div>
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+        
+        <div className="chat-input-area">
+          <input
+            type="text"
+            className="chat-input"
+            placeholder="Type your message..."
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+          />
+          <button 
+            className="chat-send-btn"
+            onClick={handleSendMessage}
+            disabled={inputMessage.trim() === ''}
+          >
+            Send
+          </button>
+        </div>
+      </div>
 
       {/* Board - Centered */}
       <div className="board-wrapper">
@@ -285,7 +362,6 @@ const Board = () => {
                     <img className="tile-icon" src={tileIcons[key]} alt={tileData[i]} />
                   )}
 
-
                   <div className="tile-label">{tileData[i]}</div>
                   {tilePlayers.map((player, idx) => {
                     const slot = layout[idx];
@@ -307,8 +383,6 @@ const Board = () => {
                 </div>
               );
             })}
-
-
 
             {/* Center Area */}
             <div
@@ -356,17 +430,13 @@ const Board = () => {
           className={`dice-container ${isRolling ? "rolling" : "pop"}`}
           onClick={rollDice}
         >
-
-
           <div className="dice-display">
             <div className={`dice-face face-${diceValue}`}>
               {[...Array(9)].map((_, i) => (
                 <span key={i} className="pip" />
               ))}
             </div>
-
           </div>
-          {/* <img src={dice} alt="dice" /> */}
         </div>
       </div>
     </div>

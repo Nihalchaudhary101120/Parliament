@@ -143,7 +143,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
+  
 /* Right container - positioned on right side */
 .right-container {
   position: absolute;
@@ -154,6 +154,7 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  
 }
 
 /* Right side 2x2 grid */
