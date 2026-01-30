@@ -40,7 +40,9 @@ import torpedoIcon from "../assets/icons/torpedo.png";
 import safeZoneIcon from "../assets/icons/safe-zone.png";
 import brahmosIcon from "../assets/icons/brahmos.png";
 import pawnMoveSound from "../assets/pawn.mp3";
-
+import { useCardModal } from '../context/CardModalContext'
+import { cardMap } from "../context/CardModalContext";
+import  CardModal from "../Component/CardModal"
 
 const Board = () => {
 
@@ -111,6 +113,7 @@ const Board = () => {
     "Nuclear Attack"
   ];
 
+  const { openCard } = useCardModal();
 
 
   const [players, setPlayers] = useState([
@@ -218,7 +221,7 @@ const Board = () => {
   // Handle send message
   const handleSendMessage = () => {
     if (inputMessage.trim() === '') return;
-    
+
     const newMessage = {
       id: messages.length + 1,
       sender: 'You',
@@ -226,7 +229,7 @@ const Board = () => {
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
       type: 'user'
     };
-    
+
     setMessages([...messages, newMessage]);
     setInputMessage('');
   };
@@ -298,7 +301,9 @@ const Board = () => {
 
 
   return (
+  
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
+             <CardModal />
 
       <div className="chat-container">
         <div className="chat-header">
@@ -318,7 +323,7 @@ const Board = () => {
           ))}
           <div ref={messagesEndRef} />
         </div>
-        
+
         <div className="chat-input-area">
           <input
             type="text"
@@ -328,7 +333,7 @@ const Board = () => {
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
           />
-          <button 
+          <button
             className="chat-send-btn"
             onClick={handleSendMessage}
             disabled={inputMessage.trim() === ''}
@@ -362,6 +367,9 @@ const Board = () => {
                     gridRow: cell.r + 1,
                     gridColumn: cell.c + 1
                   }}
+                  onClick={() => openCard(cardMap[key])}
+
+
                 >
                   {tileIcons[key] && (
                     <img className="tile-icon" src={tileIcons[key]} alt={tileData[i]} />

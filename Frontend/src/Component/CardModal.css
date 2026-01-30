@@ -1,0 +1,52 @@
+.card-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+}
+
+.card-modal {
+  width: 320px;
+  background: radial-gradient(circle at top, #0ff3, #000);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 0 40px cyan;
+  text-align: center;
+  animation: pop .3s ease;
+}
+
+.card-modal img {
+  width: 100%;
+  border-radius: 16px;
+  margin-bottom: 10px;
+}
+
+.card-modal h2 {
+  color: cyan;
+  margin: 10px 0;
+}
+
+.card-modal p {
+  color: #ddd;
+}
+
+@keyframes pop {
+  from { transform: scale(.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.card-image {
+  width: 320px;
+  animation: cardPop .3s ease;
+  filter: drop-shadow(0 0 35px cyan);
+  cursor: pointer;
+}
+
+@keyframes cardPop {
+  from { transform: scale(.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
