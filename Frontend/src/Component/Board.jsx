@@ -7,7 +7,6 @@ import wallSena from "../assets/wallSena.png";
 import wallRose from "../assets/wallRose.png";
 import emergency from "../assets/emergency.png";
 import dice from "../assets/dice.png";
-import ludoPieceAudio from "../assets/ludo_piece_move.mp3";
 import diceAudio from "../assets/diceAudio.mp3";
 import whitePawn from "../assets/whitePawn.png";
 import mineIcon from "../assets/icons/mine.png";
@@ -31,18 +30,19 @@ import shotgunIcon from "../assets/icons/shotgun.png";
 import revolverIcon from "../assets/icons/revolver.png";
 import machineGunIcon from "../assets/icons/machinegun.png";
 import tsunamiIcon from "../assets/icons/tsunami.png";
-import timeBombIcon from "../assets/icons/time-bomb.png"; 
-import torpedoIcon from "../assets/icons/torpedo.png"; 
-import safeZoneIcon from "../assets/icons/safe-zone.png"; 
-import brahmosIcon from "../assets/icons/brahmos.png"; 
+import timeBombIcon from "../assets/icons/time-bomb.png";
+import torpedoIcon from "../assets/icons/torpedo.png";
+import safeZoneIcon from "../assets/icons/safe-zone.png";
+import brahmosIcon from "../assets/icons/brahmos.png";
+import pawnMoveSound from "../assets/pawn.mp3";
 
 
 const Board = () => {
 
   const tileIcons = {
-    "terrorist-attack":terroristIcon,
-    "air-strike":airStrikeIcon,
-    "nuclear-attack":nuclearAttackIcon,
+    "terrorist-attack": terroristIcon,
+    "air-strike": airStrikeIcon,
+    "nuclear-attack": nuclearAttackIcon,
     "mine": mineIcon,
     "ballistic-missile": missileIcon,
     "dragon-cannon": canonIcon,
@@ -66,7 +66,6 @@ const Board = () => {
     "brahmos": brahmosIcon,
     "safe-zone": safeZoneIcon,
   };
-
 
 
   const tileData = [
@@ -215,7 +214,7 @@ const Board = () => {
   const stepAudio = useRef(null);
 
   useEffect(() => {
-    stepAudio.current = new Audio(ludoPieceAudio); // add small tick sound
+    stepAudio.current = new Audio(pawnMoveSound); // add small tick sound
     stepAudio.current.volume = 0.4;
   }, []);
 
@@ -232,6 +231,11 @@ const Board = () => {
     let step = 0;
 
     const interval = setInterval(() => {
+      if (stepAudio.current) {
+        stepAudio.current.currentTime = 0; // reset so it can replay
+        stepAudio.current.playbackRate = 0.95 + Math.random() * 0.1;
+        stepAudio.current.play().catch(() => { });
+      }
       setPlayers(prev =>
         prev.map((p, idx) =>
           idx === currentTurn
