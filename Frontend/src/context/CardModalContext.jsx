@@ -42,7 +42,7 @@ export const cardMap = {
   hammer: hammerCard,
   laser: laserCard,
   "machine-gun": machineGunCard,
-
+  "agent" :agentCard,
   mine: mineCard,
   mystery: mysteryCard,
 
