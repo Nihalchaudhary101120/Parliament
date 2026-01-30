@@ -352,12 +352,19 @@ const Board = () => {
             </div>
           ))}
         </div>
-        <div className={`dice-container ${isRolling ? "rolling" : ""}`}
+        <div
+          className={`dice-container ${isRolling ? "rolling" : "pop"}`}
           onClick={rollDice}
         >
 
+
           <div className="dice-display">
-            <span className="dice-number">{diceValue}</span>
+            <div className={`dice-face face-${diceValue}`}>
+              {[...Array(9)].map((_, i) => (
+                <span key={i} className="pip" />
+              ))}
+            </div>
+
           </div>
           {/* <img src={dice} alt="dice" /> */}
         </div>
