@@ -9,6 +9,11 @@ import emergency from "../assets/emergency.png";
 import dice from "../assets/dice.png";
 import diceAudio from "../assets/diceAudio.mp3";
 import whitePawn from "../assets/whitePawn.png";
+import blackPawn from "../assets/blackPawn.png";
+import yellowPawn from "../assets/yellowPawn.png";
+import redPawn from "../assets/redPawn.png";
+import greenPawn from "../assets/greenPawn.png";
+import bluePawn from "../assets/bluePawn.png";
 import mineIcon from "../assets/icons/mine.png";
 import missileIcon from "../assets/icons/missile.png";
 import radiationIcon from "../assets/icons/radiation.png";
@@ -110,11 +115,11 @@ const Board = () => {
 
   const [players, setPlayers] = useState([
     { id: 1, name: "Nihal", pos: 0, pawn: whitePawn },
-    { id: 2, name: "Tanmay", pos: 0, pawn: whitePawn },
-    { id: 3, name: "Dhanagar", pos: 0, pawn: whitePawn },
-    { id: 4, name: "Shlok", pos: 0, pawn: whitePawn },
-    { id: 5, name: "Gopesh", pos: 0, pawn: whitePawn },
-    { id: 6, name: "Saurav", pos: 0, pawn: whitePawn },
+    { id: 2, name: "Tanmay", pos: 0, pawn: blackPawn },
+    { id: 3, name: "Dhanagar", pos: 0, pawn: yellowPawn },
+    { id: 4, name: "Shlok", pos: 0, pawn: redPawn },
+    { id: 5, name: "Gopesh", pos: 0, pawn: greenPawn },
+    { id: 6, name: "Saurav", pos: 0, pawn: bluePawn },
   ]);
   const [currentTurn, setCurrentTurn] = useState(0);
 
@@ -319,7 +324,7 @@ const Board = () => {
               }}
             >
               <div className="center-grid">
-                {["Nihal", "tanmay jhatu", "dhanagar", "shlok bhatia", "gopesh", "saurav"].map((name, i) => (
+                {["Nihal", "tanmay singh", "dhanagar", "shlok bhatia", "gopesh", "saurav"].map((name, i) => (
                   <div key={i} className={`player-cell ${hpPercent <= 30 ? "low" : ""}`}>
                     <div className="image-parent">
                       <div className="name">
