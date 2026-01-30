@@ -1,10 +1,10 @@
 /* ===== CHAT SYSTEM ===== */
 .chat-container {
   position: absolute;
-  left: 25px;
+  left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  width: 280px;
+  width: 290px;
   height: 450px;
   display: flex;
   flex-direction: column;
@@ -22,7 +22,7 @@
 .chat-header {
   padding: 15px 20px;
   background: linear-gradient(180deg, rgba(0, 255, 255, 0.2), rgba(0, 200, 200, 0.1));
-  border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+  border-bottom: 5px solid rgba(0, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: space-between;

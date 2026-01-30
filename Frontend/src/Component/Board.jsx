@@ -131,7 +131,7 @@ const Board = () => {
   const [messages, setMessages] = useState([
     { id: 1, sender: 'System', content: 'Welcome to Parliament Game!', time: '14:30', type: 'system' },
     { id: 2, sender: 'Nihal', content: 'Ready to play!', time: '14:31', type: 'user' },
-    { id: 3, sender: 'tanmay jhatu', content: 'Let\'s start the battle!', time: '14:32', type: 'user' },
+    { id: 3, sender: 'tanmay', content: 'Let\'s start the battle!', time: '14:32', type: 'user' },
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const messagesEndRef = useRef(null);
@@ -393,7 +393,7 @@ const Board = () => {
               }}
             >
               <div className="center-grid">
-                {["Nihal", "tanmay jhatu", "dhanagar", "shlok bhatia", "gopesh", "saurav"].map((name, i) => (
+                {["Nihal", "tanmay ", "dhanagar", "shlok bhatia", "gopesh", "saurav"].map((name, i) => (
                   <div key={i} className={`player-cell ${hpPercent <= 30 ? "low" : ""}`}>
                     <div className="image-parent">
                       <div className="name">
