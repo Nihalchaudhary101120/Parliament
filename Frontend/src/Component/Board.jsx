@@ -7,6 +7,7 @@ import wallSena from "../assets/wallSena.png";
 import wallRose from "../assets/wallRose.png";
 import emergency from "../assets/emergency.png";
 import dice from "../assets/dice.png";
+import ludoPieceAudio from "../assets/ludo_piece_move.mp3";
 import diceAudio from "../assets/diceAudio.mp3";
 import whitePawn from "../assets/whitePawn.png";
 import mineIcon from "../assets/icons/mine.png";
@@ -207,14 +208,14 @@ const Board = () => {
 
         console.log(`Dice rolled: ${finalValue}`);
       }
-    }, 35);  // Change dice value every 100ms
+    }, 35);  // Change dice value every 35ms
   }
 
 
   const stepAudio = useRef(null);
 
   useEffect(() => {
-    stepAudio.current = new Audio("/step.mp3"); // add small tick sound
+    stepAudio.current = new Audio(ludoPieceAudio); // add small tick sound
     stepAudio.current.volume = 0.4;
   }, []);
 
