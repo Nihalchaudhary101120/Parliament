@@ -1,6 +1,7 @@
 import React from 'react'
 import './Board.css'
 import './chatSystem.css';
+import GameChat from './GameChat.jsx';
 import { useState, useEffect, useRef } from 'react'
 import logo from "../assets/parliamentlogo.png";
 import wallMaria from "../assets/wallMaria.png";
@@ -42,7 +43,7 @@ import brahmosIcon from "../assets/icons/brahmos.png";
 import pawnMoveSound from "../assets/pawn.mp3";
 import { useCardModal } from '../context/CardModalContext'
 import { cardMap } from "../context/CardModalContext";
-import  CardModal from "../Component/CardModal"
+import CardModal from "../Component/CardModal"
 
 const Board = () => {
 
@@ -125,6 +126,11 @@ const Board = () => {
     { id: 6, name: "Saurav", pos: 0, pawn: bluePawn },
   ]);
   const [currentTurn, setCurrentTurn] = useState(0);
+   const [messages, setMessages] = useState([
+          { id: 1, sender: 'System', content: 'Welcome to Parliament Game!', time: '14:30', type: 'system' },
+          { id: 2, sender: 'Nihal', content: 'Ready to play!', time: '14:31', type: 'user' },
+          { id: 3, sender: 'tanmay', content: 'Let\'s start the battle!', time: '14:32', type: 'user' },
+      ]);
 
   const size = 9;
   const currentHP = 400;
@@ -136,19 +142,9 @@ const Board = () => {
   const maxShield = 1000;
   const shieldPercent = (currentShield / maxShield) * 100;
 
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'System', content: 'Welcome to Parliament Game!', time: '14:30', type: 'system' },
-    { id: 2, sender: 'Nihal', content: 'Ready to play!', time: '14:31', type: 'user' },
-    { id: 3, sender: 'tanmay', content: 'Let\'s start the battle!', time: '14:32', type: 'user' },
-  ]);
-  const [inputMessage, setInputMessage] = useState('');
-  const messagesEndRef = useRef(null);
-
-  // Scroll to bottom when new message arrives
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
+  
+  
+  
   const border = [];
 
   // Bottom row (right → left)
@@ -218,28 +214,7 @@ const Board = () => {
     setMessages(prev => [...prev, newMessage]);
   };
 
-  // Handle send message
-  const handleSendMessage = () => {
-    if (inputMessage.trim() === '') return;
-
-    const newMessage = {
-      id: messages.length + 1,
-      sender: 'You',
-      content: inputMessage,
-      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-      type: 'user'
-    };
-
-    setMessages([...messages, newMessage]);
-    setInputMessage('');
-  };
-
-  // Handle Enter key press
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
-  };
+  
 
   const rollDice = () => {
     if (isRolling) return;
@@ -301,47 +276,11 @@ const Board = () => {
 
 
   return (
-  
+
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
-             <CardModal />
+      <CardModal />
 
-      <div className="chat-container">
-        <div className="chat-header">
-          <div className="chat-title">GAME CHAT</div>
-          <div className="chat-status">
-            <span className="status-dot"></span>
-            <span>6 Players</span>
-          </div>
-        </div>
-        <div className="chat-messages">
-          {messages.map((message) => (
-            <div key={message.id} className={`message ${message.type}`}>
-              <div className="message-sender">{message.sender}</div>
-              <div className="message-content">{message.content}</div>
-              <div className="message-time">{message.time}</div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="chat-input-area">
-          <input
-            type="text"
-            className="chat-input"
-            placeholder="Type your message..."
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-          />
-          <button
-            className="chat-send-btn"
-            onClick={handleSendMessage}
-            disabled={inputMessage.trim() === ''}
-          >
-            Send
-          </button>
-        </div>
-      </div>
+      <GameChat messages={messages} addMessage={addMessage}/>
 
       {/* Board - Centered */}
       <div className="board-wrapper">
