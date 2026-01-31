@@ -40,7 +40,7 @@
 }
 
 .card-image {
-  width: 320px;
+  width: 450px;
   animation: cardPop .3s ease;
   filter: drop-shadow(0 0 35px cyan);
   cursor: pointer;
