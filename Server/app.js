@@ -12,7 +12,7 @@ app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true
 }));
-app.use(session({
+ const sessionMiddleWare= session({
     secret: "beverage-campa",
     resave: false,
     saveUninitialized: true,
@@ -21,8 +21,9 @@ app.use(session({
         httpOnly: true,
         sameSite: 'lax'
     }
-}));
+});
+app.use( sessionMiddleWare );
 app.use('/auth', authRoute);
 
-const port = 3000;
-app.listen(port, () => console.log(`server running at port ${port}`));
+export{sessionMiddleWare , app } ;
+

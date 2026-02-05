@@ -15,7 +15,7 @@ export const createGuest = async (req, res) => {
                 return res.status(500).json({ message: "Error starting session" });
             }
 
-            req.session.userId = user._id;
+            req.session.user = {id:user._id , name: user.username};
             console.log("session: ", req.session);
             console.log("sessionID: ", req.sessionID);
             
@@ -23,7 +23,7 @@ export const createGuest = async (req, res) => {
         
 
         res.status(200).json({
-            sessionToken:req.session.userId,
+            sessionToken:req.session.user.id,
             username,
             isGuest: true,
             success: true

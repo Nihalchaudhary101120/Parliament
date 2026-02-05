@@ -2,6 +2,8 @@ import React from 'react';
 import './chatSystem.css';
 import { useState, useEffect, useRef } from 'react';
 
+
+
 export default function GameChat ({ messages, addMessage })  {
 
     const [inputMessage, setInputMessage] = useState('');
