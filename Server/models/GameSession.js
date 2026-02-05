@@ -27,12 +27,20 @@ const GameSchema = new mongoose.Schema({
             isActive: { type: Boolean, required: true }
         }
     ],
-    maxPlayer:{type:Number , required:true},
+    maxPlayer: { type: Number, required: true },
     gameCode: { type: String, required: true },
     currentTurn: {
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"user"
-    }, //userid string 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user"
+    },
+
+    turnNo: Number,
+    timebombPurchaseTurn: Number,
+    status: {
+        type: String,
+        enum: ["waiting", "active", "finished"],
+        default: "waiting"
+    }
 
 
 });

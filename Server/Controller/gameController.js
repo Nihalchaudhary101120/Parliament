@@ -1,46 +1,46 @@
 import Game from "../models/GameSession.js";
 
 export const createRoom = async (req, res) => {
-    try {
-        const userId = req.session.userId;
-        const { gameCode , maxPlayer } = req.query;
+  try {
+    const userId = req.session.userId;
+    const { gameCode, maxPlayer } = req.query;
 
-        if (!gameCode || !maxPlayer || 2>maxPlayer>6   ) return res.status(400).json({ message: `${res.message} gameCode not found or invalid maxPlayer`, success: false  ,});
+    if (!gameCode || !maxPlayer || maxPlayer < 2 || maxPlayer > 6) return res.status(400).json({ message: "gameCode not found or invalid maxPlayer", success: false, });
 
-        const game = await Game.create({
-            gameCode,
+    const game = await Game.create({
+      gameCode,
+      maxPlayer,
+      players: [
+        {
+          userId: userId,
+          cards: [],
+          isBot: false,
 
-            players: [
-                {
-                    userId: userId,
-                    cards: [],
-                    isBot: false,
+          remainingParliamentHp: 1000,
+          remainingShieldHp: 0,
 
-                    remainingParliamentHp: 1000,
-                    remainingShieldHp: 0,
+          cashRemaining: 1200,
+          position: 0,
 
-                    cashRemaining: 1200,   // starting money (adjust later)
-                    position: 0,          // start tile
+          skippedChances: 0,
+          isActive: true
+        }
+      ],
+      currentTurn: null,
+      status: "waiting"
 
-                    skippedChances: 0,
-                    isActive: true
-                }
-            ],
+    });
+    res.status(200).json({
+      success: true,
+      gameCode: game.gameCode,
+      gameId: game._id
+    })
 
-            currentTurn: userId,
+  }
 
-        });
-        res.status(200).json({
-            success: true,
-            gameCode: game.gameCode,
-            gameId: game._id
-        })
-
-    }
-
-    catch (err) {
-        res.json({message:"error creating game" ,error:err.message })
-    }
+  catch (err) {
+    res.json({ message: "error creating game", error: err.message })
+  }
 }
 
 
@@ -64,12 +64,10 @@ export const joinRoom = async (req, res) => {
       return res.json({ success: true, gameId: game._id });
     }
 
-    // limit players (2 for now)
-    if (game.players.length >= maxPlayer) {
+    if (game.players.length >= game.maxPlayer) {
       return res.status(400).json({ error: "Room is full" });
     }
 
-    // add second player
     game.players.push({
       userId,
       cards: [],
@@ -78,13 +76,18 @@ export const joinRoom = async (req, res) => {
       remainingParliamentHp: 1000,
       remainingShieldHp: 0,
 
-      cashRemaining: 500,
+      cashRemaining: 1200,
       position: 0,
 
       skippedChances: 0,
       isActive: true
     });
 
+    if (game.players.length == game.maxPlayer) {
+      game.status = "active";
+      game.turnNo = 1;
+      game.currentTurn = game.players[0].userId;
+    }
     await game.save();
 
     res.json({
@@ -97,3 +100,5 @@ export const joinRoom = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+

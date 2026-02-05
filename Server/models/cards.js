@@ -6,7 +6,8 @@ const cardsSchema = new mongoose.Schema({
     category: { type: String, required: true },
     weaponDamage: { type: Number }, // for weapons
     weaponCooldown: Number,
-    ShieldHp: Number
+    ShieldHp: Number,
+    isPurchasable: Boolean,
 });
 
 export default mongoose.model('cards', cardsSchema);
