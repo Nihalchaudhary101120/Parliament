@@ -1,5 +1,5 @@
 import Game from "../models/GameSession.js";
-
+import Card from "../models/cards.js"
 export const createRoom = async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -100,5 +100,59 @@ export const joinRoom = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const turn = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const { gameId, dice ,chanceSkipped } = req.query;
+
+    const game = await Game.findById(gameId);
+
+    if (!game || game.status !== "active") {
+      return res.status(400).json({ error: "Game not active" });
+    }
+
+    // turn validation
+    if (!game.currentTurn.equals(userId)) {
+      return res.status(403).json({ error: "Not your turn" });
+    }
+
+    const player = game.players.find(p =>
+      p.userId.equals(userId)
+    );
+    if(chanceSkipped){
+      (player.skippedChances)++;
+    }
+    
+    if (player.skippedChances == 4) {
+      player.isActive = false;
+    }
+
+    const currentIndex = game.players.findIndex(p =>
+      p.userId.equals(userId)
+    );
+
+    let nextIndex = (currentIndex + 1) % game.players.length;
+
+    // skip inactive players if later needed
+    while (!game.players[nextIndex].isActive) {
+      nextIndex = (nextIndex + 1) % game.players.length;
+    }
+
+    player.position = (player.position + dice) % 32;
+
+
+    await game.save();
+
+    res.json({
+      success: true,
+      newPosition: player.position
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 
