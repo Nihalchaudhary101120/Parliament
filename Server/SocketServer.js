@@ -1,6 +1,7 @@
 import http from 'http';
 import { Server } from 'socket.io';
 import { app, sessionMiddleWare } from "./app.js";
+import chatSocket from "./Socket/chatSocket.js"
 
 const server = http.createServer(app);
 
@@ -31,11 +32,14 @@ io.on("connection", (socket) => {
     socket.on("joinMatch", () => {
         console.log("Match request from:", user);
     });
+
+    console.log("Socket connected:", user.name);
+    chatSocket(io, socket);
 });
 
 const port = 3000;
 server.listen(port, () =>
-  console.log(`Server running at port ${port}`)
+    console.log(`Server running at port ${port}`)
 );
 
 
