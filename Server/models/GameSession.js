@@ -21,13 +21,18 @@ const GameSchema = new mongoose.Schema({
             remainingParliamentHp: { type: Number, default: 1000, required: true },
             remainingShieldHp: { type: Number },
             cashRemaining: { type: Number, required: true },
-            position: { type: String, required: true },
+            position: { type: Number, required: true },
             skippedChances: { type: Number, default: 0 },
+
             isActive: { type: Boolean, required: true }
         }
     ],
+    maxPlayer:{type:Number , required:true},
     gameCode: { type: String, required: true },
-    currentTurn: String, //userid string 
+    currentTurn: {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"user"
+    }, //userid string 
 
 
 });
