@@ -7,6 +7,7 @@ const cardsSchema = new mongoose.Schema({
     weaponDamage: { type: Number }, // for weapons
     weaponCooldown: Number,
     ShieldHp: Number,
+    position: { type: Number },
     isPurchasable: Boolean,
 });
 

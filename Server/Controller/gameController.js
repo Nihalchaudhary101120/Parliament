@@ -55,7 +55,6 @@ export const joinRoom = async (req, res) => {
       return res.status(404).json({ error: "Room not found" });
     }
 
-    // prevent same user joining twice
     const alreadyJoined = game.players.some(p =>
       p.userId.equals(userId)
     );
@@ -101,29 +100,89 @@ export const joinRoom = async (req, res) => {
   }
 };
 
+const getMysteryCard = () => {
+  const getRand = () => Math.floor((Math.random() * 10) + 4);
+  const MysteryBox = [
+    {
+      amount: +150,
+      statement: "Foreign investment deal approaved",
+    },
+    {
+      amount: +100,
+      statement: "Tax from citizens"
+    },
+    {
+      amount: +110,
+      statement: "Black Money Raid"
+    },
+    {
+      amount: +130,
+      statement: "Received emergency funding from supporters"
+    },
+    {
+      amount: +101,
+      statement: "Public rally success donation"
+    },
+    {
+      amount: -100,
+      statement: "Curruption investigation fine"
+    },
+    {
+      amount: -90,
+      statement: "Emergency defence spending"
+    },
+    {
+      amount: -120,
+      statement: "Cyber attack repair cost"
+    },
+    {
+      amount: -50,
+      statement: "Printed War money"
+    },
+    {
+      amount: 100,
+      statement: "Bribe attempt works"
+    },
+    {
+      amount: -100,
+      statement: "Bribe attempt caught"
+    },
+    {
+      amount: -100,
+      statement: "Successful strike, looted enemy resources"
+    }, {
+      amount: -100,
+      statement: "Defence drone deployed"
+    }
+  ]
+  return MysteryBox[getRand];
+
+}
+
 export const turn = async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { gameId, dice ,chanceSkipped } = req.query;
+    const { gameId, dice, chanceSkipped } = req.query;
 
     const game = await Game.findById(gameId);
 
     if (!game || game.status !== "active") {
-      return res.status(400).json({ error: "Game not active" });
+      return res.status(400).json({ message: "Game not active" });
     }
 
     // turn validation
     if (!game.currentTurn.equals(userId)) {
-      return res.status(403).json({ error: "Not your turn" });
+      return res.status(403).json({ message: "Not your turn" });
     }
 
     const player = game.players.find(p =>
       p.userId.equals(userId)
     );
-    if(chanceSkipped){
+
+    if (chanceSkipped) {
       (player.skippedChances)++;
     }
-    
+
     if (player.skippedChances == 4) {
       player.isActive = false;
     }
@@ -134,17 +193,73 @@ export const turn = async (req, res) => {
 
     let nextIndex = (currentIndex + 1) % game.players.length;
 
-    // skip inactive players if later needed
     while (!game.players[nextIndex].isActive) {
       nextIndex = (nextIndex + 1) % game.players.length;
     }
 
     player.position = (player.position + dice) % 32;
 
+    const card = await Card.find({ position: player.position });
+    let purchased = false;
+
+    if (card.isPurchasable) {
+      for (p of game.players) {
+        for (c of p.cards) {
+          if (c.cardId === card._id) {
+            purchased = true;
+          }
+        }
+      }
+      if (purchased) { //damage to current player
+        player.remainingParliamentHp -= card.weaponDamage
+      } else { //buy or bid
+
+      }
+    }
+
+    let mysteryCase = {};
+    if (!card.isPurchasable) {
+      switch (card.category) {
+        case "public":
+          player.remainingParliamentHp -= card.weaponDamage;
+          break;
+
+        case "terror":
+          player.cashRemaining -= card.price;
+          break;
+
+        case "safe":
+          break;
+
+        case "mystry":
+          mysteryCase = getMysteryCard();
+          player.cashRemaining += mysteryCase.amount;
+          break;
+
+        case "agent":
+          // apply 
+          break;
+
+        case "scientist":
+          // applly
+          break;
+
+        case "engineer":
+          // apply
+          break;
+
+        default:
+          throw new Error("Unknown card category");
+      }
+
+    }
 
     await game.save();
 
+
+
     res.json({
+      mysteryCase,
       success: true,
       newPosition: player.position
     });
