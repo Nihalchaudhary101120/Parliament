@@ -3,31 +3,34 @@ import { createContext, useContext, useState } from "react";
 
 import agentCard from "../assets/weapons/agent.png";
 import airStrikeCard from "../assets/weapons/air-strike.png";
-import ballisticMissileCard from "../assets/weapons/ballistic-missile.png";
+import ballisticMissileCard from "../assets/weapons/ballistic-removedbg.png";
 import brahmosCard from "../assets/weapons/brahmos.png";
 import doubleBarrelCard from "../assets/weapons/double-barrel.png";
-import dragonCanonCard from "../assets/weapons/drogon-canon.png";
+import dragonCanonCard from "../assets/weapons/dragonCannon-removedbg.png";
 import emergencyMeetingCard from "../assets/weapons/emergency-meeting.png";
 import engineerCard from "../assets/weapons/engineer.png";
 import grenadeCard from "../assets/weapons/grenade.png";
-import hammerCard from "../assets/weapons/hammer.png";
+import hammerCard from "../assets/weapons/hammer-removedbg.png";
 import laserCard from "../assets/weapons/laser.png";
 import machineGunCard from "../assets/weapons/machine-gun.png";
-import mineCard from "../assets/weapons/mine.png";
-import mysteryCard from "../assets/weapons/mystery.png";
+import mineCard from "../assets/weapons/mine-removedbg.png";
+import mysteryCard from "../assets/weapons/mystery-removedbg.png";
 import nuclearWeaponCard from "../assets/weapons/nuclear-weapon.png";
-import radiationZoneCard from "../assets/weapons/radiation-zone.png";
+import radiationZoneCard from "../assets/weapons/radiation-removedbg.png";
 import revolverCard from "../assets/weapons/revolver.png";
 import scientistCard from "../assets/weapons/scientist.png";
 import shockWaveCard from "../assets/weapons/shock-wave.png";
 import tankCard from "../assets/weapons/tank.png";
 import terrorAttackCard from "../assets/weapons/terror-attack.png";
-import timeBombCard from "../assets/weapons/timebomb.png";
-import torpedoCard from "../assets/weapons/torpedo.png";
+import timeBombCard from "../assets/weapons/timeBomb.png";
+import torpedoCard from "../assets/weapons/torpedo-removedbg.png";
 import tsunamiCard from "../assets/weapons/tsunami.png";
+import safe from "../assets/weapons/safe.png";
+import startCard from "../assets/weapons/start.png";
 
 
 export const cardMap = {
+  "start": startCard,
   "double-barrel": doubleBarrelCard,
 
   "air-strike": airStrikeCard,
@@ -46,6 +49,8 @@ export const cardMap = {
   mine: mineCard,
   mystery: mysteryCard,
 
+  "safe-zone": safe,
+
   "nuclear-attack": nuclearWeaponCard,
   "radiation-zone": radiationZoneCard,
 
@@ -56,6 +61,7 @@ export const cardMap = {
   tank: tankCard,
   "terrorist-attack": terrorAttackCard,
   "time-bomb": timeBombCard,
+  
 
   torpedo: torpedoCard,
   tsunami: tsunamiCard,

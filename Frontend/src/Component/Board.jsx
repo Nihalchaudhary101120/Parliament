@@ -94,7 +94,7 @@ const Board = () => {
     "Engineer",
     "Time Bomb",
     "Air Strike",
-    "Safe Zone",
+    "safe-zone",
 
     "Hammer",
     "Double Barrel",
