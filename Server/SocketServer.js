@@ -21,16 +21,16 @@ io.on("connection", (socket) => {
     const user = socket.request.session.user;
 
 
-    if (!user) {
+    if (!user || !user.name) {
         console.log("Unauthenticated socket");
         socket.disconnect();
         return;
     }
-    console.log("User connected:", user);
+    console.log("User connected:", user.name);
 
 
     socket.on("joinMatch", () => {
-        console.log("Match request from:", user);
+        console.log("Match request from:", user.name);
     });
 
     console.log("Socket connected:", user.name);
