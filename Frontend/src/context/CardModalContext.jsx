@@ -12,7 +12,7 @@ import engineerCard from "../assets/weapons/engineer.png";
 import grenadeCard from "../assets/weapons/grenade.png";
 import hammerCard from "../assets/weapons/hammer-removedbg.png";
 import laserCard from "../assets/weapons/laser.png";
-import machineGunCard from "../assets/weapons/machine-gun.png";
+import machineGunCard from "../assets/weapons/machineGun.png";
 import mineCard from "../assets/weapons/mine-removedbg.png";
 import mysteryCard from "../assets/weapons/mystery-removedbg.png";
 import nuclearWeaponCard from "../assets/weapons/nuclear-weapon.png";
