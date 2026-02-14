@@ -20,8 +20,10 @@ export default function GameChatContainer() {
 
   const addMessage = (sender, content, type) => {
     socket.emit("sendMessage", {
+      sender,
       roomId,
-      message: content
+      message: content,
+      type,
     });
   };
 

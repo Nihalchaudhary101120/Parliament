@@ -1,3 +1,5 @@
+
+
 export default function chatSocket(io, socket) {
   const user = socket.request.session.user;
 
@@ -16,9 +18,9 @@ export default function chatSocket(io, socket) {
   socket.on("sendMessage", ({ roomId, message }) => {
     io.to(roomId).emit("receiveMessage", {
       id: Date.now(),
-      sender: user.name,
+      sender,
       content: message,
-      type: "user",
+      type,
       time: new Date().toLocaleTimeString()
     });
   });
