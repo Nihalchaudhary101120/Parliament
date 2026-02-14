@@ -3,6 +3,7 @@ import React from 'react';
 import DashBoard from './pages/Dashboard';
 import Board from './Component/Board';
 import { Routes, Route } from 'react-router-dom';
+import Lobby from "./Component/Lobby";
 
 function App() {
 
@@ -10,6 +11,7 @@ function App() {
     <>
        <Routes>
           <Route path="/" index element={<DashBoard />} />
+          <Route path="/lobby" element={<Lobby />} />
           <Route path="/parliamentGame" element={<Board />} />
         </Routes>
     </>

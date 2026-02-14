@@ -23,18 +23,18 @@ io.on("connection", (socket) => {
     const user = socket.request.session.user;
     console.log("User: ", user);
     
-    if (!user || !user.name) {
+    if (!user || !user.username) {
         console.log("Unauthenticated socket");
         socket.disconnect();
         return;
     }
-    console.log("User connected:", user.name);
+    console.log("User connected:", user.username);
 
     socket.on("joinMatch", () => {
-        console.log("Match request from:", user.name);
+        console.log("Match request from:", user.username);
     });
     
-    console.log("Socket connected:", user.name);
+    console.log("Socket connected:", user.username);
     chatSocket(io, socket);
 });
 

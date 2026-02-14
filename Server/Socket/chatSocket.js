@@ -9,7 +9,7 @@ export default function chatSocket(io, socket) {
     io.to(roomId).emit("receiveMessage", {
       id: Date.now(),
       sender: "System",
-      content: `${user.name} joined the chat`,
+      content: `${user.username} joined the chat`,
       type: "system",
       time: new Date().toLocaleTimeString()
     });
@@ -18,14 +18,14 @@ export default function chatSocket(io, socket) {
   socket.on("sendMessage", ({ roomId, message }) => {
     io.to(roomId).emit("receiveMessage", {
       id: Date.now(),
-      sender,
+      sender:user.username,
       content: message,
-      type,
+      type:"user",
       time: new Date().toLocaleTimeString()
     });
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected:", user.name);
+    console.log("User disconnected:", user.username);
   });
 }

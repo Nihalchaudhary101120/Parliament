@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import socket from "./socket";
 import GameChat from "./GameChat";
+import { getSocket } from "./socket";
+
+const socket = getSocket();
+
 
 export default function GameChatContainer() {
   const [messages, setMessages] = useState([]);
@@ -20,10 +23,10 @@ export default function GameChatContainer() {
 
   const addMessage = (sender, content, type) => {
     socket.emit("sendMessage", {
-      sender,
+      
       roomId,
       message: content,
-      type,
+      
     });
   };
 

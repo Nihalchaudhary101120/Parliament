@@ -1,7 +1,19 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3000", {
-  withCredentials: true
-});
+let socket = null;
 
-export default socket;
+// call this AFTER login/guest API success
+export function connectSocket() {
+  if (!socket) {
+    socket = io("http://localhost:3000", {
+      withCredentials: true,
+      autoConnect: true
+    });
+  }
+  return socket;
+}
+
+// use anywhere to get current socket instance
+export function getSocket() {
+  return socket;
+}
