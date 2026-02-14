@@ -1,13 +1,14 @@
 import User from "../models/user.js";
 import generateGuestUsername from "../utils/generateUsername.js";
-
+import crypto from "crypto";
 
 export const createGuest = async (req, res) => {
-    const username = generateGuestUsername();
+    const username =  generateGuestUsername();
     try {
         const user = await User.create({
             username,
             isGuest: true,
+            sessionToken: crypto.randomUUID() 
         });
         req.session.regenerate(err => {
             if (err) {
@@ -18,6 +19,7 @@ export const createGuest = async (req, res) => {
             req.session.user = { id: user._id, username: user.username };
             console.log("session: ", req.session);
             console.log("sessionID: ", req.sessionID);
+
 
             res.status(200).json({
                 sessionToken: req.session.user.id,

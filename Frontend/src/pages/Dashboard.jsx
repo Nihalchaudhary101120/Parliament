@@ -1,6 +1,6 @@
 import React from 'react';
 import "./Dashboard.css";
-import { useEffect } from 'react';
+import { useEffect,useState } from 'react';
 import accounting from "../assets/parliament.jpeg";
 import { connectSocket } from "../Component/socket.js";
 import { useNavigate } from "react-router-dom";
@@ -8,34 +8,63 @@ import { useNavigate } from "react-router-dom";
 
 const DashBoard = () => {
 
+    const [showFriendOption, setShowFriendOption] = useState(false);
+
+
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const checkSession = async () => {
-            const res = await fetch("http://localhost:3000/auth/me", {
-                credentials: "include"
-            });
-
-            if (res.status === 200) {
-                // session already exists
-                connectSocket();
-            } else {
-                // create guest session
-                await fetch("http://localhost:3000/auth/guest", {
-                    credentials: "include"
-                });
-                connectSocket();
-            }
-        };
-
-        checkSession();
-    }, []);
-
-    const handleOnlineMultiplayer =  () => {
-        
-        // 3. go to lobby
-        navigate("/lobby");
+    // generate random room code
+    const generateRoomCode = () => {
+        return Math.random().toString(36).substring(2, 8).toUpperCase();
     };
+
+    // CREATE ROOM
+    const handleCreateRoom = () => {
+        const socket = connectSocket();
+        const roomCode = generateRoomCode();
+
+        socket.once("connect", () => {
+            socket.emit("createRoom", { roomCode });
+            navigate(`/lobby?room=${roomCode}`);
+        });
+    };
+
+
+    // JOIN ROOM (user will later enter code)
+    const handleJoinRoom = () => {
+        const socket = connectSocket();
+
+        socket.once("connect", () => {
+            navigate("/join-room"); // page where user types room code
+        });
+    };
+
+    // useEffect(() => {
+    //     const checkSession = async () => {
+    //         const res = await fetch("http://localhost:3000/auth/me", {
+    //             credentials: "include"
+    //         });
+
+    //         if (res.status === 200) {
+    //             // session already exists
+    //             connectSocket();
+    //         } else {
+    //             // create guest session
+    //             await fetch("http://localhost:3000/auth/guest", {
+    //                 credentials: "include"
+    //             });
+    //             connectSocket();
+    //         }
+    //     };
+
+    //     checkSession();
+    // }, []);
+
+    // const handleOnlineMultiplayer =  () => {
+
+    //     // 3. go to lobby
+    //     navigate("/lobby");
+    // };
     return (
 
         <div className='hero'>
@@ -53,9 +82,17 @@ const DashBoard = () => {
                 <h2 className="panel-title ">GAME MODE</h2>
 
                 <button className="glass-btn sharp-btn">🎮 Player VS Computer</button>
-                <button className="glass-btn sharp-btn" onClick={handleOnlineMultiplayer}>🌐 Online Multiplayer</button>
-                <button className="glass-btn sharp-btn">👥 Play with Friends</button>
+                <button className="glass-btn sharp-btn">🌐 Online Multiplayer</button>
+                <button className="glass-btn sharp-btn" onClick={() => setShowFriendOption(true)}>👥 Play with Friends</button>
             </div>
+
+            {showFriendOption && (
+                <div className="friend-options">
+                     <button onClick={() => setShowFriendOption(false)}>X</button>
+                    <button onClick={handleCreateRoom}>Create Room</button>
+                    <button onClick={handleJoinRoom}>Join Room</button>
+                </div>
+            )}
 
             <div className="bottom-bar">
                 <button className="nav-btn">⚙️<span>Settings</span></button>
