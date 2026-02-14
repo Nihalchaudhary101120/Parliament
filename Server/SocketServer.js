@@ -19,7 +19,7 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
     const user = socket.request.session.user;
-
+    
 
     if (!user) {
         console.log("Unauthenticated socket");
