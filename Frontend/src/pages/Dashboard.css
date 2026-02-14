@@ -248,3 +248,109 @@
   color: white;
   font-size: 16px;
 }
+
+.top-user {
+   position: absolute;
+   top: 20px;
+   right: 30px;
+   font-weight: bold;
+   font-size: 18px;
+   color: white;
+}
+
+/* ===== Modal Overlay ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+/* ===== Modal Box ===== */
+.modal-box {
+    width: 350px;
+    padding: 30px;
+    border-radius: 16px;
+    background: rgba(20, 20, 40, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    animation: popIn 0.2s ease-in-out;
+}
+
+.modal-box h3 {
+    margin: 0;
+    font-size: 20px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.modal-box label {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.modal-box select {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+}
+
+.modal-box select option {
+    background: #1e1e2f;
+}
+
+/* ===== Buttons ===== */
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 8px 0;
+    margin: 0 5px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s ease;
+}
+
+.modal-actions button:first-child {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.modal-actions button:last-child {
+    background: linear-gradient(90deg, #5f2cff, #9b3dff);
+    color: white;
+}
+
+.modal-actions button:hover {
+    transform: scale(1.05);
+}
+
+/* ===== Animation ===== */
+@keyframes popIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

@@ -1,18 +1,19 @@
 import Game from "../models/GameSession.js";
-import Card from "../models/cards.js"
+import Card from "../models/cards.js";
+
 export const createRoom = async (req, res) => {
   try {
-    const userId = req.session.userId;
-    const { gameCode, maxPlayer } = req.query;
+    const user = req.session.user;
+    const { gameCode, maxPlayer } = req.body;
 
-    if (!gameCode || !maxPlayer || maxPlayer < 2 || maxPlayer > 6) return res.status(400).json({ message: "gameCode not found or invalid maxPlayer", success: false, });
+    if (!gameCode || !maxPlayer || maxPlayer < 2 || maxPlayer > 6) return res.status(400).json({ message: "gameCode not found or invalid maxPlayer", success: false });
 
     const game = await Game.create({
       gameCode,
       maxPlayer,
       players: [
         {
-          userId: userId,
+          userId: user.id,
           cards: [],
           isBot: false,
 
@@ -39,7 +40,8 @@ export const createRoom = async (req, res) => {
   }
 
   catch (err) {
-    res.json({ message: "error creating game", error: err.message })
+    console.log({ message: "error creating game", err });
+    res.json({ message: "error creating game", error: err.message });
   }
 }
 
@@ -47,7 +49,8 @@ export const createRoom = async (req, res) => {
 export const joinRoom = async (req, res) => {
   try {
     const { gameCode } = req.query;
-    const userId = req.session.userId;
+    const user = req.session.user;
+    const userId = user.id;
 
     const game = await Game.findOne({ gameCode });
 
@@ -268,6 +271,3 @@ export const turn = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-
-

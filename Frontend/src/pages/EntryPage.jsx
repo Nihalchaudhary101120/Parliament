@@ -2,38 +2,12 @@ import { useNavigate } from "react-router-dom";
 import "./EntryPage.css";
 import React, { useState, useEffect } from "react";
 import api from "../api/api.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function EntryPage() {
-    const navigate = useNavigate();
+    const { handleGuest} = useAuth();
 
-
-    useEffect(() => {
-        const checkSession = async () => {
-            try {
-                const res = await api.get("/auth/me");
-
-                if (res.data.success) {
-                    navigate("/dashboard");   // auto redirect
-                }
-            } catch (err) {
-                console.log("error in authme",err);
-                // not logged in → stay here
-            }
-        };
-
-        checkSession();
-    }, []);
-
-    const handleGuest = async () => {
-        try {
-            const res = await api.get("/auth/guest");
-            console.log("Guest created:", res.data);
-
-            navigate("/dashboard");
-        } catch (err) {
-            console.log("Guest login failed", err);
-        }
-    };
+    
     return (
         <>
             <div className="entry-container">

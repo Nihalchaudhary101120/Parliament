@@ -4,6 +4,8 @@ import connectDB from "./config/db.js";
 import cors from "cors";
 import authRoute from "./route/authRoute.js";
 import session from "express-session";
+import gameRoute from "./route/gameRoute.js";
+
 connectDB();
 const app = express();
 app.use(express.json());
@@ -12,7 +14,7 @@ app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true
 }));
- const sessionMiddleWare= session({
+const sessionMiddleWare = session({
     secret: "beverage-campa",
     resave: false,
     saveUninitialized: true,
@@ -22,9 +24,9 @@ app.use(cors({
         sameSite: 'lax'
     }
 });
-app.use( sessionMiddleWare );
+app.use(sessionMiddleWare);
 app.use('/auth', authRoute);
+app.use('/friends', gameRoute);
 
-
-export{sessionMiddleWare , app } ;
+export { sessionMiddleWare, app };
 

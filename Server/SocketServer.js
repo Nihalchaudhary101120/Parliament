@@ -2,7 +2,6 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { app, sessionMiddleWare } from "./app.js";
 import chatSocket from "./Socket/chatSocket.js"
-import { log } from 'console';
 
 const server = http.createServer(app);
 
