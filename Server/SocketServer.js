@@ -2,6 +2,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { app, sessionMiddleWare } from "./app.js";
 import chatSocket from "./Socket/chatSocket.js"
+import { log } from 'console';
 
 const server = http.createServer(app);
 
@@ -18,9 +19,10 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
+    console.log("Socket session:", socket.request.session);
     const user = socket.request.session.user;
+    console.log("User: ", user);
     
-
     if (!user || !user.name) {
         console.log("Unauthenticated socket");
         socket.disconnect();
@@ -28,11 +30,10 @@ io.on("connection", (socket) => {
     }
     console.log("User connected:", user.name);
 
-
     socket.on("joinMatch", () => {
         console.log("Match request from:", user.name);
     });
-
+    
     console.log("Socket connected:", user.name);
     chatSocket(io, socket);
 });

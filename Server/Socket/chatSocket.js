@@ -9,7 +9,7 @@ export default function chatSocket(io, socket) {
     io.to(roomId).emit("receiveMessage", {
       id: Date.now(),
       sender: "System",
-      content: `${user} joined the chat`,
+      content: `${user.name} joined the chat`,
       type: "system",
       time: new Date().toLocaleTimeString()
     });

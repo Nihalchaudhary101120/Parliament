@@ -22,8 +22,8 @@ app.use(cors({
         sameSite: 'lax'
     }
 });
-app.use( sessionMiddleWare );
 app.use('/auth', authRoute);
+app.use( sessionMiddleWare );
 
 export{sessionMiddleWare , app } ;
 
