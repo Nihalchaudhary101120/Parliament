@@ -126,11 +126,11 @@ const Board = () => {
     { id: 6, name: "Saurav", pos: 0, pawn: bluePawn },
   ]);
   const [currentTurn, setCurrentTurn] = useState(0);
-   const [messages, setMessages] = useState([
-          { id: 1, sender: 'System', content: 'Welcome to Parliament Game!', time: '14:30', type: 'system' },
-          { id: 2, sender: 'Nihal', content: 'Ready to play!', time: '14:31', type: 'user' },
-          { id: 3, sender: 'tanmay', content: 'Let\'s start the battle!', time: '14:32', type: 'user' },
-      ]);
+  const [messages, setMessages] = useState([
+    { id: 1, sender: 'System', content: 'Welcome to Parliament Game!', time: '14:30', type: 'system' },
+    { id: 2, sender: 'Nihal', content: 'Ready to play!', time: '14:31', type: 'user' },
+    { id: 3, sender: 'tanmay', content: 'Let\'s start the battle!', time: '14:32', type: 'user' },
+  ]);
 
   const size = 9;
   const currentHP = 400;
@@ -139,12 +139,12 @@ const Board = () => {
 
   // Shield values
   const currentShield = 650;
-  const maxShield = 1000;
+  const maxShield = 750;
   const shieldPercent = (currentShield / maxShield) * 100;
 
-  
-  
-  
+
+
+
   const border = [];
 
   // Bottom row (right → left)
@@ -214,7 +214,7 @@ const Board = () => {
     setMessages(prev => [...prev, newMessage]);
   };
 
-  
+
 
   const rollDice = () => {
     if (isRolling) return;
@@ -280,7 +280,7 @@ const Board = () => {
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
       <CardModal />
 
-      <GameChat messages={messages} addMessage={addMessage}/>
+      <GameChat messages={messages} addMessage={addMessage} />
 
       {/* Board - Centered */}
       <div className="board-wrapper">
@@ -372,12 +372,22 @@ const Board = () => {
       {/* Right Side Container - Positioned on Right */}
       <div className='right-container'>
         <div className="right-grid">
-          {[emergency, wallSena, wallMaria, wallRose].map((img, i) => (
-            <div key={i} className="right-cell">
-              <img src={img} alt={`slot-${i}`} />
+          {[
+            { key: "emergency-meeting", img: emergency },
+            { key: "wall-sena", img: wallSena },
+            { key: "wall-maria", img: wallMaria },
+            { key: "wall-rose", img: wallRose },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="right-cell"
+              onClick={() => openCard(cardMap[item.key])}
+            >
+              <img src={item.img} alt={item.key} />
             </div>
           ))}
         </div>
+
         <div
           className={`dice-container ${isRolling ? "rolling" : "pop"}`}
           onClick={rollDice}

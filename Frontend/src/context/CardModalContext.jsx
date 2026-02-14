@@ -27,6 +27,10 @@ import torpedoCard from "../assets/weapons/torpedo-removedbg.png";
 import tsunamiCard from "../assets/weapons/tsunami.png";
 import safe from "../assets/weapons/safe.png";
 import startCard from "../assets/weapons/start.png";
+import emergencyMeeting from "../assets/weapons/emergency-meeting.png";
+import wallSena from "../assets/weapons/wall-sina.png";
+import wallMaria from "../assets/weapons/wall-maria.png";
+import wallRose from "../assets/weapons/wall-rose.png";
 
 
 export const cardMap = {
@@ -45,7 +49,7 @@ export const cardMap = {
   hammer: hammerCard,
   laser: laserCard,
   "machine-gun": machineGunCard,
-  "agent" :agentCard,
+  "agent": agentCard,
   mine: mineCard,
   mystery: mysteryCard,
 
@@ -61,10 +65,17 @@ export const cardMap = {
   tank: tankCard,
   "terrorist-attack": terrorAttackCard,
   "time-bomb": timeBombCard,
-  
+
 
   torpedo: torpedoCard,
   tsunami: tsunamiCard,
+
+
+  "emergency-meeting": emergencyMeeting,
+  "wall-sena": wallSena,
+  "wall-rose": wallRose,
+  "wall-maria": wallMaria
+
 };
 
 
