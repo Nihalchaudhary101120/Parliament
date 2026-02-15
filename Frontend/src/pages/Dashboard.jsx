@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import api from '../api/api.js';
 
 const DashBoard = () => {
-    const { user } = useAuth();
+    const { user, signout, setUsername } = useAuth();
     const [showFriendOption, setShowFriendOption] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [playerCount, setPlayerCount] = useState(2);
@@ -85,6 +85,27 @@ const DashBoard = () => {
         }
     };
 
+    const [showUsernameModal, setShowUsernameModal] = useState(false);
+    const [newUsername, setNewUsername] = useState('');
+    const [usernameError, setUsernameError] = useState('');
+    const [settingUsername, setSettingUsername] = useState(false);
+
+    const handleSetUsername = async () => {
+        setUsernameError('');
+        if (!newUsername.trim()) {
+            setUsernameError('Enter a username');
+            return;
+        }
+        setSettingUsername(true);
+        const res = await setUsername(newUsername.trim());
+        setSettingUsername(false);
+        if (!res.success) {
+            setUsernameError(res.error || 'Failed to set username');
+            return;
+        }
+        setShowUsernameModal(false);
+    };
+
     return (
 
         <div className='hero'>
@@ -93,7 +114,13 @@ const DashBoard = () => {
                 <h2 className="quote">Control The Flow Of Nation</h2>
             </div>
             <div className="top-user">
-                👤 {user?.username}
+                <div className="user-line">👤 <strong>{user?.username || 'Guest'}</strong></div>
+                <div className="user-actions">
+                    <button className="action-btn" onClick={() => setShowUsernameModal(true)}>
+                        {user?.username ? 'Edit name' : 'Add username'}
+                    </button>
+                    <button className="action-btn" onClick={signout}>Logout</button>
+                </div>
             </div>
 
             <div className="glass-panel">
@@ -167,7 +194,30 @@ const DashBoard = () => {
                 </div>
             )}
 
+            {showUsernameModal && (
+                <div className="modal-overlay" onClick={() => setShowUsernameModal(false)}>
+                    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+                        <h3>{user?.username ? 'Edit username' : 'Add username'}</h3>
 
+                        <label>Username</label>
+                        <input
+                            type="text"
+                            value={newUsername}
+                            onChange={(e) => setNewUsername(e.target.value)}
+                            placeholder="Enter username"
+                        />
+
+                        {usernameError && <p className="error-text">{usernameError}</p>}
+
+                        <div className="modal-actions">
+                            <button onClick={() => setShowUsernameModal(false)}>Cancel</button>
+                            <button onClick={handleSetUsername} disabled={settingUsername}>
+                                {settingUsername ? 'Saving...' : 'Save'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="bottom-bar">
                 <button className="nav-btn">⚙️<span>Settings</span></button>
