@@ -15,18 +15,28 @@ export default function Lobby() {
 
     useEffect(() => {
         const socket = connectSocket();
-        if (!socket ) {
+        if (!socket) {
             console.log("Socket  missing");
             return;
         }
 
-        if(!roomCode) {
+        if (!roomCode) {
             console.log("roomcode not found");
-            return ;
+            return;
         }
 
-        console.log("Joining lobby:", roomCode);
-        socket.emit("joinLobby", { gameCode: roomCode });
+        const joinLobby = () => {
+            console.log("Joining lobby:", roomCode);
+            socket.emit("joinLobby", { gameCode: roomCode });
+        };
+
+        if (socket.connected) {
+            joinLobby();
+        } else {
+            socket.once("connect", joinLobby);
+        }
+        // console.log("Joining lobby:", roomCode);
+        // socket.emit("joinLobby", { gameCode: roomCode });
 
         socket.on("lobbyUpdate", (data) => {
             console.log("Lobby Update Received:", data);
