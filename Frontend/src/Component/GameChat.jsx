@@ -2,9 +2,9 @@ import React from 'react';
 import './chatSystem.css';
 import { useState, useEffect, useRef } from 'react';
 
+//child of gameChatContainer
 
-
-export default function GameChat ({ messages, addMessage })  {
+export default function GameChat({ messages=[], addMessage }) {
 
     const [inputMessage, setInputMessage] = useState('');
     const messagesEndRef = useRef(null);
@@ -19,10 +19,10 @@ export default function GameChat ({ messages, addMessage })  {
     // Handle send message
     const handleSendMessage = () => {
         if (inputMessage.trim() === '') return;
-
-
+        console.log("Send button clicked");   // ADD
+        console.log("Calling prop:", addMessage);
         addMessage(
-            "You",inputMessage,"user"        
+            "You", inputMessage, "user"
         );
         setInputMessage('');
     };

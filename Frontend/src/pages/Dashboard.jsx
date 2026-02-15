@@ -3,6 +3,8 @@ import {  useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext.jsx';
 import api from '../api/api.js';
+import { connectSocket } from "../Component/socket.js";
+
 
 const DashBoard = () => {
     const { user, signout, setUsername } = useAuth();
@@ -38,6 +40,7 @@ const DashBoard = () => {
                 return;
             }
 
+            connectSocket();
             setShowCreateModal(false);
             setShowFriendOption(false);
 
@@ -69,6 +72,7 @@ const DashBoard = () => {
                 return;
             }
 
+            connectSocket();
             setShowJoinModal(false);
             setShowFriendOption(false);
 
