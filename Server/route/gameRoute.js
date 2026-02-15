@@ -4,6 +4,6 @@ import { createRoom, joinRoom } from "../Controller/gameController.js";
 const router = express.Router();
 
 router.post('/create', createRoom);
-router.get('/join', joinRoom);
+router.post('/join', joinRoom);
 
 export default router;

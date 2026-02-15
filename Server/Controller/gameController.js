@@ -3,6 +3,10 @@ import Card from "../models/cards.js";
 
 export const createRoom = async (req, res) => {
   try {
+    if (!req.session.user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
     const user = req.session.user;
     const { gameCode, maxPlayer } = req.body;
 
@@ -32,6 +36,8 @@ export const createRoom = async (req, res) => {
 
     });
     res.status(200).json({
+      gameSchema: game,
+      players: game.players,
       success: true,
       gameCode: game.gameCode,
       gameId: game._id
@@ -48,7 +54,12 @@ export const createRoom = async (req, res) => {
 
 export const joinRoom = async (req, res) => {
   try {
-    const { gameCode } = req.query;
+    const { gameCode } = req.body;
+
+    if (!req.session.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const user = req.session.user;
     const userId = user.id;
 
@@ -62,39 +73,39 @@ export const joinRoom = async (req, res) => {
       p.userId.equals(userId)
     );
 
-    if (alreadyJoined) {
-      return res.json({ success: true, gameId: game._id });
+    if (!alreadyJoined) {
+      if (game.players.length >= game.maxPlayer) {
+        return res.status(400).json({ error: "Room is full" });
+      }
+
+      game.players.push({
+        userId,
+        cards: [],
+        isBot: false,
+        remainingParliamentHp: 1000,
+        remainingShieldHp: 0,
+        cashRemaining: 1200,
+        position: 0,
+        skippedChances: 0,
+        isActive: true
+      });
     }
 
-    if (game.players.length >= game.maxPlayer) {
-      return res.status(400).json({ error: "Room is full" });
-    }
-
-    game.players.push({
-      userId,
-      cards: [],
-      isBot: false,
-
-      remainingParliamentHp: 1000,
-      remainingShieldHp: 0,
-
-      cashRemaining: 1200,
-      position: 0,
-
-      skippedChances: 0,
-      isActive: true
-    });
-
-    if (game.players.length == game.maxPlayer) {
+    if (game.players.length === game.maxPlayer) {
       game.status = "active";
       game.turnNo = 1;
       game.currentTurn = game.players[0].userId;
     }
+
     await game.save();
 
     res.json({
       success: true,
-      gameId: game._id
+      gameId: game._id,
+      gameCode: game.gameCode,
+      maxPlayer: game.maxPlayer,
+      status: game.status,
+      players: game.players
     });
 
   } catch (err) {

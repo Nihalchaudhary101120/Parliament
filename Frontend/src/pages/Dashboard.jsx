@@ -1,8 +1,5 @@
-import React from 'react';
 import "./Dashboard.css";
-import { useEffect, useState } from 'react';
-import accounting from "../assets/parliament.jpeg";
-import { connectSocket } from "../Component/socket.js";
+import {  useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext.jsx';
 import api from '../api/api.js';
@@ -13,9 +10,14 @@ const DashBoard = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [playerCount, setPlayerCount] = useState(2);
 
+    //join states
+    const [showJoinModal, setShowJoinModal] = useState(false);
+    const [joinCode, setJoinCode] = useState("");
+    const [joinError, setJoinError] = useState("");
+    const [joining, setJoining] = useState(false);
+
     const navigate = useNavigate();
 
-    // generate random room code
     const generateRoomCode = () => {
         return Math.random().toString(36).substring(2, 8).toUpperCase();
     };
@@ -26,10 +28,11 @@ const DashBoard = () => {
             const roomCode = generateRoomCode();
 
             const res = await api.post("/friends/create", {
-                maxPlayers: playerCount,
+                maxPlayer: playerCount,
                 gameCode: roomCode
             });
 
+            console.log(res);
             if (!res.data.success) {
                 alert("Room creation failed");
                 return;
@@ -46,44 +49,42 @@ const DashBoard = () => {
         }
     };
 
-
-
-
     // JOIN ROOM (user will later enter code)
-    const handleJoinRoom = () => {
-        const socket = connectSocket();
+    const handleJoinRoom = async () => {
+        if (!joinCode.trim()) {
+            setJoinError("Enter room code");
+            return;
+        }
 
-        socket.once("connect", () => {
-            navigate("/join-room"); // page where user types room code
-        });
+        try {
+            setJoining(true);
+            setJoinError("");
+
+            const res = await api.post("/friends/join", {
+                gameCode: joinCode.trim().toUpperCase()
+            });
+
+            if (!res.data.success) {
+                setJoinError("Failed to join room");
+                return;
+            }
+
+            setShowJoinModal(false);
+            setShowFriendOption(false);
+
+            navigate(`/lobby?room=${joinCode.trim().toUpperCase()}`);
+
+        } catch (err) {
+            if (err.response?.data?.error) {
+                setJoinError(err.response.data.error);
+            } else {
+                setJoinError("Something went wrong");
+            }
+        } finally {
+            setJoining(false);
+        }
     };
 
-    // useEffect(() => {
-    //     const checkSession = async () => {
-    //         const res = await fetch("http://localhost:3000/auth/me", {
-    //             credentials: "include"
-    //         });
-
-    //         if (res.status === 200) {
-    //             // session already exists
-    //             connectSocket();
-    //         } else {
-    //             // create guest session
-    //             await fetch("http://localhost:3000/auth/guest", {
-    //                 credentials: "include"
-    //             });
-    //             connectSocket();
-    //         }
-    //     };
-
-    //     checkSession();
-    // }, []);
-
-    // const handleOnlineMultiplayer =  () => {
-
-    //     // 3. go to lobby
-    //     navigate("/lobby");
-    // };
     return (
 
         <div className='hero'>
@@ -94,10 +95,6 @@ const DashBoard = () => {
             <div className="top-user">
                 👤 {user?.username}
             </div>
-            {/* 
-            <div>
-                <img src={accounting} className="profile"></img>
-            </div> */}
 
             <div className="glass-panel">
                 <h2 className="panel-title ">GAME MODE</h2>
@@ -111,7 +108,14 @@ const DashBoard = () => {
                 <div className="friend-options">
                     <button onClick={() => setShowFriendOption(false)}>X</button>
                     <button onClick={() => { setShowCreateModal(true), setShowFriendOption(false) }}>Create Room</button>
-                    <button onClick={handleJoinRoom}>Join Room</button>
+                    <button onClick={() => {
+                        setShowJoinModal(true);
+                        setShowFriendOption(false);
+                    }}>
+                        Join Room
+                    </button>
+
+
                 </div>
             )}
 
@@ -137,6 +141,32 @@ const DashBoard = () => {
                     </div>
                 </div>
             )}
+
+            {showJoinModal && (
+                <div className="modal-overlay" onClick={() => setShowJoinModal(false)}>
+                    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+                        <h3>Join Room</h3>
+
+                        <label>Enter Room Code</label>
+                        <input
+                            type="text"
+                            value={joinCode.trim().toUpperCase()}
+                            onChange={(e) => setJoinCode(e.target.value.trim().toUpperCase())}
+                            placeholder="Enter room code"
+                        />
+
+                        {joinError && <p className="error-text">{joinError}</p>}
+
+                        <div className="modal-actions">
+                            <button onClick={() => setShowJoinModal(false)}>Cancel</button>
+                            <button onClick={handleJoinRoom} disabled={joining}>
+                                {joining ? "Joining..." : "Join"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
 
             <div className="bottom-bar">

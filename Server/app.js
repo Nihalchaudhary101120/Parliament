@@ -6,6 +6,7 @@ import authRoute from "./route/authRoute.js";
 import session from "express-session";
 import gameRoute from "./route/gameRoute.js";
 
+
 connectDB();
 const app = express();
 app.use(express.json());

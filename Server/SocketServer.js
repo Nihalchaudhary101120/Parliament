@@ -2,6 +2,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { app, sessionMiddleWare } from "./app.js";
 import chatSocket from "./Socket/chatSocket.js"
+import gameSocket from "./Socket/gameSocket.js"
 
 const server = http.createServer(app);
 
@@ -35,6 +36,7 @@ io.on("connection", (socket) => {
     
     console.log("Socket connected:", user.username);
     chatSocket(io, socket);
+    gameSocket(io, socket);
 });
 
 const port = 3000;

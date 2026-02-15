@@ -42,7 +42,6 @@ export const cardMap = {
   brahmos: brahmosCard,
 
   "dragon-cannon": dragonCanonCard,
-  "emergency-meeting": emergencyMeetingCard,
   engineer: engineerCard,
 
   grenade: grenadeCard,

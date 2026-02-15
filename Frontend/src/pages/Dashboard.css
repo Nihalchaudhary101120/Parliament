@@ -354,3 +354,20 @@
         opacity: 1;
     }
 }
+
+
+.modal-box input {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    margin-top: 8px;
+}
+
+.error-text {
+    color: #ff6b6b;
+    font-size: 13px;
+    margin-top: 5px;
+}

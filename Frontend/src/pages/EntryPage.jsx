@@ -1,13 +1,10 @@
-import { useNavigate } from "react-router-dom";
 import "./EntryPage.css";
-import React, { useState, useEffect } from "react";
-import api from "../api/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function EntryPage() {
-    const { handleGuest} = useAuth();
+    const { handleGuest } = useAuth();
 
-    
+
     return (
         <>
             <div className="entry-container">
@@ -16,26 +13,6 @@ export default function EntryPage() {
                     <p className="entry-subtitle">Choose how you want to enter</p>
 
                     <button className="entry-btn guest" onClick={handleGuest}>Continue as Guest</button>
-
-
-                    {/* {showGuestModal && (
-                        <div className="modal">
-                            <div className="modal-box">
-                                <h3>Enter Nickname</h3>
-                                <div onClick={() => setShowGuestModal(false)}>X</div>
-                                <input
-                                    type="text"
-                                    value={nickName}
-                                    onChange={(e) => setNickName(e.target.value)}
-                                    placeholder="Your nickname"
-                                />
-                                <button onClick={handleGuest}>Enter Game</button>
-                            </div>
-                        </div>
-                    )} */}
-
-
-
                     <button className="entry-btn login" onClick={() => navigate("/login")}>
                         Login
                     </button>

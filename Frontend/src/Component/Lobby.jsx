@@ -1,22 +1,81 @@
-import { useEffect } from "react";
-import { getSocket } from "./socket";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getSocket, connectSocket } from "./socket";
+import "./lobby.css";
 
 export default function Lobby() {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const roomCode = new URLSearchParams(location.search).get("room");
+
+    const [players, setPlayers] = useState([]);
+    const [maxPlayers, setMaxPlayers] = useState(0);
+    const [status, setStatus] = useState("waiting");
+
     useEffect(() => {
-        const socket = getSocket();
-        if (!socket) return;
+        const socket = connectSocket();
+        if (!socket ) {
+            console.log("Socket  missing");
+            return;
+        }
 
+        if(!roomCode) {
+            console.log("roomcode not found");
+            return ;
+        }
 
-        socket.on("connect", () => {
-            console.log("Socket connected:", socket.id);
-            socket.emit("joinChat", { roomId: "game-room-1" });
+        console.log("Joining lobby:", roomCode);
+        socket.emit("joinLobby", { gameCode: roomCode });
+
+        socket.on("lobbyUpdate", (data) => {
+            console.log("Lobby Update Received:", data);
+            setPlayers(data.players);
+            setMaxPlayers(data.maxPlayer);
+            setStatus(data.status);
         });
 
-        socket.on("receiveMessage", (msg) => {
-            console.log("Message received:", msg);
+        socket.on("gameStart", () => {
+            console.log("Game started");
+            navigate(`/game?room=${roomCode}`);
         });
 
-    }, []);
+        return () => {
+            socket.off("lobbyUpdate");
+            socket.off("gameStart");
+        };
 
-    return <h2>Socket Test Running</h2>;
+    }, [roomCode]);
+
+    const copyLink = () => {
+        const link = `${window.location.origin}/join?code=${roomCode}`;
+        navigator.clipboard.writeText(link);
+        alert("Invite link copied!");
+    };
+
+    return (
+        <div className="lobby-container">
+
+            <h2>Lobby</h2>
+
+            <div className="room-box">
+                <p><strong>Room Code:</strong> {roomCode}</p>
+                <button onClick={copyLink}>Copy Invite Link</button>
+            </div>
+
+            <div className="player-list">
+                <h3>Players ({players.length}/{maxPlayers})</h3>
+                {players.map((p, index) => (
+                    <div key={index} className="player-item">
+                        {p.userId?.username || "Player"}
+                    </div>
+                ))}
+            </div>
+
+            {status === "waiting" && (
+                <p className="waiting-text">Waiting for players...</p>
+            )}
+
+        </div>
+    );
 }
