@@ -120,9 +120,13 @@ const DashBoard = () => {
             <div className="top-user">
                 <div className="user-line">👤 <strong>{user?.username || 'Guest'}</strong></div>
                 <div className="user-actions">
-                    <button className="action-btn" onClick={() => setShowUsernameModal(true)}>
-                        {user?.username ? 'Edit name' : 'Add username'}
-                    </button>
+                    {user && !user?.isGuest ? (
+                        <button className="action-btn" onClick={() => setShowUsernameModal(true)}>
+                            {user?.username ? 'Edit name' : 'Add username'}
+                        </button>
+                    ) : (
+                        <button className="action-btn" onClick={() => navigate('/signup')}>Create account to set name</button>
+                    )}
                     <button className="action-btn" onClick={signout}>Logout</button>
                 </div>
             </div>
