@@ -44,8 +44,15 @@ import pawnMoveSound from "../assets/pawn.mp3";
 import { useCardModal } from '../context/CardModalContext'
 import { cardMap } from "../context/CardModalContext";
 import CardModal from "../Component/CardModal"
+import GameChatContainer from "../Component/gameChatSocket.jsx";
+import { getSocket } from "../Component/socket";
+import { useLocation } from "react-router-dom";
+
 
 const Board = () => {
+  const location = useLocation();
+  const roomId = new URLSearchParams(location.search).get("room");
+
 
   const tileIcons = {
     "terrorist-attack": terroristIcon,
@@ -126,11 +133,11 @@ const Board = () => {
     { id: 6, name: "Saurav", pos: 0, pawn: bluePawn },
   ]);
   const [currentTurn, setCurrentTurn] = useState(0);
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'System', content: 'Welcome to Parliament Game!', time: '14:30', type: 'system' },
-    { id: 2, sender: 'Nihal', content: 'Ready to play!', time: '14:31', type: 'user' },
-    { id: 3, sender: 'tanmay', content: 'Let\'s start the battle!', time: '14:32', type: 'user' },
-  ]);
+  // const [messages, setMessages] = useState([
+  //   { id: 1, sender: 'System', content: 'Welcome to Parliament Game!', time: '14:30', type: 'system' },
+  //   { id: 2, sender: 'Nihal', content: 'Ready to play!', time: '14:31', type: 'user' },
+  //   { id: 3, sender: 'tanmay', content: 'Let\'s start the battle!', time: '14:32', type: 'user' },
+  // ]);
 
   const size = 9;
   const currentHP = 400;
@@ -202,17 +209,7 @@ const Board = () => {
     ],
   };
 
-  // Add message helper function
-  const addMessage = (sender, content, type = 'user') => {
-    const newMessage = {
-      id: messages.length + 1,
-      sender,
-      content,
-      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-      type
-    };
-    setMessages(prev => [...prev, newMessage]);
-  };
+
 
 
 
@@ -241,7 +238,14 @@ const Board = () => {
         }, 300);
 
         console.log(`Dice rolled: ${finalValue}`);
-        addMessage('System', `${players[currentTurn].name} rolled: ${finalValue}`, 'system');
+        // addMessage('System', `${players[currentTurn].name} rolled: ${finalValue}`, 'system');
+        const socket = getSocket();
+        socket.emit("sendMessage", {
+          roomId,
+          message: `${players[currentTurn].name} rolled: ${finalValue}`,
+          type: "system"
+        });
+
       }
     }, 35);
   }
@@ -268,7 +272,14 @@ const Board = () => {
         clearInterval(interval);
         const newPos = (players[currentTurn].pos + steps) % border.length;
         const landedTile = tileData[newPos];
-        addMessage('System', `${players[currentTurn].name} landed on ${landedTile}`, 'system');
+        // addMessage('System', `${players[currentTurn].name} landed on ${landedTile}`, 'system');
+        const socket = getSocket();
+        socket.emit("sendMessage", {
+          roomId,
+          message: `${players[currentTurn].name} landed on ${landedTile}`,
+          type: "system"
+        });
+
         setCurrentTurn((prev) => (prev + 1) % players.length);
       }
     }, 320);
@@ -280,7 +291,9 @@ const Board = () => {
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
       <CardModal />
 
-      <GameChat messages={messages} addMessage={addMessage} />
+      {/* <GameChat messages={messages} addMessage={addMessage} /> */}
+      <GameChatContainer />
+
 
       {/* Board - Centered */}
       <div className="board-wrapper">
@@ -325,9 +338,9 @@ const Board = () => {
                         className="player-token"
                         style={{
                           transform: `
-                translate(${slot.x}px, ${slot.y}px)
-                scale(${slot.scale})
-              `,
+                  translate(${slot.x}px, ${slot.y}px)
+                  scale(${slot.scale})
+                `,
                         }}
                       />
                     );

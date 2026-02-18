@@ -256,6 +256,37 @@
    font-weight: bold;
    font-size: 18px;
    color: white;
+   display: flex;
+   flex-direction: column;
+   align-items: flex-end;
+   gap: 6px;
+}
+
+.top-user .user-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.top-user .user-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.top-user .action-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #e6eef8;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.top-user .action-btn:hover {
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-2px);
 }
 
 /* ===== Modal Overlay ===== */

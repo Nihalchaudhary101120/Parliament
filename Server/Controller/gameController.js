@@ -42,7 +42,7 @@ export const createRoom = async (req, res) => {
       gameCode: game.gameCode,
       gameId: game._id
     })
-
+    
   }
 
   catch (err) {

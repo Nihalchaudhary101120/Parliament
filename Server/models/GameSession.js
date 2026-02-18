@@ -34,6 +34,7 @@ const GameSchema = new mongoose.Schema({
         ref: "user"
     },
 
+    
     turnNo: Number,
     timebombPurchaseTurn: Number,
     status: {

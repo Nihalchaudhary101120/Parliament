@@ -1,8 +1,10 @@
 import "./EntryPage.css";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 export default function EntryPage() {
     const { handleGuest } = useAuth();
+    const navigate = useNavigate();
 
 
     return (

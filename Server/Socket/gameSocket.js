@@ -12,6 +12,7 @@ export default function gameSocket(io, socket) {
       }
 
       socket.join(gameCode);
+      console.log("The game code :" , gameCode);
 
       io.to(gameCode).emit("lobbyUpdate", {
         players: game.players,
