@@ -1,12 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/api";
-import { useNavigate } from "react-router-dom";
-
+import { Navigate , useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const navigate = useNavigate();
+    
+    const location=useLocation();
     const [user, setUser] = useState({});
 
     const checkSession = async () => {
@@ -14,8 +16,8 @@ export function AuthProvider({ children }) {
             const res = await api.get("/auth/me");
             setUser(res.data.user);
             console.log(res.data);
-
-            if (res.data.success) {
+            
+            if (res.data.success  ) {
                 navigate("/dashboard");
             }
         } catch (err) {

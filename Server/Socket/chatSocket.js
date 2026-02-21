@@ -15,7 +15,7 @@
     //     time: new Date().toLocaleTimeString()
     //   });
     // });
-
+    
     socket.on("sendMessage", ({ roomId, message ,type="user"}) => {
       io.to(roomId).emit("receiveMessage", {
         id: Date.now(),

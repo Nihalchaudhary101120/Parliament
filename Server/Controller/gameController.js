@@ -1,8 +1,10 @@
 import Game from "../models/GameSession.js";
 import Card from "../models/cards.js";
-
+const pawnColor=['blackPawn' , 'whitePawn' , 'bluePawn', 'yellowPawn' , 'greenPawn']
 export const createRoom = async (req, res) => {
   try {
+
+
     if (!req.session.user) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
@@ -20,6 +22,8 @@ export const createRoom = async (req, res) => {
           userId: user.id,
           cards: [],
           isBot: false,
+
+          pawn:'redPawn',
 
           remainingParliamentHp: 1000,
           remainingShieldHp: 0,
@@ -54,6 +58,8 @@ export const createRoom = async (req, res) => {
 
 export const joinRoom = async (req, res) => {
   try {
+
+
     const { gameCode } = req.body;
 
     if (!req.session.user) {
@@ -87,7 +93,8 @@ export const joinRoom = async (req, res) => {
         cashRemaining: 1200,
         position: 0,
         skippedChances: 0,
-        isActive: true
+        isActive: true,
+        pawn:pawnColor[game.players.length-1]
       });
     }
 
@@ -282,3 +289,4 @@ export const turn = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+

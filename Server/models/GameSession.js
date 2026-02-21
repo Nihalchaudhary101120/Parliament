@@ -18,12 +18,12 @@ const GameSchema = new mongoose.Schema({
                 }
             ],
             isBot: { type: Boolean, required: true },
-            remainingParliamentHp: { type: Number, default: 1000, required: true },
-            remainingShieldHp: { type: Number },
+            remainingParliamentHp: { type: Number,  required: true },
+            remainingShieldHp: { type: Number  },
             cashRemaining: { type: Number, required: true },
             position: { type: Number, required: true },
             skippedChances: { type: Number, default: 0 },
-
+            pawn:{type:String  , required:true},
             isActive: { type: Boolean, required: true }
         }
     ],
@@ -35,7 +35,7 @@ const GameSchema = new mongoose.Schema({
     },
 
     
-    turnNo: Number,
+    turnNo: { type: Number, default: 1 },
     timebombPurchaseTurn: Number,
     status: {
         type: String,

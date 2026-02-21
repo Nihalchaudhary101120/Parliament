@@ -45,9 +45,16 @@ export default function Lobby() {
             setStatus(data.status);
         });
 
-        socket.on("gameStart", () => {
+        socket.on("gameStart", ({gameId , players , myUserId}) => {
             console.log("Game started");
-            navigate(`/game?room=${roomCode}`);
+            gameId:gameId;
+            players:players
+            navigate(`/game?room=${roomCode}` , {
+                state:{
+                    players , gameId , myUserId
+                    
+                }
+            });
         });
 
         return () => {
