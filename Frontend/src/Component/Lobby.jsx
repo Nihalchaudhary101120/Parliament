@@ -45,14 +45,14 @@ export default function Lobby() {
             setStatus(data.status);
         });
 
-        socket.on("gameStart", ({gameId , players , game}) => {
+        socket.on("gameStart", ({ gameId, players, game }) => {
             console.log("Game started");
-            gameId:gameId;
-            players:players
-            navigate(`/game?room=${roomCode}` , {
-                state:{
-                    players , gameId ,  game
-                    
+            gameId: gameId;
+            players: players
+            navigate(`/game?room=${roomCode}`, {
+                state: {
+                    players, gameId, game
+
                 }
             });
         });
@@ -64,11 +64,21 @@ export default function Lobby() {
 
     }, [roomCode]);
 
-    const copyLink = () => {
-        const link = `${window.location.origin}/join?code=${roomCode}`;
-        navigator.clipboard.writeText(link);
-        alert("Invite link copied!");
+    const [copied, setCopied] = useState(false);
+    const copyCode = async () => {
+        try {
+            await navigator.clipboard.writeText(roomCode);
+            setCopied(true);
+
+            setTimeout(() => {
+                setCopied(false);
+            }, 5000);
+
+        } catch (err) {
+            console.error("Copy failed:", err);
+        }
     };
+
 
     return (
         <div className="lobby-container">
@@ -77,7 +87,13 @@ export default function Lobby() {
 
             <div className="room-box">
                 <p><strong>Room Code:</strong> {roomCode}</p>
-                <button onClick={copyLink}>Copy Invite Link</button>
+                <button
+                    onClick={copyCode}
+                    className={`copy-btn ${copied ? "copied" : ""}`}
+                >
+                    {copied ? "Copied ✓" : "Copy Invite Code"}
+                </button>
+
             </div>
 
             <div className="player-list">

@@ -45,3 +45,23 @@
     margin-top: 20px;
     opacity: 0.7;
 }
+.copy-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all .25s ease;
+    background: linear-gradient(180deg,#00ffcc,#008c7a);
+    box-shadow: 0 0 12px rgba(0,255,200,.5);
+    color: black;
+}
+
+.copy-btn:hover {
+    transform: scale(1.05);
+}
+
+.copy-btn.copied {
+    background: linear-gradient(180deg,#7dffb2,#00c853);
+    box-shadow: 0 0 18px rgba(0,255,100,.7);
+}

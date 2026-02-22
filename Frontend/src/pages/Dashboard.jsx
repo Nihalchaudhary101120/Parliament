@@ -1,5 +1,5 @@
 import "./Dashboard.css";
-import {  useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext.jsx';
 import api from '../api/api.js';
@@ -139,7 +139,7 @@ const DashBoard = () => {
                 <button className="glass-btn sharp-btn" onClick={() => setShowFriendOption(true)}>👥 Play with Friends</button>
             </div>
 
-            {showFriendOption && (
+            {/* {showFriendOption && (
                 <div className="friend-options">
                     <button onClick={() => setShowFriendOption(false)}>X</button>
                     <button onClick={() => { setShowCreateModal(true), setShowFriendOption(false) }}>Create Room</button>
@@ -152,7 +152,48 @@ const DashBoard = () => {
 
 
                 </div>
+            )} */}
+
+            {showFriendOption && (
+                <div
+                    className="modal-overlay"
+                    onClick={() => setShowFriendOption(false)}
+                >
+                    <div
+                        className="modal-box friend-modal"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3>Play With Friends</h3>
+                        <div className="friend-modal-buttons">
+                            <button
+                                className="modal-btn create"
+                                onClick={() => {
+                                    setShowFriendOption(false);
+                                    setShowCreateModal(true);
+                                }}
+                            >
+                                🎯 Create Room
+                            </button>
+                            <button
+                                className="modal-btn join"
+                                onClick={() => {
+                                    setShowFriendOption(false);
+                                    setShowJoinModal(true);
+                                }}
+                            >
+                                🔗 Join Room
+                            </button>
+                        </div>
+                        <button
+                            className="close-btn"
+                            onClick={() => setShowFriendOption(false)}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
             )}
+
 
             {showCreateModal && (
                 <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
