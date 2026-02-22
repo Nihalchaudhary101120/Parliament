@@ -28,9 +28,11 @@ export default function gameSocket(io, socket) {
         io.to(gameCode).emit("gameStart", {
           gameId: game._id,
           players: game.players,
-          myUserId: user.id
+          game: game
         });
-        console.log("myuserid:", user.id);
+
+
+        // console.log("myuserid:", user.id);
 
       }
     } catch (err) {
@@ -38,6 +40,13 @@ export default function gameSocket(io, socket) {
       socket.emit("lobbyError", { message: "Unable to join lobby" });
     }
   });
+
+  socket.on("requestMyIdentity", () => {
+    socket.emit("myUserIdentity", {
+      myUserId: user.id
+    });
+  });
+
 
   socket.on("rollDice", async ({ gameCode, diceValue }) => {
     const game = await Game.findOne({ gameCode });
@@ -82,10 +91,10 @@ export default function gameSocket(io, socket) {
     io.to(roomId).emit("diceRolling");
   }
 
-  
-);
 
-  
+  );
+
+
 
 
   socket.on("disconnect", () => {

@@ -148,7 +148,10 @@ const Board = () => {
     "yellowPawn": yellowPawn,
     "whitePawn": whitePawn,
   }
-  const [currentTurn, setCurrentTurn] = useState(0);
+  const game = location.state?.game || "";
+  console.log("gameSchema:", game);
+
+  const [currentTurn, setCurrentTurn] = useState(game.currentTurn);
   // const [messages, setMessages] = useState([
   //   { id: 1, sender: 'System', content: 'Welcome to Parliament Game!', time: '14:30', type: 'system' },
   //   { id: 2, sender: 'Nihal', content: 'Ready to play!', time: '14:31', type: 'user' },
@@ -183,11 +186,12 @@ const Board = () => {
   const [isRolling, setIsRolling] = useState(false);
   const audioRef = useRef(null);
   const stepAudio = useRef(null);
-  const myUserId = location.state?.myUserId;
+  // console.log("myUserId:" , myUserId);
 
-  const myIndex = players.findIndex(
-    p => p.userId._id === myUserId
-  );
+  const [myUserId, setMyUserId] = useState(null)
+  // const myIndex = players.findIndex(
+  //   p => p.userId._id === myUserId
+  // );
   useEffect(() => {
 
     socket.current = getSocket();
@@ -201,6 +205,14 @@ const Board = () => {
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
     });
+
+        socket.current.on("myUserIdentity", ({ myUserId }) => {
+      setMyUserId(myUserId);
+      console.log("kyalikhu:", myUserId);
+    });
+
+    // 🔥 Ask backend AFTER listener is ready
+    socket.current.emit("requestMyIdentity");
 
     socket.current.on("authoritativeUpdate", ({ players, currentTurn, turnNo }) => {
       setPlayers(players);
@@ -219,9 +231,11 @@ const Board = () => {
       socket.current.off('authoritativeUpdate')
       socket.current.off('diceResult')
       socket.current.off('diceRolling')
-
+      socket.current.off("myUserIdentity");
     }
   }, []);
+
+ 
 
   useEffect(() => {
     if (players?.length) {
@@ -306,8 +320,16 @@ const Board = () => {
 
 
   const rollDice = () => {
-    if (currentTurn !== myIndex) return;
+    console.log("roll dice clicked");
+    console.log(currentTurn);
+    console.log(myUserId);
+
+
+    if (currentTurn != myUserId) return;
+    console.log("return hogaya");
+
     if (sharedRolling) return;
+
 
     // setIsRolling(true);
 
@@ -318,8 +340,8 @@ const Board = () => {
       audioRef.current.play().catch(err => console.log("Audio play failed:", err));
     }
 
-    let rollCount=0;
-    const rollInterval=setInterval(() => {
+    let rollCount = 0;
+    const rollInterval = setInterval(() => {
       setSharedDiceValue(Math.floor(Math.random() * 6) + 1)
       rollCount++;
 
@@ -328,13 +350,13 @@ const Board = () => {
         const finalValue = Math.floor(Math.random() * 6) + 1;
         setSharedDiceValue(finalValue);
         setSharedRolling(false);
-      
+
         setTimeout(() => {
           movePlayer(finalValue);
         }, 300);
-    }
-  }, 35);
-  
+      }
+    }, 35);
+
     // const dice = Math.floor(Math.random() * 6) + 1;
     console.log("Dice value:", dice);
 
@@ -356,7 +378,7 @@ const Board = () => {
       setTurnNo(prev => prev + 1);
     }
     setTimeout(() => {
-      
+
       socket.current.emit("rollDice", {
         gameCode: roomId,
         diceValue: dice
