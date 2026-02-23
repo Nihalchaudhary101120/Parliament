@@ -201,9 +201,13 @@ const Board = () => {
       setSharedRolling(true);
     });
 
-    socket.current.on("diceResult", ({ diceValue }) => {
+    socket.current.on("diceResult", ({ diceValue , currentTurn , players , turnNo }) => {
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
+      setPlayers(players);
+      setOptimisticPlayers(players);
+      setCurrentTurn(currentTurn);
+      setTurnNo(turnNo);
     });
 
     socket.current.on("myUserIdentity", ({ myUserId }) => {
@@ -214,16 +218,7 @@ const Board = () => {
     // 🔥 Ask backend AFTER listener is ready
     socket.current.emit("requestMyIdentity");
 
-    socket.current.on("authoritativeUpdate", ({ players, currentTurn, turnNo }) => {
-      setPlayers(players);
-      setOptimisticPlayers(players);
-      setCurrentTurn(currentTurn);
-      
-      // setCurrentTurn(
-      //   players.findIndex(p => p.userId._id === currentTurn)
-      // );
-      setTurnNo(turnNo);
-    });
+ 
     audioRef.current = new Audio(diceAudio);
     audioRef.current.volume = 1.0;
     stepAudio.current = new Audio(pawnMoveSound);
@@ -322,8 +317,8 @@ const Board = () => {
 
 
   const rollDice = () => {
-    
-    
+
+
 
 
     if (currentTurn != myUserId) return;
@@ -332,8 +327,10 @@ const Board = () => {
     if (sharedRolling) return;
 
 
-  
-    socket.current.emit("diceRolling", { roomId });
+
+    socket.current.on("diceRolling", () => {
+      setSharedRolling(true);
+    });
 
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
@@ -347,12 +344,10 @@ const Board = () => {
 
       if (rollCount >= 10) {
         clearInterval(rollInterval);
-        const finalValue = Math.floor(Math.random() * 6) + 1;
-        setSharedDiceValue(finalValue);
         setSharedRolling(false);
 
         setTimeout(() => {
-          movePlayer(finalValue);
+          movePlayer(sharedDiceValue);
         }, 300);
       }
     }, 35);
@@ -384,13 +379,12 @@ const Board = () => {
     if (nextTurn === 0) {
       setTurnNo(prev => prev + 1);
     }
-   
 
-      socket.current.emit("rollDice", {
-        gameCode: roomId,
-        diceValue: sharedDiceValue
-      });
-    
+
+    socket.current.emit("rollDice", {
+      gameCode: roomId,
+    });
+
 
 
     socket.current.emit("sendMessage", {

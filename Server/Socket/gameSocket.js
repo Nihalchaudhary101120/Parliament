@@ -48,7 +48,7 @@ export default function gameSocket(io, socket) {
   });
 
 
-  socket.on("rollDice", async ({ gameCode, diceValue }) => {
+  socket.on("rollDice", async ({ gameCode }) => {
     const game = await Game.findOne({ gameCode });
     if (!game || game.status !== "active") return;
 
@@ -58,41 +58,47 @@ export default function gameSocket(io, socket) {
       return socket.emit("errorMsg", "Not your turn");
     }
 
-    const idx = game.players.findIndex(
-      p => p.userId.toString() === userId.toString()
-    );
+     io.to(gameCode).emit("diceRolling");
 
-    game.players[idx].position =
-      (game.players[idx].position + diceValue) % 32;
+    // 2️⃣ backend decides dice ONCE
+    const diceValue = Math.floor(Math.random() * 6) + 1;
 
-    // Advance turn + round
-    const nextIndex = (idx + 1) % game.players.length;
 
-    if (nextIndex === 0) {
-      game.turnNo += 1;
-    }
 
-    game.currentTurn = game.players[nextIndex].userId;
+    setTimeout(async () => {
 
-    await game.save();
+      const idx = game.players.findIndex(
+        p => p.userId.toString() === userId.toString()
+      );
 
-    io.to(gameCode).emit("authoritativeUpdate", {
-      players: game.players,
-      currentTurn: game.currentTurn,
-      turnNo: game.turnNo
-    });
 
-    io.to(gameCode).emit("diceResult", {
-      diceValue,
-    });
+      game.players[idx].position =
+        (game.players[idx].position + diceValue) % 32;
+
+      // Advance turn + round
+      const nextIndex = (idx + 1) % game.players.length;
+
+      if (nextIndex === 0) {
+        game.turnNo += 1;
+      }
+
+      game.currentTurn = game.players[nextIndex].userId;
+
+      await game.save();
+
+
+      io.to(gameCode).emit("diceResult", {
+        players: game.players,
+        currentTurn: game.currentTurn,
+        turnNo: game.turnNo,
+        diceValue,
+      });
+    }, 1200);
   });
 
-  socket.on("diceRolling", ({ roomId }) => {
-    io.to(roomId).emit("diceRolling");
-  }
 
 
-  );
+
 
 
 
