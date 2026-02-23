@@ -19,6 +19,7 @@ router.get('/me', (req, res) => {
     return res.status(401).json({ success: false });
   }
 
+  // return whatever is stored in session including isGuest flag
   res.json({
     success: true,
     user: req.session.user

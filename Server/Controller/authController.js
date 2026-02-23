@@ -24,7 +24,8 @@ export const signup = async (req, res) => {
       });
     });
 
-    req.session.user = { id: user._id, username: user.username };
+    // include guest flag in session for accurate client-side checks
+    req.session.user = { id: user._id, username: user.username, isGuest: user.isGuest };
     user.sessionToken = req.session.user.id;
     await user.save();
 
@@ -53,7 +54,8 @@ export const signin = async (req, res) => {
       });
     });
 
-    req.session.user = { id: user._id, username: user.username };
+    // preserve isGuest flag in session
+    req.session.user = { id: user._id, username: user.username, isGuest: user.isGuest };
     user.sessionToken = req.session.user.id;
     user.lastActive = Date.now();
     await user.save();
@@ -82,7 +84,10 @@ export const setUsername = async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     user.username = username;
-    if (user.isGuest) user.isGuest = false; // converting guest -> registered username (if applicable)
+    if (user.isGuest) {
+      user.isGuest = false; // converting guest -> registered username (if applicable)
+      req.session.user.isGuest = false; // update session flag as well
+    }
     await user.save();
 
     // keep session in sync

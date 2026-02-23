@@ -17,19 +17,24 @@ export const createGuest = async (req, res) => {
             });
         });
 
+        // store full user info in session (including guest flag)
         req.session.user = {
             id: user._id,
-            username: user.username
+            username: user.username,
+            isGuest: true
         };
 
         user.sessionToken = req.session.user.id;
         await user.save();
 
+        // respond with same shape as other auth endpoints
         res.status(200).json({
             success: true,
-            username: user.username,
-            isGuest: true,
-            sessionToken: req.session.user.id
+            user: {
+                id: user._id,
+                username: user.username,
+                isGuest: true
+            }
         });
 
     } catch (err) {

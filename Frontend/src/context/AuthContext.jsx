@@ -30,8 +30,11 @@ export function AuthProvider({ children }) {
         try {
             const res = await api.get("/auth/guest");
             console.log("Guest created:", res.data);
-            setUser(res.data);
-            navigate("/dashboard");
+            // server now returns { success, user: { id, username, isGuest } }
+            if (res.data.user) {
+                setUser(res.data.user);
+                navigate("/dashboard");
+            }
         } catch (err) {
             console.log("Guest login failed", err);
         }
