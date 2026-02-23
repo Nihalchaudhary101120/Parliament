@@ -37,6 +37,8 @@ export default function GameChatContainer() {
     };
   }, [roomId]);
 
+ 
+
   const addMessage = (sender, content, type) => {
     const socket = getSocket();
     if (!socket) return;
@@ -47,7 +49,7 @@ export default function GameChatContainer() {
       type
     });
   };
-console.log("Container addMessage:", addMessage);
+  // console.log("Container addMessage:", addMessage);
 
 
   return (

@@ -16,12 +16,12 @@
     //   });
     // });
     
-    socket.on("sendMessage", ({ roomId, message ,type="user"}) => {
+    socket.on("sendMessage", ({ roomId, message ,type}) => {
       io.to(roomId).emit("receiveMessage", {
         id: Date.now(),
         sender:type === "system" ? "System" : user.username,
         content: message,
-        type:"user",
+        type,
         time: new Date().toLocaleTimeString()
       });
     });

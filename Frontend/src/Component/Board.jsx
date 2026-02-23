@@ -56,7 +56,7 @@ const Board = () => {
   const socket = useRef(null);
   const [players, setPlayers] = useState(playersInfo);
   const [sharedRolling, setSharedRolling] = useState(false);
-  const [sharedDiceValue, setSharedDiceValue] = useState(1);
+  const [sharedDiceValue, setSharedDiceValue] = useState(2);
   console.log("playersInfo:", playersInfo);
   console.log("players:", players);
 
@@ -182,8 +182,8 @@ const Board = () => {
   // Right column (top → bottom)
   for (let i = 1; i < size - 1; i++) border.push({ r: i, c: size - 1 });
 
-  const [diceValue, setDiceValue] = useState(1);
-  const [isRolling, setIsRolling] = useState(false);
+  // const [diceValue, setDiceValue] = useState(1);
+  // const [isRolling, setIsRolling] = useState(false);
   const audioRef = useRef(null);
   const stepAudio = useRef(null);
   // console.log("myUserId:" , myUserId);
@@ -206,7 +206,7 @@ const Board = () => {
       setSharedRolling(false);
     });
 
-        socket.current.on("myUserIdentity", ({ myUserId }) => {
+    socket.current.on("myUserIdentity", ({ myUserId }) => {
       setMyUserId(myUserId);
       console.log("kyalikhu:", myUserId);
     });
@@ -217,9 +217,11 @@ const Board = () => {
     socket.current.on("authoritativeUpdate", ({ players, currentTurn, turnNo }) => {
       setPlayers(players);
       setOptimisticPlayers(players);
-      setCurrentTurn(
-        players.findIndex(p => p.userId._id === currentTurn)
-      );
+      setCurrentTurn(currentTurn);
+      
+      // setCurrentTurn(
+      //   players.findIndex(p => p.userId._id === currentTurn)
+      // );
       setTurnNo(turnNo);
     });
     audioRef.current = new Audio(diceAudio);
@@ -235,7 +237,7 @@ const Board = () => {
     }
   }, []);
 
- 
+
 
   useEffect(() => {
     if (players?.length) {
@@ -320,9 +322,8 @@ const Board = () => {
 
 
   const rollDice = () => {
-    console.log("roll dice clicked");
-    console.log(currentTurn);
-    console.log(myUserId);
+    
+    
 
 
     if (currentTurn != myUserId) return;
@@ -331,8 +332,7 @@ const Board = () => {
     if (sharedRolling) return;
 
 
-    // setIsRolling(true);
-
+  
     socket.current.emit("diceRolling", { roomId });
 
     if (audioRef.current) {
@@ -345,7 +345,7 @@ const Board = () => {
       setSharedDiceValue(Math.floor(Math.random() * 6) + 1)
       rollCount++;
 
-      if (rollCount >= 15) {
+      if (rollCount >= 10) {
         clearInterval(rollInterval);
         const finalValue = Math.floor(Math.random() * 6) + 1;
         setSharedDiceValue(finalValue);
@@ -358,40 +358,47 @@ const Board = () => {
     }, 35);
 
     // const dice = Math.floor(Math.random() * 6) + 1;
-    console.log("Dice value:", dice);
+    console.log("Dice value:", sharedDiceValue);
 
     // setDiceValue(dice);
-    setSharedDiceValue(dice);
+    // setSharedDiceValue(dice);
     setOptimisticPlayers(prev =>
       prev.map((p, i) =>
         i === currentTurn
-          ? { ...p, position: (p.position + dice) % border.length }
+          ? { ...p, position: (p.position + sharedDiceValue) % border.length }
           : p
       )
     );
 
-    const nextTurn = (currentTurn + 1) % players.length;
-    setCurrentTurn(nextTurn);
+    // const nextTurn = (currentTurn + 1) % players.length;
+    // setCurrentTurn(nextTurn);
+    const myIndex = players.findIndex(
+      p => p.userId._id === currentTurn
+    );
+
+    const nextTurn = (myIndex + 1) % players.length;
+
+    setCurrentTurn(players[nextTurn].userId._id);
 
     // UI round increment (matches backend)
     if (nextTurn === 0) {
       setTurnNo(prev => prev + 1);
     }
-    setTimeout(() => {
+   
 
       socket.current.emit("rollDice", {
         gameCode: roomId,
-        diceValue: dice
+        diceValue: sharedDiceValue
       });
-    }, 1200);
+    
 
 
     socket.current.emit("sendMessage", {
       roomId,
-      message: `${players[currentTurn].username} rolled: ${dice}`,
+      message: `${players[myIndex].userId.username} rolled: ${sharedDiceValue}`,
       type: "system"
     });
-    setTimeout(() => setIsRolling(false), 600);
+    setTimeout(() => setSharedRolling(false), 600);
   }
 
 
