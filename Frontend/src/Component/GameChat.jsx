@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 
 //child of gameChatContainer
 
-export default function GameChat({ messages=[], addMessage }) {
+export default function GameChat({ messages = [], addMessage, players }) {
 
     const [inputMessage, setInputMessage] = useState('');
     const messagesEndRef = useRef(null);
@@ -41,7 +41,7 @@ export default function GameChat({ messages=[], addMessage }) {
                     <div className="chat-title">GAME CHAT</div>
                     <div className="chat-status">
                         <span className="status-dot"></span>
-                        <span>6 Players</span>
+                        <span>{players.length || 0} Players</span>
                     </div>
                 </div>
                 <div className="chat-messages">

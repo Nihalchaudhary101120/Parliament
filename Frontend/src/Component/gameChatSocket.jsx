@@ -6,7 +6,7 @@ import { getSocket } from "./socket";
 
 
 
-export default function GameChatContainer() {
+export default function GameChatContainer({players}) {
   const [messages, setMessages] = useState([]);
 
   const location = useLocation();
@@ -27,7 +27,6 @@ export default function GameChatContainer() {
     // } else {
     //   socket.once("connect", joinRoom);
     // }
-    socket.off("receiveMessage");
     socket.on("receiveMessage", (msg) => {
       setMessages(prev => [...prev, msg]);
     });
@@ -36,8 +35,6 @@ export default function GameChatContainer() {
       socket.off("receiveMessage");
     };
   }, [roomId]);
-
- 
 
   const addMessage = (sender, content, type) => {
     const socket = getSocket();
@@ -56,6 +53,7 @@ export default function GameChatContainer() {
     <GameChat
       messages={messages}
       addMessage={addMessage}
+      players = {players}
     />
   );
 }

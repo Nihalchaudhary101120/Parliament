@@ -52,13 +52,12 @@ import { Navigate } from 'react-router-dom';
 const Board = () => {
   const location = useLocation();
   const roomId = new URLSearchParams(location.search).get("room");
-  const playersInfo = location.state?.players || null;
+  let playersInfo = location.state?.players || null;
   const socket = useRef(null);
-  const [players, setPlayers] = useState(playersInfo);
   const [sharedRolling, setSharedRolling] = useState(false);
   const [sharedDiceValue, setSharedDiceValue] = useState(2);
   console.log("playersInfo:", playersInfo);
-  console.log("players:", players);
+  // console.log("players:", players);
 
   const [turnNo, setTurnNo] = useState(1);
   const tileIcons = {
@@ -149,6 +148,9 @@ const Board = () => {
     "whitePawn": whitePawn,
   }
   const game = location.state?.game || "";
+  playersInfo = game?.players || "";
+  console.log("game.playesr", playersInfo);
+  const [players, setPlayers] = useState(playersInfo);
   console.log("gameSchema:", game);
 
   const [currentTurn, setCurrentTurn] = useState(game.currentTurn);
@@ -201,11 +203,18 @@ const Board = () => {
       setSharedRolling(true);
     });
 
-    socket.current.on("diceResult", ({ diceValue , currentTurn , players , turnNo }) => {
+    socket.current.on("diceResult", async ({ diceValue, previousTurn, currentTurn, players: updatedPlayers, turnNo }) => {
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
-      setPlayers(players);
-      setOptimisticPlayers(players);
+
+      const movingIndex = players.findIndex(
+        p => p.userId._id.toString() === previousTurn.toString()
+      );
+
+      await animateMove(diceValue, movingIndex);
+
+      setPlayers(updatedPlayers);
+      setOptimisticPlayers(updatedPlayers);
       setCurrentTurn(currentTurn);
       setTurnNo(turnNo);
     });
@@ -218,7 +227,7 @@ const Board = () => {
     // 🔥 Ask backend AFTER listener is ready
     socket.current.emit("requestMyIdentity");
 
- 
+
     audioRef.current = new Audio(diceAudio);
     audioRef.current.volume = 1.0;
     stepAudio.current = new Audio(pawnMoveSound);
@@ -316,120 +325,137 @@ const Board = () => {
   // }
 
 
+  // const rollDice = () => {
+  //   if (currentTurn != myUserId) return;
+  //   console.log("return hogaya");
+
+  //   if (sharedRolling) return;
+
+
+  //   if (audioRef.current) {
+  //     audioRef.current.currentTime = 0;
+  //     audioRef.current.play().catch(err => console.log("Audio play failed:", err));
+  //   }
+
+  //   let rollCount = 0;
+  //   const rollInterval = setInterval(() => {
+  //     setSharedDiceValue(Math.floor(Math.random() * 6) + 1)
+  //     rollCount++;
+
+  //     if (rollCount >= 10) {
+  //       clearInterval(rollInterval);
+  //       setSharedRolling(false);
+
+  //       setTimeout(() => {
+  //         // movePlayer(sharedDiceValue);
+  //       }, 300);
+  //     }
+  //   }, 35);
+
+  //   // const dice = Math.floor(Math.random() * 6) + 1;
+  //   console.log("Dice value:", sharedDiceValue);
+
+  //   // setDiceValue(dice);
+  //   // setSharedDiceValue(dice);
+  //   // const nextTurn = (currentTurn + 1) % players.length;
+  //   // setCurrentTurn(nextTurn);
+  //   const myIndex = players.findIndex(
+  //     p => p.userId._id === currentTurn
+  //   );
+
+  //   const nextTurn = (myIndex + 1) % players.length;
+
+  //   socket.current.emit("rollDice", {
+  //     gameCode: roomId,
+  //   });
+
+  //   socket.current.emit("sendMessage", {
+  //     roomId,
+  //     message: `${players[myIndex].userId.username} rolled: ${sharedDiceValue}`,
+  //     type: "system"
+  //   });
+  //   setTimeout(() => setSharedRolling(false), 600);
+  // }
+
   const rollDice = () => {
 
-
-
-
-    if (currentTurn != myUserId) return;
-    console.log("return hogaya");
-
+    if (currentTurn !== myUserId) return;
     if (sharedRolling) return;
-
-
-
-    socket.current.on("diceRolling", () => {
-      setSharedRolling(true);
-    });
 
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(err => console.log("Audio play failed:", err));
     }
-
-    let rollCount = 0;
-    const rollInterval = setInterval(() => {
-      setSharedDiceValue(Math.floor(Math.random() * 6) + 1)
-      rollCount++;
-
-      if (rollCount >= 10) {
-        clearInterval(rollInterval);
-        setSharedRolling(false);
-
-        setTimeout(() => {
-          movePlayer(sharedDiceValue);
-        }, 300);
-      }
-    }, 35);
-
-    // const dice = Math.floor(Math.random() * 6) + 1;
-    console.log("Dice value:", sharedDiceValue);
-
-    // setDiceValue(dice);
-    // setSharedDiceValue(dice);
-    setOptimisticPlayers(prev =>
-      prev.map((p, i) =>
-        i === currentTurn
-          ? { ...p, position: (p.position + sharedDiceValue) % border.length }
-          : p
-      )
-    );
-
-    // const nextTurn = (currentTurn + 1) % players.length;
-    // setCurrentTurn(nextTurn);
-    const myIndex = players.findIndex(
-      p => p.userId._id === currentTurn
-    );
-
-    const nextTurn = (myIndex + 1) % players.length;
-
-    setCurrentTurn(players[nextTurn].userId._id);
-
-    // UI round increment (matches backend)
-    if (nextTurn === 0) {
-      setTurnNo(prev => prev + 1);
-    }
-
-
     socket.current.emit("rollDice", {
       gameCode: roomId,
     });
 
+  };
 
 
-    socket.current.emit("sendMessage", {
-      roomId,
-      message: `${players[myIndex].userId.username} rolled: ${sharedDiceValue}`,
-      type: "system"
+  // const movePlayer = (steps) => {
+  //   let step = 0;
+  //   const interval = setInterval(() => {
+  //     if (stepAudio.current) {
+  //       stepAudio.current.currentTime = 0;
+  //       stepAudio.current.playbackRate = 0.95 + Math.random() * 0.1;
+  //       stepAudio.current.play().catch(() => { });
+  //     }
+  //     setPlayers(prev =>
+  //       prev.map((p, idx) =>
+  //         idx === currentTurn
+  //           ? { ...p, position: (p.position + 1) % border.length }
+  //           : p
+  //       )
+  //     );
+  //     step++;
+  //     if (step >= steps) {
+  //       clearInterval(interval);
+  //       const newPos = (players[currentTurn]?.position + steps) % border.length;
+  //       const landedTile = tileData[newPos];
+  //       // addMessage('System', `${players[currentTurn].name} landed on ${landedTile}`, 'system');
+  //       const socket = getSocket();
+  //       socket.emit("sendMessage", {
+  //         roomId,
+  //         message: `${players[currentTurn].username} landed on ${landedTile}`,
+  //         type: "system"
+  //       });
+
+  //       setCurrentTurn((prev) => (prev + 1) % players.length);
+  //     }
+  //   }, 320);
+  // };
+
+  const animateMove = (steps, movingIndex) => {
+    return new Promise((resolve) => {
+
+      let step = 0;
+
+      const interval = setInterval(() => {
+
+        if (stepAudio.current) {
+          stepAudio.current.currentTime = 0;
+          stepAudio.current.play().catch(() => { });
+        }
+
+        setOptimisticPlayers(prev =>
+          prev.map((p, idx) =>
+            idx === movingIndex
+              ? { ...p, position: (p.position + 1) % border.length }
+              : p
+          )
+        );
+
+        step++;
+
+        if (step >= steps) {
+          clearInterval(interval);
+          resolve();
+        }
+
+      }, 320);
+
     });
-    setTimeout(() => setSharedRolling(false), 600);
-  }
-
-
-
-  const movePlayer = (steps) => {
-    let step = 0;
-
-    const interval = setInterval(() => {
-      if (stepAudio.current) {
-        stepAudio.current.currentTime = 0;
-        stepAudio.current.playbackRate = 0.95 + Math.random() * 0.1;
-        stepAudio.current.play().catch(() => { });
-      }
-      setPlayers(prev =>
-        prev.map((p, idx) =>
-          idx === currentTurn
-            ? { ...p, position: (p.position + 1) % border.length }
-            : p
-        )
-      );
-
-      step++;
-      if (step >= steps) {
-        clearInterval(interval);
-        const newPos = (players[currentTurn].position + steps) % border.length;
-        const landedTile = tileData[newPos];
-        // addMessage('System', `${players[currentTurn].name} landed on ${landedTile}`, 'system');
-        const socket = getSocket();
-        socket.emit("sendMessage", {
-          roomId,
-          message: `${players[currentTurn].username} landed on ${landedTile}`,
-          type: "system"
-        });
-
-        setCurrentTurn((prev) => (prev + 1) % players.length);
-      }
-    }, 320);
   };
 
 
@@ -439,7 +465,7 @@ const Board = () => {
       <CardModal />
 
       {/* <GameChat messages={messages} addMessage={addMessage} /> */}
-      <GameChatContainer />
+      <GameChatContainer players={players} />
 
 
       {/* Board - Centered */}

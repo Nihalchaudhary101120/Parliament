@@ -58,19 +58,14 @@ export default function gameSocket(io, socket) {
       return socket.emit("errorMsg", "Not your turn");
     }
 
-     io.to(gameCode).emit("diceRolling");
+    io.to(gameCode).emit("diceRolling");
 
     // 2️⃣ backend decides dice ONCE
     const diceValue = Math.floor(Math.random() * 6) + 1;
-
-
-
     setTimeout(async () => {
-
       const idx = game.players.findIndex(
         p => p.userId.toString() === userId.toString()
       );
-
 
       game.players[idx].position =
         (game.players[idx].position + diceValue) % 32;
@@ -86,21 +81,26 @@ export default function gameSocket(io, socket) {
 
       await game.save();
 
+      await game.populate("players.userId");
 
       io.to(gameCode).emit("diceResult", {
         players: game.players,
+        previousTurn: userId,
         currentTurn: game.currentTurn,
         turnNo: game.turnNo,
         diceValue,
       });
-    }, 1200);
+
+      io.to(gameCode).emit("receiveMessage", {
+        id: Date.now(),
+        sender: "System",
+        content: `${user.username} rolled ${diceValue}`,
+        type: "system",
+        time: new Date().toLocaleTimeString()
+      });
+
+    }, 700);
   });
-
-
-
-
-
-
 
 
   socket.on("disconnect", () => {

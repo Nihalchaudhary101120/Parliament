@@ -1,6 +1,6 @@
 import Game from "../models/GameSession.js";
 import Card from "../models/cards.js";
-const pawnColor=['blackPawn' , 'whitePawn' , 'bluePawn', 'yellowPawn' , 'greenPawn']
+const pawnColor = ['blackPawn', 'whitePawn', 'bluePawn', 'yellowPawn', 'greenPawn']
 export const createRoom = async (req, res) => {
   try {
 
@@ -23,7 +23,7 @@ export const createRoom = async (req, res) => {
           cards: [],
           isBot: false,
 
-          pawn:'redPawn',
+          pawn: 'redPawn',
 
           remainingParliamentHp: 1000,
           remainingShieldHp: 0,
@@ -46,7 +46,7 @@ export const createRoom = async (req, res) => {
       gameCode: game.gameCode,
       gameId: game._id
     })
-    
+
   }
 
   catch (err) {
@@ -94,7 +94,7 @@ export const joinRoom = async (req, res) => {
         position: 0,
         skippedChances: 0,
         isActive: true,
-        pawn:pawnColor[game.players.length-1]
+        pawn: pawnColor[game.players.length - 1]
       });
     }
 
@@ -161,7 +161,7 @@ const getMysteryCard = () => {
       statement: "Printed War money"
     },
     {
-      amount: 100,
+      amount: +100,
       statement: "Bribe attempt works"
     },
     {
@@ -222,17 +222,21 @@ export const turn = async (req, res) => {
 
     const card = await Card.find({ position: player.position });
     let purchased = false;
-
+    let ownerOfCard = "";
     if (card.isPurchasable) {
       for (p of game.players) {
+        ownerOfCard = p.userId;
         for (c of p.cards) {
           if (c.cardId === card._id) {
             purchased = true;
+            break;
           }
         }
       }
       if (purchased) { //damage to current player
-        player.remainingParliamentHp -= card.weaponDamage
+        if (ownerOfCard != userId) {
+          player.remainingParliamentHp -= card.weaponDamage
+        }
       } else { //buy or bid
 
       }
@@ -250,6 +254,10 @@ export const turn = async (req, res) => {
           break;
 
         case "safe":
+          break;
+
+        case "start":
+          player.cashRemaining += 200;
           break;
 
         case "mystry":

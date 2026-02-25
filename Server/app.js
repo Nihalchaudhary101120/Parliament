@@ -5,7 +5,7 @@ import cors from "cors";
 import authRoute from "./route/authRoute.js";
 import session from "express-session";
 import gameRoute from "./route/gameRoute.js";
-
+import cardController from "./Controller/card.Contoller.js";
 
 connectDB();
 const app = express();
@@ -28,6 +28,7 @@ const sessionMiddleWare = session({
 app.use(sessionMiddleWare);
 app.use('/auth', authRoute);
 app.use('/friends', gameRoute);
+app.use('/cards', cardController);
 
 export { sessionMiddleWare, app };
 
