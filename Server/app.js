@@ -25,10 +25,10 @@ const sessionMiddleWare = session({
         sameSite: 'lax'
     }
 });
+app.use('/cards', cardController);
 app.use(sessionMiddleWare);
 app.use('/auth', authRoute);
 app.use('/friends', gameRoute);
-app.use('/cards', cardController);
 
 export { sessionMiddleWare, app };
 

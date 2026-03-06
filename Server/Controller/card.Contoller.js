@@ -15,9 +15,9 @@ router.post("/", async (req, res) => {
             isPurchasable,
         } = req.body;
 
-        if (!name || !category || !isPurchasable) return res.status(400).json({ message: "Fill all fields properly", success: false });
+        if (!name || !category ) return res.status(400).json({ message: "Fill all fields properly", success: false });
 
-        const existed = await Cards.findOne({ name, category, isPurchasable });
+        const existed = await Cards.findOne({ name, category, isPurchasable , position });
         if (existed) return res.status(400).json({ message: "Already existed", success: false });
         await Cards.create({
             name,
