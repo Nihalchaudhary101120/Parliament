@@ -157,7 +157,7 @@ const getMysteryCard = () => {
       statement: "Cyber attack repair cost"
     },
     {
-      amount: -50,
+      amount: +50,
       statement: "Printed War money"
     },
     {
@@ -169,11 +169,11 @@ const getMysteryCard = () => {
       statement: "Bribe attempt caught"
     },
     {
-      amount: -100,
+      amount: +100,
       statement: "Successful strike, looted enemy resources"
     }, {
       amount: -100,
-      statement: "Defence drone deployed"
+      statement: "Defence Drone deployed"
     }
   ]
   return MysteryBox[getRand];
@@ -223,65 +223,100 @@ export const turn = async (req, res) => {
     const card = await Card.find({ position: player.position });
     let purchased = false;
     let ownerOfCard = "";
-    if (card.isPurchasable) {
-      for (p of game.players) {
-        ownerOfCard = p.userId;
-        for (c of p.cards) {
-          if (c.cardId === card._id) {
-            purchased = true;
-            break;
-          }
-        }
-      }
-      if (purchased) { //damage to current player
-        if (ownerOfCard != userId) {
-          player.remainingParliamentHp -= card.weaponDamage
-        }
-      } else { //buy or bid
+    let shieldDamage = 0;
+    let hasAgent = player.agent;
+    let agentDamage = 0;
+    let scientistDamage=0;
+    let scientistQty = 0;
 
-      }
-    }
 
     let mysteryCase = {};
-    if (!card.isPurchasable) {
-      switch (card.category) {
-        case "public":
-          player.remainingParliamentHp -= card.weaponDamage;
-          break;
 
-        case "terror":
-          player.cashRemaining -= card.price;
-          break;
+    switch (card.category) {
+      case "public":
+        player.remainingParliamentHp -= card.weaponDamage;
+        player.remainingShieldHp -= card.weaponDamage;
+        if (player.remainingShieldHp < 0) { player.remainingShieldHp = 0; }
+        break;
 
-        case "safe":
-          break;
 
-        case "start":
-          player.cashRemaining += 200;
-          break;
+      case "weapon":
+        if (card.isPurchasable) {
+          for (p of game.players) {
+            ownerOfCard = p.userId;
+            scientistQty=ownerOfCard.scientist;
+            for (c of p.cards) {
+              if (c.cardId === card._id) {
+                purchased = true;
+                break;
+              }
+            }
+          }
+          scientistDamage = card.weaponDamage+(card.weaponDamage*scientistQty*0.03);
+          agentDamage = hasAgent ? (scientistDamage / 2) : scientistDamage;
 
-        case "mystry":
-          mysteryCase = getMysteryCard();
-          player.cashRemaining += mysteryCase.amount;
-          break;
+          if (purchased) {
+            //damage to current player
+            if (ownerOfCard != userId) {
+              if (player?.remainingShieldHp >= agentDamage) {
+                player.remainingShieldHp -= agentDamage;
 
-        case "agent":
-          // apply 
-          break;
+              } else if (player?.remainingShieldHp !== 0 && player?.remainingShieldHp < agentDamage) {
+                shieldDamage = player.remainingShieldHp - agentDamage;
+                player.remainingShieldHp = 0;
+                player.remainingParliamentHp += shieldDamage;
+              } else {
+                player.remainingParliamentHp -= agentDamage;
+              }
+            }
+          } else { //buy or bid
+            if (player?.cashRemaining < card?.price) {
+              return //bid return karwani hai 
+            }
 
-        case "scientist":
-          // applly
-          break;
+          }
+        }
+        break;
 
-        case "engineer":
-          // apply
-          break;
+      case "terror":
+        player.cashRemaining -= card.price;
+        break;
 
-        default:
-          throw new Error("Unknown card category");
-      }
+      case "safe":
+        break;
+
+      case "start":
+        player.cashRemaining += 200;
+        break;
+
+      case "mystry":
+        mysteryCase = getMysteryCard();
+        player.cashRemaining += mysteryCase.amount;
+        break;
+
+      case "agent":
+        player.agent = true;
+        break;
+
+      case "scientist":
+        player.scientist += 1;
+
+
+        break;
+
+      case "engineer":
+        player.remainingParliamentHp+=100;
+        if(player.remainingParliamentHp>1000){
+          player.remainingParliamentHp=1000;
+        }
+        break;
+
+      default:
+        throw new Error("Unknown card category");
+
 
     }
+    player.agent=false;
 
     await game.save();
 

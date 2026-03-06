@@ -24,7 +24,9 @@ const GameSchema = new mongoose.Schema({
             position: { type: Number, required: true },
             skippedChances: { type: Number, default: 0 },
             pawn:{type:String  , required:true},
-            isActive: { type: Boolean, required: true }
+            isActive: { type: Boolean, required: true },
+            scientist:{type:Number ,default:0},
+            agent:{type:Boolean ,default:false}
         }
     ],
     maxPlayer: { type: Number, required: true },
