@@ -252,7 +252,6 @@ export const turn = async (req, res) => {
         player.remainingShieldHp -= card.weaponDamage;
         if (player.remainingShieldHp < 0) { player.remainingShieldHp = 0; }
         player.agent = false;// ye isliye kiya taki next chance par agent false ho jaye 
-
         break;
 
       case "weapon":
@@ -335,7 +334,6 @@ export const turn = async (req, res) => {
       case "terror":
         player.cashRemaining -= card.price;
         player.agent = false;
-
         break;
 
       case "safe":
@@ -346,7 +344,6 @@ export const turn = async (req, res) => {
       case "start":
         player.cashRemaining += 200;
         player.agent = false;
-
         break;
 
       case "mystry":
