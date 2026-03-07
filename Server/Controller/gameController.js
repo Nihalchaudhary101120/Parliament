@@ -190,6 +190,7 @@ export const turn = async (req, res) => {
 
     dice = Number(dice);
     const game = await Game.findById(gameId);
+    game.turnNo += 1;
 
     if (!game || game.status !== "active") {
       return res.status(400).json({ message: "Game not active" });
@@ -254,7 +255,6 @@ export const turn = async (req, res) => {
 
         break;
 
-
       case "weapon":
         if (card.isPurchasable) {
           for (let p of game.players) {
@@ -302,7 +302,7 @@ export const turn = async (req, res) => {
               return res.json({
                 success: true,
                 bidStarted: true,
-                reason:"insufficent_money",
+                reason: "insufficent_money",
                 card: {
                   id: card._id,
                   name: card.name,
@@ -313,15 +313,19 @@ export const turn = async (req, res) => {
             }
             else {
               return res.json({
-                success:true,
-                actionRequired:true,
-                options:[buy,bid],
-                card:{
+                success: true,
+                actionRequired: true,
+                options: [buy, bid],
+                card: {
                   id: card._id,
                   name: card.name,
-                  price : card.price
+                  price: card.price
                 },
               })
+            }
+
+            if (card.name.equals("time bomb")) {
+              game.timebombPurchaseTurn = game.turnNo;
             }
           }
         }
@@ -381,11 +385,6 @@ export const turn = async (req, res) => {
       player.isActive = false;
     }
 
-    if (currentIndex == game.players.length - 1) {
-      game.turnNo += 1;
-    }
-
-
     await game.save();
 
     let remainingActivePlayer = 0;
@@ -395,6 +394,23 @@ export const turn = async (req, res) => {
     if (remainingActivePlayer == 1) {
       game.status = "finished";
       game.winner = userId;
+    }
+
+    let shieldDamageforTimeBomb = 0;
+    if ((game.turnNo - game.timebombPurchaseTurn) % 4 == 0) {
+      for (const p of game.players) {
+        if (p.position <= 18 && p.position >= 10) {
+          if (p?.remainingShieldHp >= 90) {
+            p.remainingShieldHp -= 90;
+          } else if (p?.remainingShieldHp !== 0 && p?.remainingShieldHp < 90) {
+            shieldDamageforTimeBomb = p.remainingShieldHp - 90;
+            p.remainingShieldHp = 0;
+            p.remainingParliamentHp += shieldDamageforTimeBomb;
+          } else {
+            p.remainingParliamentHp -= 90;
+          }
+        }
+      }
     }
 
     res.json({
