@@ -122,7 +122,7 @@ export const joinRoom = async (req, res) => {
 };
 
 const getMysteryCard = () => {
-  const getRand = () => Math.floor((Math.random() * 10) + 4);
+  const getRand = () => Math.floor(Math.random() * MysteryBox.length);
   const MysteryBox = [
     {
       amount: +150,
@@ -180,11 +180,15 @@ const getMysteryCard = () => {
 
 }
 
+
+
+
 export const turn = async (req, res) => {
   try {
-    const userId = req.session.userId;
+    const userId = req.session.user.id;
     const { gameId, dice, chanceSkipped } = req.query;
 
+    dice = Number(dice);
     const game = await Game.findById(gameId);
 
     if (!game || game.status !== "active") {
@@ -206,6 +210,8 @@ export const turn = async (req, res) => {
 
     if (player.skippedChances == 4) {
       player.isActive = false;
+
+      // ai take or free cards when he takes initally
     }
 
     const currentIndex = game.players.findIndex(p =>
@@ -217,19 +223,26 @@ export const turn = async (req, res) => {
     while (!game.players[nextIndex].isActive) {
       nextIndex = (nextIndex + 1) % game.players.length;
     }
+    if (currentIndex == nextIndex) {
+      game.status = "finished";
+      game.winner = userId;
+    }
 
     player.position = (player.position + dice) % 32;
 
-    const card = await Card.find({ position: player.position });
+    const card = await Card.findOne({ position: player.position });
     let purchased = false;
     let ownerOfCard = "";
     let shieldDamage = 0;
     let hasAgent = player.agent;
     let agentDamage = 0;
-    let scientistDamage=0;
+    let scientistDamage = 0;
     let scientistQty = 0;
 
 
+    function getOwnerPlayerById(game, ownerId) {
+      return game.players.find(p => p.userId.equals(ownerId));
+    }
     let mysteryCase = {};
 
     switch (card.category) {
@@ -237,22 +250,28 @@ export const turn = async (req, res) => {
         player.remainingParliamentHp -= card.weaponDamage;
         player.remainingShieldHp -= card.weaponDamage;
         if (player.remainingShieldHp < 0) { player.remainingShieldHp = 0; }
+        player.agent = false;// ye isliye kiya taki next chance par agent false ho jaye 
+
         break;
 
 
       case "weapon":
         if (card.isPurchasable) {
-          for (p of game.players) {
+          for (let p of game.players) {
             ownerOfCard = p.userId;
-            scientistQty=ownerOfCard.scientist;
-            for (c of p.cards) {
+
+            scientistQty = getOwnerPlayerById(game, ownerOfCard)?.scientist;
+            for (let c of p.cards) {
               if (c.cardId === card._id) {
                 purchased = true;
                 break;
               }
             }
+            if (purchased == true) {
+              break;
+            }
           }
-          scientistDamage = card.weaponDamage+(card.weaponDamage*scientistQty*0.03);
+          scientistDamage = card.weaponDamage + (card.weaponDamage * scientistQty * 0.03);
           agentDamage = hasAgent ? (scientistDamage / 2) : scientistDamage;
 
           if (purchased) {
@@ -269,29 +288,68 @@ export const turn = async (req, res) => {
                 player.remainingParliamentHp -= agentDamage;
               }
             }
-          } else { //buy or bid
-            if (player?.cashRemaining < card?.price) {
-              return //bid return karwani hai 
-            }
+          } else { //buy or bid    
 
+            if (player.cashRemaining < card.price) {
+
+              const bidders = game.players
+                .filter(p => p.isActive && p.cashRemaining > 0)
+                .map(p => ({
+                  userId: p.userId,
+                  cash: p.cashRemaining
+                }));
+
+              return res.json({
+                success: true,
+                bidStarted: true,
+                reason:"insufficent_money",
+                card: {
+                  id: card._id,
+                  name: card.name,
+                  price: card.price
+                },
+                bidders
+              });
+            }
+            else {
+              return res.json({
+                success:true,
+                actionRequired:true,
+                options:[buy,bid],
+                card:{
+                  id: card._id,
+                  name: card.name,
+                  price : card.price
+                },
+              })
+            }
           }
         }
+        player.agent = false;
         break;
 
       case "terror":
         player.cashRemaining -= card.price;
+        player.agent = false;
+
         break;
 
       case "safe":
+        player.agent = false;
+
         break;
 
       case "start":
         player.cashRemaining += 200;
+        player.agent = false;
+
         break;
 
       case "mystry":
         mysteryCase = getMysteryCard();
         player.cashRemaining += mysteryCase.amount;
+        player.agent = false;
+
         break;
 
       case "agent":
@@ -300,15 +358,17 @@ export const turn = async (req, res) => {
 
       case "scientist":
         player.scientist += 1;
-
+        player.agent = false;
 
         break;
 
       case "engineer":
-        player.remainingParliamentHp+=100;
-        if(player.remainingParliamentHp>1000){
-          player.remainingParliamentHp=1000;
+        player.remainingParliamentHp += 100;
+        if (player.remainingParliamentHp > 1000) {
+          player.remainingParliamentHp = 1000;
         }
+        player.agent = false;
+
         break;
 
       default:
@@ -316,11 +376,26 @@ export const turn = async (req, res) => {
 
 
     }
-    player.agent=false;
+
+    if (player.remainingParliamentHp <= 0) {
+      player.isActive = false;
+    }
+
+    if (currentIndex == game.players.length - 1) {
+      game.turnNo += 1;
+    }
+
 
     await game.save();
 
-
+    let remainingActivePlayer = 0;
+    for (const p of game.players) {
+      if (p.isActive == true) remainingActivePlayer++;
+    }
+    if (remainingActivePlayer == 1) {
+      game.status = "finished";
+      game.winner = userId;
+    }
 
     res.json({
       mysteryCase,

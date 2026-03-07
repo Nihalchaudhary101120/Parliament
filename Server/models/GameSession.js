@@ -26,7 +26,8 @@ const GameSchema = new mongoose.Schema({
             pawn:{type:String  , required:true},
             isActive: { type: Boolean, required: true },
             scientist:{type:Number ,default:0},
-            agent:{type:Boolean ,default:false}
+            agent:{type:Boolean ,default:false},
+            
         }
     ],
     maxPlayer: { type: Number, required: true },
@@ -35,16 +36,16 @@ const GameSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "user"
     },
+    winner:{type:mongoose.Schema.Types.ObjectId,ref:"user"},
 
     
-    turnNo: { type: Number, default: 1 },
+    turnNo: { type: Number, default: 0 },
     timebombPurchaseTurn: Number,
     status: {
         type: String,
         enum: ["waiting", "active", "finished"],
         default: "waiting"
     }
-
 
 });
 
