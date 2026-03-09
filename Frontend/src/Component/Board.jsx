@@ -130,6 +130,8 @@ const Board = () => {
   const { openCard } = useCardModal();
 
 
+
+
   // const [players, setPlayers] = useState([
   //   { id: 1, name: "Nihal", pos: 0, pawn: whitePawn },
   //   { id: 2, name: "Tanmay", pos: 0, pawn: blackPawn },
@@ -154,12 +156,20 @@ const Board = () => {
   console.log("gameSchema:", game);
 
   const [currentTurn, setCurrentTurn] = useState(game.currentTurn);
+  const currentTurnRef = useRef(game.currentTurn);
   // const [messages, setMessages] = useState([
   //   { id: 1, sender: 'System', content: 'Welcome to Parliament Game!', time: '14:30', type: 'system' },
   //   { id: 2, sender: 'Nihal', content: 'Ready to play!', time: '14:31', type: 'user' },
   //   { id: 3, sender: 'tanmay', content: 'Let\'s start the battle!', time: '14:32', type: 'user' },
   // ]);
   const [optimisticPlayers, setOptimisticPlayers] = useState([]);
+  const optimisticPlayersRef = useRef([]);
+
+  const updateOptmisticPlayers = (val) => {
+    optimisticPlayersRef.current = val;
+    setOptimisticPlayers(val);
+  }
+
   const size = 9;
   //  players.remainingParliamentHp = 400;
   const maxHP = 1000;
@@ -190,7 +200,8 @@ const Board = () => {
   const stepAudio = useRef(null);
   // console.log("myUserId:" , myUserId);
 
-  const [myUserId, setMyUserId] = useState(null)
+  const [myUserId, setMyUserId] = useState(null);
+  const myUserIdRef = useRef(null);
   // const myIndex = players.findIndex(
   //   p => p.userId._id === myUserId
   // );
@@ -203,24 +214,28 @@ const Board = () => {
       setSharedRolling(true);
     });
 
-    socket.current.on("diceResult", async ({ diceValue, previousTurn, currentTurn, players: updatedPlayers, turnNo }) => {
+    socket.current.on("diceResult", async ({ diceValue, previousTurn }) => {
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
 
-      const movingIndex = players.findIndex(
+      const movingIndex = optimisticPlayersRef.current.findIndex(
         p => p.userId._id.toString() === previousTurn.toString()
       );
 
       await animateMove(diceValue, movingIndex);
 
-      setPlayers(updatedPlayers);
-      setOptimisticPlayers(updatedPlayers);
-      setCurrentTurn(currentTurn);
-      setTurnNo(turnNo);
+      if (previousTurn === myUserIdRef.current) {
+
+        socket.current.emit("playTurn", {
+          gameCode: roomId,
+          dice: diceValue
+        });
+      }
     });
 
     socket.current.on("myUserIdentity", ({ myUserId }) => {
       setMyUserId(myUserId);
+      myUserIdRef.current = myUserId;
       console.log("kyalikhu:", myUserId);
     });
 
@@ -233,11 +248,27 @@ const Board = () => {
     stepAudio.current = new Audio(pawnMoveSound);
     stepAudio.current.volume = 0.4;
 
+
+
+    socket.current.on("turnResult", ({ players, currentTurn, turnNo, mysteryCase }) => {
+
+      setPlayers(players);
+      updateOptmisticPlayers(players);
+      setCurrentTurn(currentTurn);
+      currentTurnRef.current = currentTurn;
+      setTurnNo(turnNo);
+      setMysteryCase(mysteryCase);
+
+    });
+
     return () => {
       socket.current.off('authoritativeUpdate')
       socket.current.off('diceResult')
       socket.current.off('diceRolling')
       socket.current.off("myUserIdentity");
+
+
+      socket.current.off("turnResult");
     }
   }, []);
 
@@ -245,7 +276,7 @@ const Board = () => {
 
   useEffect(() => {
     if (players?.length) {
-      setOptimisticPlayers(players);
+      updateOptmisticPlayers(players);
     }
   }, [players]);
 
@@ -376,10 +407,14 @@ const Board = () => {
   //   });
   //   setTimeout(() => setSharedRolling(false), 600);
   // }
+  const [mysteryCase, setMysteryCase] = useState({});
 
   const rollDice = () => {
 
-    if (currentTurn !== myUserId) return;
+    console.log("gitta ghoma 1:", myUserId);
+    if (currentTurnRef.current !== myUserIdRef.current) return;
+    console.log("gitta ghoma 2:", myUserId);
+
     if (sharedRolling) return;
 
     if (audioRef.current) {
@@ -438,8 +473,8 @@ const Board = () => {
           stepAudio.current.play().catch(() => { });
         }
 
-        setOptimisticPlayers(prev =>
-          prev.map((p, idx) =>
+        updateOptmisticPlayers(
+          optimisticPlayersRef.current.map((p, idx) =>
             idx === movingIndex
               ? { ...p, position: (p.position + 1) % border.length }
               : p

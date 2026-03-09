@@ -176,7 +176,7 @@ const getMysteryCard = () => {
       statement: "Defence Drone deployed"
     }
   ]
-  return MysteryBox[getRand];
+  return MysteryBox[getRand()];
 
 }
 
@@ -314,7 +314,7 @@ export const turn = async (req, res) => {
               return res.json({
                 success: true,
                 actionRequired: true,
-                options: [buy, bid],
+                options: ["buy", "bid"],
                 card: {
                   id: card._id,
                   name: card.name,
@@ -323,7 +323,7 @@ export const turn = async (req, res) => {
               })
             }
 
-            if (card.name.equals("time bomb")) {
+            if (card.name.toString() === "time bomb") {
               game.timebombPurchaseTurn = game.turnNo;
             }
           }
