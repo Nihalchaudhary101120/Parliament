@@ -72,12 +72,16 @@ export default function gameSocket(io, socket) {
 
 
   socket.on("rollDice", async ({ gameCode }) => {
-   console.log("rollDice received from:", socket.id, "gameCode:", gameCode);
+    console.log("rollDice received from:", socket.id, "gameCode:", gameCode);
 
     const game = await Game.findOne({ gameCode });
     if (!game || game.status !== "active") return;
 
+    console.log("game mill gaya ");
+
     const userId = socket.request.session?.user?.id;
+    console.log("currentTurn", game.currentTurn);
+    console.log("userid", userId);
 
     if (game.currentTurn.toString() !== userId.toString()) {
       return socket.emit("errorMsg", "Not your turn");
@@ -87,6 +91,7 @@ export default function gameSocket(io, socket) {
 
     // 2️⃣ backend decides dice ONCE
     const diceValue = Math.floor(Math.random() * 6) + 1;
+    console.log("dice calc", diceValue);
     setTimeout(async () => {
       // const idx = game.players.findIndex(
       //   p => p.userId.toString() === userId.toString()
@@ -106,11 +111,11 @@ export default function gameSocket(io, socket) {
 
       // await game.save();
 
-      // await game.populate("players.userId");
       console.log("diceResult emitted", diceValue);
+      const game2 = await game.populate("players.userId");
 
       io.to(gameCode).emit("diceResult", {
-        // players: game.players,
+        players: game2.players,
         previousTurn: userId,
         // currentTurn: game.currentTurn,
         // turnNo: game.turnNo,
@@ -182,6 +187,9 @@ export default function gameSocket(io, socket) {
     const getOwnerPlayerById = (game, ownerId) => {
       return game.players.find(p => p.userId.toString() === ownerId.toString());
     };
+
+    game.currentTurn = game.players[nextIndex].userId;
+    await game.save();
 
     let scientistDamage = 0;
     let agentDamage = 0;
@@ -276,7 +284,8 @@ export default function gameSocket(io, socket) {
                   id: card._id,
                   name: card.name,
                   price: card.price
-                }
+                },
+                nextTurn: game.players[nextIndex].userId,
               });
 
             }
@@ -332,6 +341,11 @@ export default function gameSocket(io, socket) {
     if (player.remainingParliamentHp <= 0) {
       player.isActive = false;
     }
+
+    
+    console.log("game current turn ", game.currentTurn);
+    console.log("current turn ", game.players[nextIndex].userId);
+
 
     await game.save();
 

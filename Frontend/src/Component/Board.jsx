@@ -202,6 +202,7 @@ const Board = () => {
 
   const [myUserId, setMyUserId] = useState(null);
   const myUserIdRef = useRef(null);
+  const hasEmittedPlayTurn = useRef(false);
   // const myIndex = players.findIndex(
   //   p => p.userId._id === myUserId
   // );
@@ -213,15 +214,17 @@ const Board = () => {
     socket.current.on("diceRolling", () => {
       setSharedRolling(true);
     });
-
-    socket.current.on("diceResult", async ({ diceValue, previousTurn }) => {
+    socket.current.off('diceResult');
+    socket.current.on("diceResult", async ({ diceValue, previousTurn, players }) => {
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
-      console.log("diceResult received", diceValue);
+      // console.log("diceResult received", diceValue);
+      updateOptmisticPlayers(players);
 
-      console.log("diceResult received");
       console.log("previousTurn:", previousTurn);
       console.log("myUserId:", myUserIdRef.current);
+      console.log("playesrs in optimism ", players);
+      console.log("optimism", optimisticPlayers);
 
       const movingIndex = optimisticPlayersRef.current.findIndex(
         p => p.userId._id.toString() === previousTurn.toString()
@@ -235,12 +238,16 @@ const Board = () => {
       await animateMove(diceValue, movingIndex);
 
       if (String(previousTurn) === String(myUserIdRef.current)) {
+        if (hasEmittedPlayTurn.current) return;
+        hasEmittedPlayTurn.current = true;
         console.log("Emitting playTurn");
         socket.current.emit("playTurn", {
           gameCode: roomId,
           dice: diceValue
         });
       }
+
+      console.log("dice ends")
     });
 
 
@@ -261,9 +268,9 @@ const Board = () => {
     stepAudio.current.volume = 0.4;
 
 
-
+    socket.current.off("turnResult");
     socket.current.on("turnResult", ({ players, currentTurn, turnNo, mysteryCase }) => {
-
+      hasEmittedPlayTurn.current = false;
       setPlayers(players);
       updateOptmisticPlayers(players);
       setCurrentTurn(currentTurn);
@@ -273,12 +280,19 @@ const Board = () => {
 
     });
 
+    socket.current.on("actionRequired", ({ options, card, nextTurn }) => {
+      hasEmittedPlayTurn.current = false;
+      currentTurnRef.current = nextTurn._id || nextTurn;
+      setCurrentTurn(nextTurn);
+      // TODO: show buy/bid UI to the player
+    });
+
     return () => {
       socket.current.off('authoritativeUpdate')
       socket.current.off('diceResult')
       socket.current.off('diceRolling')
       socket.current.off("myUserIdentity");
-
+      socket.current.off("actionRequired");
 
       socket.current.off("turnResult");
     }
