@@ -217,21 +217,33 @@ const Board = () => {
     socket.current.on("diceResult", async ({ diceValue, previousTurn }) => {
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
+      console.log("diceResult received", diceValue);
+
+      console.log("diceResult received");
+      console.log("previousTurn:", previousTurn);
+      console.log("myUserId:", myUserIdRef.current);
 
       const movingIndex = optimisticPlayersRef.current.findIndex(
         p => p.userId._id.toString() === previousTurn.toString()
       );
 
+      if (movingIndex === -1) {
+        console.log("Player not found for animation");
+        return;
+      }
+
       await animateMove(diceValue, movingIndex);
 
-      if (previousTurn === myUserIdRef.current) {
-
+      if (String(previousTurn) === String(myUserIdRef.current)) {
+        console.log("Emitting playTurn");
         socket.current.emit("playTurn", {
           gameCode: roomId,
           dice: diceValue
         });
       }
     });
+
+
 
     socket.current.on("myUserIdentity", ({ myUserId }) => {
       setMyUserId(myUserId);
@@ -411,10 +423,13 @@ const Board = () => {
 
   const rollDice = () => {
 
-    console.log("gitta ghoma 1:", myUserId);
-    if (currentTurnRef.current !== myUserIdRef.current) return;
-    console.log("gitta ghoma 2:", myUserId);
+    console.log("current turn kiski thi ", currentTurnRef.current);
+    console.log("meri id kiya thi", myUserIdRef.current);
+    if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
 
+
+    console.log("Sending rollDice event");
+    console.log("sharedRolling:", sharedRolling);
     if (sharedRolling) return;
 
     if (audioRef.current) {

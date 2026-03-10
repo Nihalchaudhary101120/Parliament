@@ -72,10 +72,12 @@ export default function gameSocket(io, socket) {
 
 
   socket.on("rollDice", async ({ gameCode }) => {
+   console.log("rollDice received from:", socket.id, "gameCode:", gameCode);
+
     const game = await Game.findOne({ gameCode });
     if (!game || game.status !== "active") return;
 
-    const userId = socket.request.session.user.id;
+    const userId = socket.request.session?.user?.id;
 
     if (game.currentTurn.toString() !== userId.toString()) {
       return socket.emit("errorMsg", "Not your turn");
@@ -105,6 +107,7 @@ export default function gameSocket(io, socket) {
       // await game.save();
 
       // await game.populate("players.userId");
+      console.log("diceResult emitted", diceValue);
 
       io.to(gameCode).emit("diceResult", {
         // players: game.players,
@@ -337,7 +340,7 @@ export default function gameSocket(io, socket) {
     io.to(gameCode).emit("turnResult", {
       players: game.players,
       mysteryCase,
-      currentTurn: game.players[nextIndex].userId,
+      currentTurn: game.players[nextIndex].userId._id,
       turnNo: game.turnNo
     });
 
