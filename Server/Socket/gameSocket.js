@@ -392,6 +392,14 @@ function applyDamage(player, dmg) {
   if (player.remainingParliamentHp < 0) player.remainingParliamentHp = 0;
 }
 
+function applyPublicDamage(player, dmg) {
+  dmg = Math.floor(dmg);
+  player.remainingShieldHp -= dmg;
+  player.remainingParliamentHp -= dmg;
+  if (player.remainingShieldHp < 0) player.remainingShieldHp = 0;
+  if (player.remainingParliamentHp < 0) player.remainingParliamentHp = 0;
+}
+
 function findCardOwner(game, cardId) {
   for (const p of game.players) {
     const owns = p.cards.some(c => c.cardId.toString() === cardId.toString());
@@ -555,6 +563,9 @@ export default function gameSocket(io, socket) {
       if (currentIndex === -1) return;
 
       const player = game.players[currentIndex];
+      const oldPosition = player.position;
+      const newPosition = (player.position + dice) % 32;
+      if (newPosition < oldPosition) player.cashRemaining += 200;
 
       // ── Move player position (server-calculated)
       player.position = (player.position + dice) % 32;
@@ -571,15 +582,12 @@ export default function gameSocket(io, socket) {
       let needsAction = false;
       let actionPayload = null;
 
-      // Agent resets after every tile EXCEPT the agent tile itself
-      if (card.category !== "agent") {
-        player.agent = false;
-      }
+
 
       switch (card.category) {
 
         case "start": {
-          player.cashRemaining += 200;
+          // player.cashRemaining += 200;
           break;
         }
 
@@ -587,13 +595,13 @@ export default function gameSocket(io, socket) {
           mysteryCase = getMysteryCard();
           player.cashRemaining += mysteryCase.amount;
           // Clamp cash — can't go below 0
-          if (player.cashRemaining < 0) player.cashRemaining = 0;
+          // if (player.cashRemaining < 0) player.cashRemaining = 0;
           break;
         }
 
         case "public": {
           // Public tiles hit everyone, no shield consideration — raw parliament damage
-          applyDamage(player, card.weaponDamage);
+          applyPublicDamage(player, card.weaponDamage);
           break;
         }
 
@@ -610,14 +618,26 @@ export default function gameSocket(io, socket) {
             // Nobody owns it — player needs to buy or start a bid
             // DO NOT advance turn yet — pause here
             needsAction = true;
-            actionPayload = {
-              type: "buyOrBid",
-              card: {
-                id: card._id,
-                name: card.name,
-                price: card.price,
-              },
-            };
+            if (player.cashRemaining < card.price) {
+              actionPayload = {
+                type: "Bid",
+                card: {
+                  id: card._id,
+                  name: card.name,
+                  price: card.price,
+                },
+              };
+            } else {
+              actionPayload = {
+                type: "buyOrBid",
+                card: {
+                  id: card._id,
+                  name: card.name,
+                  price: card.price,
+                },
+              };
+            }
+
           } else if (owner.userId.toString() === userId.toString()) {
             // Player landed on their own card — no effect
           } else {
@@ -635,7 +655,7 @@ export default function gameSocket(io, socket) {
 
         case "terror": {
           // Terror tiles cost cash
-          player.cashRemaining = Math.max(0, player.cashRemaining - card.price);
+          player.cashRemaining = player.cashRemaining - card.price;
           break;
         }
 
@@ -672,6 +692,10 @@ export default function gameSocket(io, socket) {
         player.isActive = false;
       }
 
+      // Agent resets after every tile EXCEPT the agent tile itself
+      if (card.category !== "agent") {
+        player.agent = false;
+      }
       // ── skippedChances handling (if you want to skip turns)
       // if (player.skippedChances >= 4) {
       //   player.isActive = false;
@@ -790,6 +814,8 @@ export default function gameSocket(io, socket) {
         }
         player.cashRemaining -= card.price;
         player.cards.push({ cardId: card._id });
+        console.log("card.id", card._id);
+        console.log("cards", player.cards);
 
         io.to(gameCode).emit("receiveMessage", {
           id: Date.now(),
