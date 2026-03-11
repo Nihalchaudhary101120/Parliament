@@ -18,16 +18,16 @@ const GameSchema = new mongoose.Schema({
                 }
             ],
             isBot: { type: Boolean, required: true },
-            remainingParliamentHp: { type: Number,  required: true },
-            remainingShieldHp: { type: Number  },
+            remainingParliamentHp: { type: Number, required: true },
+            remainingShieldHp: { type: Number },
             cashRemaining: { type: Number, required: true },
             position: { type: Number, required: true },
             skippedChances: { type: Number, default: 0 },
-            pawn:{type:String  , required:true},
+            pawn: { type: String, required: true },
             isActive: { type: Boolean, required: true },
-            scientist:{type:Number ,default:0},
-            agent:{type:Boolean ,default:false},
-            
+            scientist: { type: Number, default: 0 },
+            agent: { type: Boolean, default: false },
+
         }
     ],
     maxPlayer: { type: Number, required: true },
@@ -36,15 +36,23 @@ const GameSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "user"
     },
-    winner:{type:mongoose.Schema.Types.ObjectId,ref:"user"},
+    winner: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
 
-    
+
     turnNo: { type: Number, default: 0 },
     timebombPurchaseTurn: Number,
     status: {
         type: String,
         enum: ["waiting", "active", "finished"],
         default: "waiting"
+    },
+    isProcessing: { type: Boolean, default: false },
+    pendingDice: { type: Number, default: null },
+    pendingAction: {
+        type: { type: String },
+        cardId: mongoose.Schema.Types.ObjectId,
+        playerId: mongoose.Schema.Types.ObjectId,
+        _id: false
     }
 
 });

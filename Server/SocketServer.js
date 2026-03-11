@@ -22,19 +22,23 @@ io.on("connection", (socket) => {
     console.log("Socket session:", socket.request.session);
     const user = socket.request.session.user;
     console.log("User: ", user);
-    
+
     if (!user || !user.username) {
         console.log("Unauthenticated socket");
         socket.disconnect();
         return;
     }
+
+    socket.userId = user.id;
+    socket.username = user.username;
+
     console.log("User connected:", user.username);
 
-    socket.on("joinMatch", () => {
-        console.log("Match request from:", user.username);
-    });
-    
-    console.log("Socket connected:", user.username);
+    // socket.on("joinMatch", () => {
+    //     console.log("Match request from:", user.username);
+    // });
+
+    // console.log("Socket connected:", user.username);
     chatSocket(io, socket);
     gameSocket(io, socket);
 });

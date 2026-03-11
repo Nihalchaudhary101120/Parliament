@@ -38,22 +38,48 @@ export default function Lobby() {
         // console.log("Joining lobby:", roomCode);
         // socket.emit("joinLobby", { gameCode: roomCode });
 
+        // socket.on("lobbyUpdate", (data) => {
+        //     console.log("Lobby Update Received:", data);
+        //     setPlayers(data.players);
+        //     setMaxPlayers(data.maxPlayer);
+        //     setStatus(data.status);
+        // });
+
+        // // socket.on("gameStart", ({ gameId, players, game }) => {
+        // //     console.log("Game started");
+        // //     gameId: gameId;
+        // //     players: players
+        // //     navigate(`/game?room=${roomCode}`, {
+        // //         state: {
+        // //             players, gameId, game
+
+        // //         }
+        // //     });
+        // // });
+
+        // socket.on("gameStart", ({ gameId, game }) => {
+        //     navigate(`/game?room=${roomCode}`, {
+        //         state: { game }  // Board reads game.players, game.currentTurn etc
+        //     });
+        // });
+
         socket.on("lobbyUpdate", (data) => {
             console.log("Lobby Update Received:", data);
             setPlayers(data.players);
             setMaxPlayers(data.maxPlayer);
             setStatus(data.status);
+
+            // ✅ navigate if game already started (catches cases where gameStart was missed)
+            if (data.status === "active") {
+                navigate(`/game?room=${roomCode}`, {
+                    state: { game: data.game }
+                });
+            }
         });
 
-        socket.on("gameStart", ({ gameId, players, game }) => {
-            console.log("Game started");
-            gameId: gameId;
-            players: players
+        socket.on("gameStart", ({ gameId, game }) => {
             navigate(`/game?room=${roomCode}`, {
-                state: {
-                    players, gameId, game
-
-                }
+                state: { game }
             });
         });
 
