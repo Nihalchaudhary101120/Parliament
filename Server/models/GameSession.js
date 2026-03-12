@@ -52,6 +52,8 @@ const GameSchema = new mongoose.Schema({
         type: { type: String },
         cardId: mongoose.Schema.Types.ObjectId,
         playerId: mongoose.Schema.Types.ObjectId,
+        bids: [{ userId: mongoose.Schema.Types.ObjectId, amount: Number }],
+        bidDeadline: Date,
         _id: false
     }
 

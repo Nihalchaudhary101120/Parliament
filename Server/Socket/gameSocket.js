@@ -722,23 +722,73 @@ export default function gameSocket(io, socket) {
       }
 
       // ── If action required (buy/bid) — pause turn, don't advance yet
+      // if (needsAction) {
+      //   game.pendingAction = {
+      //     type: actionPayload.type,
+      //     cardId: card._id,
+      //     playerId: player.userId,
+      //   };
+      //   // Keep isProcessing = true — turn isn't over
+      //   // Keep currentTurn = same player — they still need to act
+      //   await game.save();
+      //   await game.populate("players.userId");
+
+      //   // Send current board state to everyone (pawn moved)
+      //   io.to(gameCode).emit("boardUpdate", {
+      //     players: game.players,
+      //   });
+
+      //   // Tell the acting player they need to make a choice
+      //   socket.emit("actionRequired", {
+      //     type: actionPayload.type,
+      //     card: actionPayload.card,
+      //     playerCash: player.cashRemaining,
+      //   });
+      //   return;
+      // }
+
+      // ── If action required (buy/bid) — pause turn, don't advance yet
       if (needsAction) {
         game.pendingAction = {
           type: actionPayload.type,
           cardId: card._id,
           playerId: player.userId,
         };
-        // Keep isProcessing = true — turn isn't over
-        // Keep currentTurn = same player — they still need to act
+
         await game.save();
         await game.populate("players.userId");
 
-        // Send current board state to everyone (pawn moved)
-        io.to(gameCode).emit("boardUpdate", {
-          players: game.players,
-        });
+        io.to(gameCode).emit("boardUpdate", { players: game.players });
 
-        // Tell the acting player they need to make a choice
+        // ✅ If they can't afford it — skip the modal, auto-start bid immediately
+        if (actionPayload.type === "Bid") {
+          const BID_DURATION = 20;
+
+          game.pendingAction.type = "bidding";
+          game.pendingAction.bids = [];
+          game.pendingAction.bidDeadline = new Date(Date.now() + BID_DURATION * 1000);
+          await game.save();
+
+          io.to(gameCode).emit("bidStarted", {
+            card: actionPayload.card,
+            minBid: 1,
+            duration: BID_DURATION,
+          });
+
+          io.to(gameCode).emit("receiveMessage", {
+            id: Date.now(), sender: "System",
+            content: `${username} can't afford ${actionPayload.card.name}! Auto-auction started.`,
+            type: "system", time: new Date().toLocaleTimeString(),
+          });
+
+          setTimeout(async () => {
+            await resolveBid(gameCode, card);
+          }, BID_DURATION * 1000 + 500);
+
+          return;
+        }
+
+        // They CAN afford it — show buy or bid choice
         socket.emit("actionRequired", {
           type: actionPayload.type,
           card: actionPayload.card,
@@ -791,13 +841,78 @@ export default function gameSocket(io, socket) {
   //
   // Called when player responds to actionRequired
   //
+  // socket.on("playerAction", async ({ gameCode, action }) => {
+  //   // action = "buy" | "skip"
+  //   try {
+  //     const game = await Game.findOne({ gameCode });
+  //     if (!game || game.status !== "active") return;
+
+  //     // Must be this player's pending action
+  //     if (!game.pendingAction) return;
+  //     if (game.pendingAction.playerId.toString() !== userId.toString()) return;
+
+  //     const currentIndex = game.players.findIndex(
+  //       p => p.userId.toString() === userId.toString()
+  //     );
+  //     const player = game.players[currentIndex];
+  //     const card = await Card.findById(game.pendingAction.cardId);
+
+  //     if (action === "buy") {
+  //       // Verify they can still afford it (double check server side)
+  //       if (player.cashRemaining < card.price) {
+  //         return socket.emit("actionError", { message: "Not enough cash" });
+  //       }
+  //       player.cashRemaining -= card.price;
+  //       player.cards.push({ cardId: card._id });
+  //       console.log("card.id", card._id);
+  //       console.log("cards", player.cards);
+
+  //       io.to(gameCode).emit("receiveMessage", {
+  //         id: Date.now(),
+  //         sender: "System",
+  //         content: `${username} purchased ${card.name}`,
+  //         type: "system",
+  //         time: new Date().toLocaleTimeString(),
+  //       });
+  //     }
+  //     // action === "skip" → player chose not to buy, nothing happens
+
+  //     // ── Advance turn now that action is resolved
+  //     const nextIndex = getNextActiveIndex(game, currentIndex);
+
+  //     game.currentTurn = game.players[nextIndex].userId;
+  //     game.turnNo += 1;
+  //     game.isProcessing = false;
+  //     game.pendingDice = null;
+  //     game.pendingAction = null;
+
+  //     await game.save();
+  //     await game.populate("players.userId");
+
+  //     io.to(gameCode).emit("turnResult", {
+  //       players: game.players,
+  //       currentTurn: game.players[nextIndex].userId._id,
+  //       turnNo: game.turnNo,
+  //       mysteryCase: null,
+  //       cardLanded: { name: card.name, category: card.category },
+  //     });
+
+  //   } catch (err) {
+  //     console.error("playerAction error:", err);
+  //   }
+  // });
+
+
+  // ─────────────────────────────────────────────
+  // ADD THESE TWO THINGS TO gameSocket.js
+  // ─────────────────────────────────────────────
+
+  // 1. In playerAction handler — replace the action === "bid" comment with this:
+
   socket.on("playerAction", async ({ gameCode, action }) => {
-    // action = "buy" | "skip"
     try {
       const game = await Game.findOne({ gameCode });
       if (!game || game.status !== "active") return;
-
-      // Must be this player's pending action
       if (!game.pendingAction) return;
       if (game.pendingAction.playerId.toString() !== userId.toString()) return;
 
@@ -808,28 +923,183 @@ export default function gameSocket(io, socket) {
       const card = await Card.findById(game.pendingAction.cardId);
 
       if (action === "buy") {
-        // Verify they can still afford it (double check server side)
         if (player.cashRemaining < card.price) {
           return socket.emit("actionError", { message: "Not enough cash" });
         }
         player.cashRemaining -= card.price;
         player.cards.push({ cardId: card._id });
-        console.log("card.id", card._id);
-        console.log("cards", player.cards);
 
         io.to(gameCode).emit("receiveMessage", {
-          id: Date.now(),
-          sender: "System",
+          id: Date.now(), sender: "System",
           content: `${username} purchased ${card.name}`,
-          type: "system",
-          time: new Date().toLocaleTimeString(),
+          type: "system", time: new Date().toLocaleTimeString(),
+        });
+
+        // Advance turn
+        const nextIndex = getNextActiveIndex(game, currentIndex);
+        game.currentTurn = game.players[nextIndex].userId;
+        game.turnNo += 1;
+        game.isProcessing = false;
+        game.pendingDice = null;
+        game.pendingAction = null;
+        await game.save();
+        await game.populate("players.userId");
+
+        io.to(gameCode).emit("turnResult", {
+          players: game.players,
+          currentTurn: game.players[nextIndex].userId._id,
+          turnNo: game.turnNo,
+          mysteryCase: null,
+          cardLanded: { name: card.name, category: card.category },
+        });
+        return;
+      }
+
+      if (action === "bid") {
+        // Save bid state — pendingAction stays, turn stays paused
+        // minBid = 1 (anyone can bid any amount ≥ 1)
+        // duration = 20 seconds for all players to submit bids
+        const BID_DURATION = 20; // seconds
+
+        game.pendingAction = {
+          ...game.pendingAction.toObject(),
+          type: "bidding",
+          bids: [],           // will collect { userId, amount }
+          bidDeadline: new Date(Date.now() + BID_DURATION * 1000),
+        };
+        await game.save();
+
+        // Broadcast bid start to ALL players in the room
+        io.to(gameCode).emit("bidStarted", {
+          card: { id: card._id, name: card.name, price: card.price },
+          minBid: 1,
+          duration: BID_DURATION,
+        });
+
+        io.to(gameCode).emit("receiveMessage", {
+          id: Date.now(), sender: "System",
+          content: `Auction started for ${card.name}! ${BID_DURATION}s to bid.`,
+          type: "system", time: new Date().toLocaleTimeString(),
+        });
+
+        // Auto-resolve after deadline
+        setTimeout(async () => {
+          await resolveBid(gameCode, card);
+        }, BID_DURATION * 1000 + 500); // +500ms buffer
+        return;
+      }
+
+    } catch (err) {
+      console.error("playerAction error:", err);
+    }
+  });
+
+
+  // 2. submitBid handler — player sends their bid amount during active auction
+
+  socket.on("submitBid", async ({ gameCode, amount }) => {
+    try {
+      const game = await Game.findOne({ gameCode });
+      if (!game || game.status !== "active") return;
+      if (!game.pendingAction || game.pendingAction.type !== "bidding") return;
+
+      // Bid deadline passed
+      if (new Date() > new Date(game.pendingAction.bidDeadline)) return;
+
+      const player = game.players.find(p => p.userId.toString() === userId.toString());
+      if (!player || !player.isActive) return;
+
+      // Validate amount
+      const bidAmt = Math.floor(Number(amount));
+      if (!bidAmt || bidAmt < 1) return;
+      if (player.cashRemaining < bidAmt) return;
+
+      // Remove previous bid from this player if they re-bid
+      const existingBidIndex = game.pendingAction.bids.findIndex(
+        b => b.userId.toString() === userId.toString()
+      );
+      if (existingBidIndex !== -1) {
+        game.pendingAction.bids.splice(existingBidIndex, 1);
+      }
+
+      game.pendingAction.bids.push({ userId, amount: bidAmt });
+      await game.save();
+
+      console.log(`${username} bid $${bidAmt} on ${game.pendingAction.cardId}`);
+
+    } catch (err) {
+      console.error("submitBid error:", err);
+    }
+  });
+
+
+  // ─────────────────────────────────────────────
+  // 3. resolveBid helper — paste this OUTSIDE gameSocket export, near the other helpers
+  // ─────────────────────────────────────────────
+
+  async function resolveBid(gameCode, card) {
+    try {
+      const game = await Game.findOne({ gameCode }).populate("players.userId");
+      if (!game || game.status !== "active") return;
+      if (!game.pendingAction || game.pendingAction.type !== "bidding") return;
+
+      const bids = game.pendingAction.bids || [];
+
+      // Find highest bidder who still has enough cash
+      const validBids = bids
+        .map(b => {
+          const player = game.players.find(p => p.userId._id.toString() === b.userId.toString());
+          return player && player.cashRemaining >= b.amount && player.isActive
+            ? { player, amount: b.amount }
+            : null;
+        })
+        .filter(Boolean)
+        .sort((a, b) => b.amount - a.amount); // highest first
+
+      // Find the landing player's original index for turn advance
+      const landingPlayerId = game.pendingAction.playerId;
+      const currentIndex = game.players.findIndex(
+        p => p.userId._id.toString() === landingPlayerId.toString()
+      );
+
+      if (validBids.length === 0) {
+        // Nobody bid — card stays unowned, turn just advances
+        io.to(gameCode).emit("bidResult", {
+          winnerName: null,
+          amount: 0,
+          cardName: card.name,
+        });
+
+        io.to(gameCode).emit("receiveMessage", {
+          id: Date.now(), sender: "System",
+          content: `No bids for ${card.name}. Card remains unowned.`,
+          type: "system", time: new Date().toLocaleTimeString(),
+        });
+
+      } else {
+        const winner = validBids[0];
+        winner.player.cashRemaining -= winner.amount;
+        winner.player.cards.push({ cardId: card._id });
+
+        // const winnerUsername = (await game.populate("players.userId"))
+        //   .players.find(p => p.userId._id.toString() === winner.player.userId.toString())
+        //   ?.userId?.username || "Unknown";
+
+        io.to(gameCode).emit("bidResult", {
+          winnerName: winner.player?.userId?.username,
+          amount: winner.amount,
+          cardName: card.name,
+        });
+
+        io.to(gameCode).emit("receiveMessage", {
+          id: Date.now(), sender: "System",
+          content: `${winner.player.userId?.username} won ${card.name} for $${winner.amount}`,
+          type: "system", time: new Date().toLocaleTimeString(),
         });
       }
-      // action === "skip" → player chose not to buy, nothing happens
 
-      // ── Advance turn now that action is resolved
+      // Advance turn
       const nextIndex = getNextActiveIndex(game, currentIndex);
-
       game.currentTurn = game.players[nextIndex].userId;
       game.turnNo += 1;
       game.isProcessing = false;
@@ -848,9 +1118,10 @@ export default function gameSocket(io, socket) {
       });
 
     } catch (err) {
-      console.error("playerAction error:", err);
+      console.error("resolveBid error:", err);
     }
-  });
+  }
+
 
   // ── DISCONNECT ───────────────────────────────
   socket.on("disconnect", async () => {
