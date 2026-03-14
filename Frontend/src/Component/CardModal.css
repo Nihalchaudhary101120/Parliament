@@ -66,3 +66,45 @@
     opacity: 1;
   }
 }
+
+.card-modal-container{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+  display: flex;
+  flex-direction: row;
+}
+
+.card-overlay button {
+  margin-top: 20px;
+  padding: 12px 28px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 2px solid cyan;
+  background: linear-gradient(135deg, #00ffff22, #000);
+  color: cyan;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all .25s ease;
+  box-shadow: 0 0 12px cyan, inset 0 0 6px #00ffff55;
+}
+
+/* hover effect */
+.card-overlay button:hover {
+  background: cyan;
+  color: black;
+  box-shadow: 0 0 25px cyan, 0 0 60px cyan;
+  transform: scale(1.05);
+}
+
+/* click effect */
+.card-overlay button:active {
+  transform: scale(.96);
+  box-shadow: 0 0 10px cyan inset;
+}
+
+.not-show{
+  display: none;
+}

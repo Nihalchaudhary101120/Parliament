@@ -583,7 +583,7 @@ export default function gameSocket(io, socket) {
         });
 
         // Advance turn
-        
+
         game.currentTurn = game.players[nextIndex].userId;
         game.isProcessing = false;
         game.pendingDice = null;
@@ -709,6 +709,47 @@ export default function gameSocket(io, socket) {
     });
   });
 
+  socket.on("wall-purchase", async ({ gameCode, cardName }) => {
+    console.log("gameCode, cardname", gameCode, cardName);
+
+    const game = await Game.findOne({ gameCode, currentTurn: userId });
+    if (!game) return;
+
+    const currentIndex = game.players.findIndex((p) => p.userId.toString() === userId.toString());
+
+    let getCardName = new Map([
+      ["wall-maria", "wall maria"],
+      ["wall-rose", "wall rose"],
+      ["wall-sena", "wall sena"]
+    ]);
+
+    const player = game.players[currentIndex];
+    const card = await Card.findOne({ name: getCardName.get(cardName) });
+    if (!player || !card) return;
+
+    console.log("humara card", card);
+    player.cashRemaining -= card.price;
+    player.remainingShieldHp += card.ShieldHp;
+    console.log("remainingShieldHP is", player.remainingShieldHp);
+
+    await game.save();
+
+    await game.populate("players.userId");
+
+
+    io.to(gameCode).emit("newPositions", {
+      players: game.players
+    });
+
+    io.to(gameCode).emit("receiveMessage", {
+      id: Date.now(),
+      sender: "System",
+      content: `${username} purchased ${card.name}`,
+      type: "system",
+      time: new Date().toLocaleTimeString(),
+    });
+  });
+
   // ─────────────────────────────────────────────
   // 3. resolveBid helper — paste this OUTSIDE gameSocket export, near the other helpers
   // ─────────────────────────────────────────────
@@ -742,11 +783,11 @@ export default function gameSocket(io, socket) {
         game.turnNo += 1;
         await checkTimebombExplosions(game, io, gameCode);
         // Nobody bid — card stays unowned, turn just advances
-        io.to(gameCode).emit("bidResult", {
-          winnerName: null,
-          amount: 0,
-          cardName: card.name,
-        });
+        // io.to(gameCode).emit("bidResult", {
+        //   winnerName: null,
+        //   amount: 0,
+        //   cardName: card.name,
+        // });
 
         io.to(gameCode).emit("receiveMessage", {
           id: Date.now(), sender: "System",
@@ -797,7 +838,7 @@ export default function gameSocket(io, socket) {
       // Advance turn
       const nextIndex = getNextActiveIndex(game, currentIndex);
       game.currentTurn = game.players[nextIndex].userId;
-      
+
       game.isProcessing = false;
       game.pendingDice = null;
       game.pendingAction = null;
