@@ -232,6 +232,12 @@ const Board = () => {
       updateOptimisticPlayers(updated);
     });
 
+    socket.current.off("newPositions");
+    socket.current.on("newPositions", ({ players: updated }) => {
+      setPlayers(updated);
+      updateOptimisticPlayers(updated);
+    });
+
     // actionRequired — only landing player gets this
     // They choose: Buy (full price) OR Start Bid (open to everyone)
     socket.current.off("actionRequired");
@@ -290,11 +296,11 @@ const Board = () => {
       socket.current.off("bidResult");
       socket.current.off("gameOver");
       socket.current.off("timebombExploded");
+      socket.current.off("newPositions");
       if (bidTimerRef.current) clearInterval(bidTimerRef.current);
     };
   }, []);
 
-  // ── Actions ─────────────────────────────────
 
   const rollDice = () => {
     if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
@@ -333,7 +339,7 @@ const Board = () => {
 
   return (
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
-      <CardModal />
+      <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
       <GameChatContainer players={players} />
 
       {/* ── Game Over ── */}
@@ -473,7 +479,7 @@ const Board = () => {
                 <div key={i}
                   className={`border-cell weapon-tile ${tileData[i].toLowerCase().replace(/\s+/g, '-')}  ${explodingTile === i ? 'bomb-exploding' : ''}`}
                   style={{ gridRow: cell.r + 1, gridColumn: cell.c + 1 }}
-                  onClick={() => openCard(cardMap[key])}
+                  onClick={() => openCard(cardMap[key], false, key)}
                 >
                   {tileIcons[key] && <img className="tile-icon" src={tileIcons[key]} alt={tileData[i]} />}
                   <div className="tile-label">{tileData[i]}</div>
@@ -541,7 +547,7 @@ const Board = () => {
             { key: "wall-maria", img: wallMaria },
             { key: "wall-rose", img: wallRose },
           ].map((item, i) => (
-            <div key={i} className="right-cell" onClick={() => openCard(cardMap[item.key])}>
+            <div key={i} className="right-cell" onClick={() => openCard(cardMap[item.key], true, item.key)}>
               <img src={item.img} alt={item.key} />
             </div>
           ))}

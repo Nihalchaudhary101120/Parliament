@@ -83,19 +83,25 @@ const CardModalContext = createContext();
 export const CardModalProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [card, setCard] = useState(null);
+  const [purchasable, setPurchasable] = useState(false);
+  const [cardName, setCardName]= useState("");
 
-  const openCard = (cardImg) => {
+  const openCard = (cardImg, purchase, name) => {
     setCard(cardImg);
     setIsOpen(true);
+    setPurchasable(purchase);
+    setCardName(name);
   };
 
   const closeCard = () => {
     setIsOpen(false);
     setCard(null);
+    setPurchasable(false);
+    setCardName("");
   };
 
   return (
-    <CardModalContext.Provider value={{ isOpen, card, openCard, closeCard }}>
+    <CardModalContext.Provider value={{ isOpen, card, openCard, closeCard, purchasable, cardName }}>
       {children}
     </CardModalContext.Provider>
   );

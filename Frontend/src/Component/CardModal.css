@@ -1,12 +1,14 @@
 .card-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.75);
+  background: rgba(0, 0, 0, .75);
   display: flex;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(8px);
   z-index: 9999;
+  display: flex;
+  color: white;
 }
 
 .card-modal {
@@ -35,8 +37,15 @@
 }
 
 @keyframes pop {
-  from { transform: scale(.6); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(.6);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .card-image {
@@ -47,6 +56,13 @@
 }
 
 @keyframes cardPop {
-  from { transform: scale(.5); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(.5);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
