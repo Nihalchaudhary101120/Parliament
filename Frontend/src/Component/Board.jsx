@@ -82,6 +82,7 @@ const Board = () => {
   const [bidAmount, setBidAmount] = useState("");
   const [bidTimeLeft, setBidTimeLeft] = useState(0);
   const [myBidSubmitted, setMyBidSubmitted] = useState(false);
+  const [explodingTile, setExplodingTile] = useState(null);
 
   // Bid result toast
   const [bidResult, setBidResult] = useState(null);
@@ -273,6 +274,12 @@ const Board = () => {
       setGameOver({ winner });
     });
 
+    socket.current.off("timebombExploded");
+    socket.current.on("timebombExploded", ({ position, casualties, nextBlastInTurns }) => {
+      setExplodingTile(position);
+      setTimeout(() => setExplodingTile(null), 1500);
+    });
+
     return () => {
       socket.current.off("identity");
       socket.current.off("diceResult");
@@ -282,6 +289,7 @@ const Board = () => {
       socket.current.off("bidStarted");
       socket.current.off("bidResult");
       socket.current.off("gameOver");
+      socket.current.off("timebombExploded");
       if (bidTimerRef.current) clearInterval(bidTimerRef.current);
     };
   }, []);
@@ -463,7 +471,7 @@ const Board = () => {
               const key = tileData[i].toLowerCase().replace(/\s+/g, "-");
               return (
                 <div key={i}
-                  className={`border-cell weapon-tile ${tileData[i].toLowerCase().replace(/\s+/g, '-')}`}
+                  className={`border-cell weapon-tile ${tileData[i].toLowerCase().replace(/\s+/g, '-')}  ${explodingTile === i ? 'bomb-exploding' : ''}`}
                   style={{ gridRow: cell.r + 1, gridColumn: cell.c + 1 }}
                   onClick={() => openCard(cardMap[key])}
                 >

@@ -55,7 +55,18 @@ const GameSchema = new mongoose.Schema({
         bids: [{ userId: mongoose.Schema.Types.ObjectId, amount: Number }],
         bidDeadline: Date,
         _id: false
-    }
+    },
+    timebombs: [
+        {
+            cardId: mongoose.Schema.Types.ObjectId,
+            ownerId: mongoose.Schema.Types.ObjectId,
+            position: Number,
+            purchasedAtTurn: Number,
+            explodeAtTurn: Number,
+            cycleLength: Number,
+            _id: false
+        }
+    ]
 
 });
 

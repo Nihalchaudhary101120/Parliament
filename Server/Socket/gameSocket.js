@@ -422,6 +422,59 @@ function getNextActiveIndex(game, currentIndex) {
   return nextIndex;
 }
 
+async function checkTimebombExplosions(game, io, gameCode) {
+  if (!game.timebombs || game.timebombs.length === 0) return;
+
+  const BLAST_RADIUS = 3;
+  const TOTAL_TILES = 32;
+
+  for (const bomb of game.timebombs) {
+    if (game.turnNo < bomb.explodeAtTurn) continue;
+
+    // Build blast zone: 3 tiles before + bomb tile + 3 tiles after
+    const blastPositions = new Set();
+    for (let offset = -BLAST_RADIUS; offset <= BLAST_RADIUS; offset++) {
+      blastPositions.add((bomb.position + offset + TOTAL_TILES) % TOTAL_TILES);
+    }
+
+    // Damage every active player standing in blast range
+    const casualties = [];
+    for (const p of game.players) {
+      if (!p.isActive) continue;
+      if (blastPositions.has(p.position)) {
+        const dmg = 90;
+        applyDamage(p, dmg);
+        if (p.remainingParliamentHp <= 0) {
+          p.remainingParliamentHp = 0;
+          p.isActive = false;
+        }
+        casualties.push({
+          userId: p.userId._id || p.userId,
+          damage: dmg,
+        });
+      }
+    }
+
+    // Schedule NEXT explosion using the fixed cycleLength
+    bomb.explodeAtTurn = bomb.explodeAtTurn + bomb.cycleLength;
+
+    io.to(gameCode).emit("timebombExploded", {
+      position: bomb.position,
+      casualties,
+      nextBlastInTurns: bomb.cycleLength,
+    });
+
+    io.to(gameCode).emit("receiveMessage", {
+      id: Date.now(),
+      sender: "System",
+      content: `💣 Time Bomb EXPLODED! ${casualties.length} player(s) hit. Next blast in ${bomb.cycleLength} turns.`,
+      type: "system",
+      time: new Date().toLocaleTimeString(),
+    });
+  }
+  // Bombs are NEVER removed — they keep cycling every N turns
+}
+
 // ─────────────────────────────────────────────
 // MAIN SOCKET HANDLER
 // ─────────────────────────────────────────────
@@ -797,9 +850,31 @@ export default function gameSocket(io, socket) {
         return;
       }
 
+      // ── Advance turn number BEFORE checking bombs
+      // (bomb checks against turnNo to know if Shlok's turn just completed)
+      game.turnNo += 1;
+
+      // ✅ CHECK TIMEBOMB EXPLOSIONS after turn advances
+      await checkTimebombExplosions(game, io, gameCode);
+
+      // ── Re-check win condition after bomb damage
+      const activeAfterBombs = game.players.filter(p => p.isActive);
+      if (activeAfterBombs.length <= 1) {
+        game.status = "finished";
+        game.winner = activeAfterBombs[0]?.userId || userId;
+        game.isProcessing = false;
+        game.pendingDice = null;
+        game.pendingAction = null;
+        await game.save();
+        await game.populate("players.userId");
+        io.to(gameCode).emit("gameOver", { winner: game.winner, players: game.players });
+        return;
+      }
+
+
       // ── Normal turn end — advance to next player
       game.currentTurn = game.players[nextIndex].userId;
-      game.turnNo += 1;
+      // game.turnNo += 1;
       game.isProcessing = false;
       game.pendingDice = null;
       game.pendingAction = null;
@@ -929,6 +1004,28 @@ export default function gameSocket(io, socket) {
         player.cashRemaining -= card.price;
         player.cards.push({ cardId: card._id });
 
+
+
+        // ✅ Increment turnNo FIRST before registering bomb
+        const nextIndex = getNextActiveIndex(game, currentIndex);
+        game.turnNo += 1;
+        await checkTimebombExplosions(game, io, gameCode);
+
+        // ✅ If bought card is Time Bomb — register it
+        if (card.name.toLowerCase().replace(/\s+/g, "-") === "time-bomb") {
+          const activeCount = game.players.filter(p => p.isActive).length;
+          if (!game.timebombs) game.timebombs = [];
+          game.timebombs.push({
+            cardId: card._id,
+            ownerId: userId,
+            position: card.position,
+            purchasedAtTurn: game.turnNo,
+            explodeAtTurn: game.turnNo + activeCount,
+            cycleLength: activeCount,
+          });
+        }
+
+
         io.to(gameCode).emit("receiveMessage", {
           id: Date.now(), sender: "System",
           content: `${username} purchased ${card.name}`,
@@ -936,9 +1033,8 @@ export default function gameSocket(io, socket) {
         });
 
         // Advance turn
-        const nextIndex = getNextActiveIndex(game, currentIndex);
+        
         game.currentTurn = game.players[nextIndex].userId;
-        game.turnNo += 1;
         game.isProcessing = false;
         game.pendingDice = null;
         game.pendingAction = null;
@@ -1063,6 +1159,8 @@ export default function gameSocket(io, socket) {
       );
 
       if (validBids.length === 0) {
+        game.turnNo += 1;
+        await checkTimebombExplosions(game, io, gameCode);
         // Nobody bid — card stays unowned, turn just advances
         io.to(gameCode).emit("bidResult", {
           winnerName: null,
@@ -1080,6 +1178,24 @@ export default function gameSocket(io, socket) {
         const winner = validBids[0];
         winner.player.cashRemaining -= winner.amount;
         winner.player.cards.push({ cardId: card._id });
+
+        // const nextIndex = getNextActiveIndex(game, currentIndex);
+        game.turnNo += 1;
+        await checkTimebombExplosions(game, io, gameCode);
+
+        // ✅ If won card is Time Bomb — register it
+        if (card.name.toLowerCase().replace(/\s+/g, "-") === "time-bomb") {
+          const activeCount = game.players.filter(p => p.isActive).length;
+          if (!game.timebombs) game.timebombs = [];
+          game.timebombs.push({
+            cardId: card._id,
+            ownerId: winner.player.userId._id,
+            position: card.position,
+            purchasedAtTurn: game.turnNo,
+            explodeAtTurn: game.turnNo + activeCount,
+            cycleLength: activeCount,
+          });
+        }
 
         // const winnerUsername = (await game.populate("players.userId"))
         //   .players.find(p => p.userId._id.toString() === winner.player.userId.toString())
@@ -1101,7 +1217,7 @@ export default function gameSocket(io, socket) {
       // Advance turn
       const nextIndex = getNextActiveIndex(game, currentIndex);
       game.currentTurn = game.players[nextIndex].userId;
-      game.turnNo += 1;
+      
       game.isProcessing = false;
       game.pendingDice = null;
       game.pendingAction = null;
