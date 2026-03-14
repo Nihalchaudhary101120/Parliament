@@ -11,4 +11,6 @@ const cardsSchema = new mongoose.Schema({
     isPurchasable: Boolean,
 });
 
+
+
 export default mongoose.model('cards', cardsSchema);

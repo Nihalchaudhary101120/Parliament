@@ -11,4 +11,5 @@ const userSchema = new mongoose.Schema({
     sessionToken: { type: String, unique: true, sparse: true },
 });
 
+
 export default mongoose.model('user', userSchema);
