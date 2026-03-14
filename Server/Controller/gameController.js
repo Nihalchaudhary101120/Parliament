@@ -25,7 +25,7 @@ export const createRoom = async (req, res) => {
 
           pawn: 'redPawn',
 
-          remainingParliamentHp: 1000,
+          remainingParliamentHp: 1500,
           remainingShieldHp: 0,
 
           cashRemaining: 1200,
@@ -88,7 +88,7 @@ export const joinRoom = async (req, res) => {
         userId,
         cards: [],
         isBot: false,
-        remainingParliamentHp: 1000,
+        remainingParliamentHp: 1500,
         remainingShieldHp: 0,
         cashRemaining: 1200,
         position: 0,

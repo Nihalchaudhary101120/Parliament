@@ -92,7 +92,7 @@ const Board = () => {
   const pawnImg = { redPawn, blackPawn, greenPawn, bluePawn, yellowPawn, whitePawn };
 
   const size = 9;
-  const maxHP = 1000;
+  const maxHP = 1500;
   const maxShield = 750;
 
   const border = [];
@@ -351,7 +351,7 @@ const Board = () => {
               Winner:{" "}
               {optimisticPlayers.find(p => p.userId._id?.toString() === gameOver.winner?.toString())?.userId?.username || "Unknown"}
             </p>
-            <button className="px-6 py-2 bg-yellow-500 text-black rounded-xl font-bold" onClick={() => navigate("/")}>
+            <button className="px-6 py-2 bg-yellow-500 text-black rounded-xl font-bold" onClick={() => navigate("/dashboard")}>
               Back to Home
             </button>
           </div>

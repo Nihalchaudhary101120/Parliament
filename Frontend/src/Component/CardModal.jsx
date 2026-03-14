@@ -12,8 +12,9 @@ const CardModal = ({ socket, roomId, myUserIdRef, currentTurnRef }) => {
     if (cardName === "emergency-meeting") {
       socket.emit("emergency-meeting", { gameCode: roomId });
     }
-    else if(cardName === "wall-maria" || cardName ==="wall-rose" || cardName ==="wall-sena"){
-      socket.emit("wall-purchase",{gameCode : roomId , cardName : cardName });
+    else if (cardName === "wall-maria" || cardName === "wall-rose" || cardName === "wall-sena") {
+      socket.emit("wall-purchase", { gameCode: roomId, cardName: cardName });
+      console.log("socket called for wall");
     }
     closeCard();
   };
@@ -22,15 +23,20 @@ const CardModal = ({ socket, roomId, myUserIdRef, currentTurnRef }) => {
 
   return (
     <div className="card-overlay" onClick={closeCard}>
-      <img
-        className="card-image"
-        src={card}
-        alt="card"
-        // onClick={(e)=>e.stopPropagation()}
-      />
-      <button
-      onClick={handleCardClick}
-      >Buy</button>
+
+      <div className="card-modal-container" onClick={(e) => e.stopPropagation()}>
+
+        <img
+          className="card-image"
+          src={card}
+          alt="card"
+        />
+        <button onClick={handleCardClick} className={purchasable ? 'show' : 'not-show'}>
+          Buy
+        </button>
+
+
+      </div>
     </div>
   );
 };
