@@ -12,6 +12,9 @@ const CardModal = ({ socket, roomId, myUserIdRef, currentTurnRef }) => {
     if (cardName === "emergency-meeting") {
       socket.emit("emergency-meeting", { gameCode: roomId });
     }
+    else if(cardName === "wall-maria" || cardName ==="wall-rose" || cardName ==="wall-sena"){
+      socket.emit("wall-purchase",{gameCode : roomId , cardName : cardName });
+    }
     closeCard();
   };
 
@@ -23,8 +26,11 @@ const CardModal = ({ socket, roomId, myUserIdRef, currentTurnRef }) => {
         className="card-image"
         src={card}
         alt="card"
-        onClick={(e) => { e.stopPropagation(); handleCardClick(e); }}
+        // onClick={(e)=>e.stopPropagation()}
       />
+      <button
+      onClick={handleCardClick}
+      >Buy</button>
     </div>
   );
 };
