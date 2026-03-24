@@ -134,8 +134,8 @@ const DashBoard = () => {
             <div className="glass-panel">
                 <h2 className="panel-title ">GAME MODE</h2>
 
-                <button className="glass-btn sharp-btn">🎮 Player VS Computer</button>
-                <button className="glass-btn sharp-btn">🌐 Online Multiplayer</button>
+                {/* <button className="glass-btn sharp-btn">🎮 Player VS Computer</button>
+                <button className="glass-btn sharp-btn">🌐 Online Multiplayer</button> */}
                 <button className="glass-btn sharp-btn" onClick={() => setShowFriendOption(true)}>👥 Play with Friends</button>
             </div>
 

@@ -48,7 +48,7 @@ import { getSocket } from "../Component/socket";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Board = () => {
-  const location = useLocation();
+  const location = useLocation(); 
   const navigate = useNavigate();
   const roomId = new URLSearchParams(location.search).get("room");
   const game = location.state?.game || null;
