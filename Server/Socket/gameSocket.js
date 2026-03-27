@@ -139,6 +139,8 @@ export default function gameSocket(io, socket) {
   socket.on("joinLobby", async ({ gameCode }) => {
     try {
       const game = await Game.findOne({ gameCode }).populate("players.userId");
+            await game.populate("players.cards.cardId");
+
       if (!game) return socket.emit("lobbyError", { message: "Game not found" });
 
       socket.join(gameCode);
@@ -211,6 +213,7 @@ export default function gameSocket(io, socket) {
       await game.save();
 
       await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
 
       // Tell everyone to animate
       io.to(gameCode).emit("diceResult", {
@@ -411,6 +414,7 @@ export default function gameSocket(io, socket) {
         game.pendingDice = null;
         await game.save();
         await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
 
         io.to(gameCode).emit("gameOver", {
           winner: game.winner,
@@ -430,6 +434,7 @@ export default function gameSocket(io, socket) {
 
         await game.save();
         await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
 
         io.to(gameCode).emit("boardUpdate", { players: game.players });
 
@@ -487,6 +492,7 @@ export default function gameSocket(io, socket) {
         game.pendingAction = null;
         await game.save();
         await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
         io.to(gameCode).emit("gameOver", { winner: game.winner, players: game.players });
         return;
       }
@@ -501,6 +507,7 @@ export default function gameSocket(io, socket) {
 
       await game.save();
       await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
 
       io.to(gameCode).emit("turnResult", {
         players: game.players,
@@ -590,6 +597,7 @@ export default function gameSocket(io, socket) {
         game.pendingAction = null;
         await game.save();
         await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
 
         io.to(gameCode).emit("turnResult", {
           players: game.players,
@@ -695,6 +703,8 @@ export default function gameSocket(io, socket) {
 
     await game.save();
     await game.populate("players.userId");
+          await game.populate("players.cards.cardId");
+
 
     io.to(gameCode).emit("newPositions", {
       players: game.players
@@ -735,6 +745,7 @@ export default function gameSocket(io, socket) {
     await game.save();
 
     await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
 
 
     io.to(gameCode).emit("newPositions", {
@@ -757,6 +768,7 @@ export default function gameSocket(io, socket) {
   async function resolveBid(gameCode, card) {
     try {
       const game = await Game.findOne({ gameCode }).populate("players.userId");
+      await game.populate("players.cards.cardId");
       if (!game || game.status !== "active") return;
       if (!game.pendingAction || game.pendingAction.type !== "bidding") return;
 
@@ -845,6 +857,7 @@ export default function gameSocket(io, socket) {
 
       await game.save();
       await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
 
       io.to(gameCode).emit("turnResult", {
         players: game.players,

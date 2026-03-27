@@ -869,3 +869,114 @@
   60%  { background-color: rgba(255, 120, 0, 0.5); }
   100% { background-color: transparent; transform: scale(1); }
 }
+
+.border-cell {
+  position: relative;
+}
+
+/* flag container */
+.flag {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* pole */
+.flag-pole {
+  width: 2px;
+  height: 12px;
+  background: #ccc;
+}
+
+/* flag cloth */
+.flag-cloth {
+  width: 10px;
+  height: 6px;
+  border-radius: 2px;
+  position:relative;
+  top:2px;
+}
+
+/* bottom tiles */
+.flag.bottom {
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* top tiles */
+.flag.top {
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%) rotate(180deg);
+}
+
+/* left tiles */
+.flag.left {
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-180deg);
+}
+
+/* right tiles */
+.flag.right {
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.flag-cloth {
+  animation: wave 1s infinite ease-in-out;
+}
+
+@keyframes wave {
+  0% { transform: skewX(0deg); }
+  50% { transform: skewX(10deg); }
+  100% { transform: skewX(0deg); }
+}
+.name .redPawn{
+color:red;
+}
+.name .greenPawn{
+  color:#00ff66;
+}
+.name .blackPawn{
+  color:black;
+}
+.name .whitePawn{
+  color:white;
+}
+.name .yellowPawn{
+  color:yellow;
+}
+.name .bluePawn{
+  color:blue;
+}
+.money-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #ffd700;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 215, 0, 0.6);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.money-tag:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 1);
+}
+.money-tag {
+  animation: pulseMoney 1.5s infinite;
+}
+
+@keyframes pulseMoney {
+  0% { box-shadow: 0 0 6px gold; }
+  50% { box-shadow: 0 0 14px gold; }
+  100% { box-shadow: 0 0 6px gold; }
+} 

@@ -48,7 +48,7 @@ import { getSocket } from "../Component/socket";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Board = () => {
-  const location = useLocation(); 
+  const location = useLocation();
   const navigate = useNavigate();
   const roomId = new URLSearchParams(location.search).get("room");
   const game = location.state?.game || null;
@@ -221,6 +221,7 @@ const Board = () => {
       currentTurnRef.current = nextTurn;
       setTurnNo(newTurnNo);
       if (mc) setMysteryCase(mc);
+      setTimeout(()=>setMysteryCase(null),3500);
       setActionModal(null);
       clearBidState();
     });
@@ -336,6 +337,27 @@ const Board = () => {
 
   const isMyTurn = currentTurn?.toString() === myUserId?.toString();
   const myPlayer = optimisticPlayers.find(p => p.userId._id?.toString() === myUserId?.toString());
+
+
+  const getPawnColor = (pawn) => {
+    const map = {
+      redPawn: "red",
+      bluePawn: "blue",
+      greenPawn: "green",
+      yellowPawn: "yellow",
+      blackPawn: "black",
+      whitePawn: "white",
+    };
+    return map[pawn] || "#888";
+  };
+  const getDirectionClass = (i) => {
+    const total = 32;
+
+    if (i >= 0 && i < 8) return "top";      // bottom row
+    if (i >= 8 && i < 16) return "left";       // left side
+    if (i >= 16 && i < 24) return "top";       // top row
+    return "right";                            // right side
+  };
 
   return (
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
@@ -481,6 +503,31 @@ const Board = () => {
                   style={{ gridRow: cell.r + 1, gridColumn: cell.c + 1 }}
                   onClick={() => openCard(cardMap[key], false, key)}
                 >
+                  <div className="ownership-container">
+                    {optimisticPlayers.flatMap((player) =>
+                      player.cards.map((cardObj, idx) => {
+                        const card = cardObj.cardId;
+                        if (!card) return null;
+
+                        if (card.position === i) {
+                          return (
+                            <div
+                              key={player.userId._id + idx}
+                              className={`flag ${getDirectionClass(i)}`}
+                            >
+                              <div className="flag-pole"></div>
+                              <div
+                                className="flag-cloth"
+                                style={{ backgroundColor: getPawnColor(player.pawn) }}
+                              ></div>
+                            </div>
+                          );
+                        }
+
+                        return null;
+                      })
+                    )}
+                  </div>
                   {tileIcons[key] && <img className="tile-icon" src={tileIcons[key]} alt={tileData[i]} />}
                   <div className="tile-label">{tileData[i]}</div>
                   {tilePlayers.map((player, idx) => {
@@ -510,7 +557,7 @@ const Board = () => {
                     <div key={i} className={`player-cell ${hp <= 300 ? "low" : ""} ${isThisTurn ? "active-turn" : ""}`}>
                       <div className="image-parent">
                         <div className="name">
-                          <span>{player.userId.username}</span>
+                          <span className={player.pawn}>{player.userId.username}</span>
                           {isThisTurn && <span className="text-xs text-green-400 ml-1">▶</span>}
                         </div>
                         <img src={logo} className="parl" alt={player.userId.username} />
@@ -522,7 +569,7 @@ const Board = () => {
                           <div className="shield-fill" style={{ width: `${shPct}%` }} />
                           <span className="shield-text">{shield} / {maxShield}</span>
                         </div>
-                        <div className="text-xs text-yellow-400 mt-1">${player.cashRemaining}</div>
+                        <div className="text-xs text-yellow-400 mt-1 money-tag">${player.cashRemaining}</div>
                         <div className="flex gap-1 mt-1 justify-center flex-wrap">
                           {player.agent && <span className="text-xs bg-blue-800 text-blue-200 px-1 rounded">Agent</span>}
                           {player.scientist > 0 && <span className="text-xs bg-purple-800 text-purple-200 px-1 rounded">Sci ×{player.scientist}</span>}
