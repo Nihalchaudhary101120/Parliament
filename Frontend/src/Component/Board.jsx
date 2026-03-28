@@ -46,6 +46,20 @@ import CardModal from "../Component/CardModal";
 import GameChatContainer from "../Component/gameChatSocket.jsx";
 import { getSocket } from "../Component/socket";
 import { useLocation, useNavigate } from "react-router-dom";
+import emergencydefenceImg from "../assets/emergencydefence.png";
+import moneyImg from "../assets/money.png"; // add if needed
+import cyberImg from "../assets/cyber.png";
+import taxImg from "../assets/tax.png";
+import foreignImg from "../assets/foreign.png";
+import supportersImg from "../assets/supporters.png";
+import donationImg from "../assets/donation.png";
+import curruptionImg from "../assets/curruption.png";
+import cyberattackImg from "../assets/cyberattack.png";
+import warmoneyImg from "../assets/warmoney.png";
+import bribeworkImg from "../assets/bribework.png";
+import bribecaughtImg from "../assets/bribecaught.png";
+import strikeImg from "../assets/strike.png";
+import droneImg from "../assets/drone.png";
 
 const Board = () => {
   const location = useLocation();
@@ -84,12 +98,12 @@ const Board = () => {
   const [bidAmount, setBidAmount] = useState("");
   const [bidTimeLeft, setBidTimeLeft] = useState(0);
   const [myBidSubmitted, setMyBidSubmitted] = useState(false);
-  const [explodingTile, setExplodingTile] = useState(null);
+  const [explodingTiles, setExplodingTiles] = useState([]);
 
   // Bid result toast
   const [bidResult, setBidResult] = useState(null);
   // { winnerName, amount, cardName }
-
+  const [activeMystery, setActiveMystery] = useState(null);
   const { openCard } = useCardModal();
   const pawnImg = { redPawn, blackPawn, greenPawn, bluePawn, yellowPawn, whitePawn };
 
@@ -141,6 +155,72 @@ const Board = () => {
   const updateOptimisticPlayers = (val) => {
     optimisticPlayersRef.current = val;
     setOptimisticPlayers(val);
+  };
+
+  const getMysteryVisual = (statement) => {
+    return mysteryVisuals[statement] || {
+      image: mysteryIcon,
+      color: "cyan",
+    };
+  };
+
+  const mysteryVisuals = {
+    "Emergency defence spending": {
+      image: emergencydefenceImg,
+      color: "red",
+    },
+    "Black Money Raid": {
+      image: moneyImg,
+      color: "gold",
+    },
+    "Cyber attack repair cost": {
+      image: cyberImg,
+      color: "purple",
+    },
+    "Tax from citizens": {
+      image: taxImg,
+      color: "gold",
+    },
+    "Foreign investment deal approved": {
+      image: foreignImg,
+      color: "purple",
+    },
+    "Received emergency funding from supporters": {
+      image: supportersImg,
+      color: "purple",
+    },
+    "Public rally success donation": {
+      image: donationImg,
+      color: "gold",
+    },
+    "Corruption investigation fine": {
+      image: curruptionImg,
+      color: "red",
+    },
+    "Cyber attack repair cost": {
+      image: cyberattackImg,
+      color: "red",
+    },
+    "Printed War money": {
+      image: warmoneyImg,
+      color: "red",
+    },
+    "Bribe attempt works": {
+      image: bribeworkImg,
+      color: "green",
+    },
+    "Bribe attempt works": {
+      image: bribecaughtImg,
+      color: "red",
+    },
+    "Successful strike, looted enemy resources": {
+      image: strikeImg,
+      color: "purple",
+    },
+    "Defence Drone deployed": {
+      image: droneImg,
+      color: "red",
+    },
   };
 
   const animateMove = (steps, movingIndex) =>
@@ -222,7 +302,13 @@ const Board = () => {
       setCurrentTurn(nextTurn);
       currentTurnRef.current = nextTurn;
       setTurnNo(newTurnNo);
-      if (mc) setMysteryCase(mc);
+      if (mc) {
+        setActiveMystery(mc);
+
+        setTimeout(() => {
+          setActiveMystery(null);
+        }, 2200); // duration of animation
+      }
       setTimeout(() => setMysteryCase(null), 3500);
       setActionModal(null);
       clearBidState();
@@ -312,8 +398,7 @@ const Board = () => {
 
     socket.current.off("timebombExploded");
     socket.current.on("timebombExploded", ({ position, casualties, nextBlastInTurns }) => {
-      setExplodingTile(position);
-      setTimeout(() => setExplodingTile(null), 1500);
+      runTimeBombAnimation(position);
     });
 
     return () => {
@@ -330,6 +415,29 @@ const Board = () => {
       if (bidTimerRef.current) clearInterval(bidTimerRef.current);
     };
   }, []);
+
+  const TOTAL_TILES = 32;
+
+  const runTimeBombAnimation = async (center) => {
+    const delays = [300, 400, 550, 700]; // increasing delay
+    // Step 1 → center blast
+    setExplodingTiles([center]);
+    await new Promise(res => setTimeout(res, delays[0]));
+
+    // Step 2 → pairs
+    for (let step = 1; step <= 3; step++) {
+      const pos1 = (center + step + TOTAL_TILES) % TOTAL_TILES;
+      const pos2 = (center - step + TOTAL_TILES) % TOTAL_TILES;
+
+      // BOTH explode together
+      setExplodingTiles([pos1, pos2]);
+
+      await new Promise(res => setTimeout(res, delays[step]));
+    }
+
+    // Clear after animation
+    setTimeout(() => setExplodingTiles([]), 800);
+  };
 
 
   const rollDice = () => {
@@ -405,6 +513,26 @@ const Board = () => {
             <button className="px-6 py-2 bg-yellow-500 text-black rounded-xl font-bold" onClick={() => navigate("/dashboard")}>
               Back to Home
             </button>
+          </div>
+        </div>
+      )}
+
+      {activeMystery && (
+        <div className="mystery-overlay">
+          <div className="mystery-card">
+            <img
+              src={getMysteryVisual(activeMystery.statement).image}
+              className="mystery-img"
+            />
+
+            <h2 className="mystery-title">
+              {activeMystery.statement}
+            </h2>
+
+            <p className="mystery-amount">
+              {activeMystery.amount > 0 ? "+" : ""}
+              {activeMystery.amount}
+            </p>
           </div>
         </div>
       )}
@@ -588,7 +716,7 @@ const Board = () => {
               const key = tileData[i].toLowerCase().replace(/\s+/g, "-");
               return (
                 <div key={i}
-                  className={`border-cell weapon-tile ${tileData[i].toLowerCase().replace(/\s+/g, '-')}  ${explodingTile === i ? 'bomb-exploding' : ''}`}
+                  className={`border-cell weapon-tile ${tileData[i].toLowerCase().replace(/\s+/g, '-')}  ${explodingTiles.includes(i) ? 'bomb-exploding' : ''}`}
                   style={{ gridRow: cell.r + 1, gridColumn: cell.c + 1 }}
                   onClick={() => openCard(cardMap[key], false, key)}
                 >
