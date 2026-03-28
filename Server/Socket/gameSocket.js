@@ -377,7 +377,7 @@ export default function gameSocket(io, socket) {
         }
 
         case "engineer": {
-          player.remainingParliamentHp = Math.min(1000, player.remainingParliamentHp + 100);
+          player.remainingParliamentHp = Math.min(1500, player.remainingParliamentHp + 100);
           break;
         }
 

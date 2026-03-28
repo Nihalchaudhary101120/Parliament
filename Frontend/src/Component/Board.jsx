@@ -71,6 +71,8 @@ const Board = () => {
   const [sharedDiceValue, setSharedDiceValue] = useState(1);
   const [mysteryCase, setMysteryCase] = useState(null);
   const [gameOver, setGameOver] = useState(null);
+  const [agentActivatedPlayer, setAgentActivatedPlayer] = useState(null);
+  const [hitEffect, setHitEffect] = useState(false);
 
   // Buy modal — only the landing player sees this
   const [actionModal, setActionModal] = useState(null);
@@ -221,9 +223,36 @@ const Board = () => {
       currentTurnRef.current = nextTurn;
       setTurnNo(newTurnNo);
       if (mc) setMysteryCase(mc);
-      setTimeout(()=>setMysteryCase(null),3500);
+      setTimeout(() => setMysteryCase(null), 3500);
       setActionModal(null);
       clearBidState();
+
+      const activeAgent = updated.find(p => p.agent === true);
+
+      if (activeAgent) {
+        // ✅ force new value every time
+        setAgentActivatedPlayer(Date.now());
+
+        // remove after 2 sec
+        setTimeout(() => {
+          setAgentActivatedPlayer(null);
+        }, 2000);
+      }
+      const prevPlayers = optimisticPlayersRef.current;
+
+      updated.forEach((p) => {
+        const prev = prevPlayers.find(x => x.userId._id === p.userId._id);
+
+        if (!prev) return;
+
+        // 🔥 detect HP drop
+        if (p.remainingParliamentHp < prev.remainingParliamentHp) {
+          setHitEffect(true);
+
+          setTimeout(() => setHitEffect(false), 800);
+        }
+      });
+
     });
 
     // boardUpdate — pawn moved but turn paused (buy/bid decision pending)
@@ -380,45 +409,76 @@ const Board = () => {
         </div>
       )}
 
+      {
+        agentActivatedPlayer &&
+        <div className="agent-animated">
+          Agent Card Activated
+        </div>
+      }
+
       {/* ── Buy / Start Bid Modal (landing player only) ── */}
       {actionModal && isMyTurn && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70">
-          <div className="bg-gray-900 border border-cyan-500 rounded-2xl p-8 text-center min-w-[320px]">
-            <h3 className="text-2xl font-bold text-cyan-300 mb-1">{actionModal.card.name}</h3>
-            <p className="text-gray-400 text-sm mb-4">Nobody owns this card yet</p>
-            <p className="text-white mb-1">Price: <span className="text-yellow-400 font-bold">${actionModal.card.price}</span></p>
-            <p className="text-gray-400 mb-6">Your cash: <span className="text-green-400 font-bold">${actionModal.playerCash}</span></p>
-            <div className="flex gap-3 justify-center">
+        <div className="modal-overlay">
+          <div className="buy-modal-premium">
+
+            {/* Glow Background Effect */}
+            <div className="modal-glow"></div>
+
+            {/* Title */}
+            <h3 className="modal-title">
+              {actionModal.card.name}
+            </h3>
+
+            <p className="modal-subtext">Unowned Territory</p>
+
+            {/* Price Section */}
+            <div className="price-box">
+              <span>Price</span>
+              <h2>${actionModal.card.price}</h2>
+            </div>
+
+            {/* Player Cash */}
+            <div className="cash-box">
+              💰 ${actionModal.playerCash}
+            </div>
+
+            {/* Buttons */}
+            <div className="modal-actions">
               {actionModal.playerCash >= actionModal.card.price && (
-                <button className="px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold" onClick={handleBuy}>
-                  Buy ${actionModal.card.price}
+                <button className="buy-btn" onClick={handleBuy}>
+                  Buy Now
                 </button>
               )}
-              <button className="px-5 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-xl font-bold" onClick={handleStartBid}>
-                🔨 Start Bid
+
+              <button className="bid-btn" onClick={handleStartBid}>
+                🔨 Auction
               </button>
             </div>
+
           </div>
         </div>
       )}
-
       {/* ── Bid Modal (ALL players) ── */}
       {bidModal && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/75">
-          <div className="bg-gray-900 border border-yellow-500 rounded-2xl p-8 text-center min-w-[340px]">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-xl font-bold text-yellow-300">🔨 {bidModal.card.name}</h3>
-              <span className={`text-xl font-bold tabular-nums ${bidTimeLeft <= 5 ? "text-red-400 animate-pulse" : "text-white"}`}>
+        <div className="bid-overlay">
+          <div className="bid-modal-premium">
+
+            {/* Header */}
+            <div className="bid-header">
+              <h3 className="bid-title"> {bidModal.card.name}</h3>
+              <span className={`bid-timer ${bidTimeLeft <= 5 ? "danger" : ""}`}>
                 {bidTimeLeft}s
               </span>
             </div>
 
-            <p className="text-gray-400 text-sm mb-4">
-              Min bid: <span className="text-yellow-400 font-semibold">${bidModal.minBid}</span>
+            {/* Info */}
+            <p className="bid-info">
+              Min bid: <span className="highlight">${bidModal.minBid}</span>
               {" · "}
-              Your cash: <span className="text-green-400 font-semibold">${myPlayer?.cashRemaining ?? 0}</span>
+              Your cash: <span className="cash">${myPlayer?.cashRemaining ?? 0}</span>
             </p>
 
+            {/* Input */}
             {!myBidSubmitted ? (
               <>
                 <input
@@ -426,20 +486,26 @@ const Board = () => {
                   min={bidModal.minBid}
                   max={myPlayer?.cashRemaining ?? 0}
                   value={bidAmount}
-                  onChange={e => setBidAmount(e.target.value)}
-                  className="w-full bg-gray-800 text-white border border-gray-600 rounded-xl px-4 py-2 mb-4 text-center text-lg focus:outline-none focus:border-yellow-500"
+                  onChange={(e) => setBidAmount(e.target.value)}
+                  className="bid-input"
                   placeholder={`Min $${bidModal.minBid}`}
                 />
-                <div className="flex gap-3 justify-center">
+
+                <div className="bid-actions">
                   <button
-                    className="px-6 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-xl font-bold disabled:opacity-40 disabled:cursor-not-allowed"
-                    disabled={!bidAmount || parseInt(bidAmount) < bidModal.minBid || parseInt(bidAmount) > (myPlayer?.cashRemaining ?? 0)}
+                    className="bid-btn-main"
+                    disabled={
+                      !bidAmount ||
+                      Number(bidAmount) < bidModal.minBid ||
+                      Number(bidAmount) > (myPlayer?.cashRemaining ?? 0)
+                    }
                     onClick={handleSubmitBid}
                   >
                     Place Bid
                   </button>
+
                   <button
-                    className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-xl font-bold"
+                    className="pass-btn"
                     onClick={() => setMyBidSubmitted(true)}
                   >
                     Pass
@@ -447,39 +513,62 @@ const Board = () => {
                 </div>
               </>
             ) : (
-              <p className="text-gray-400 text-sm mt-2 py-4">✅ Waiting for others...</p>
+              <p className="waiting-text">✅ Waiting for others...</p>
             )}
 
-            <div className="mt-5 border-t border-gray-700 pt-4 text-left">
-              <p className="text-gray-500 text-xs mb-2">Players:</p>
+            {/* Players */}
+            <div className="bid-players">
+              <p className="players-title">Players:</p>
+
               {optimisticPlayers.filter(p => p.isActive).map((p, i) => (
-                <div key={i} className="text-sm text-gray-300 flex justify-between py-0.5">
-                  <span>{p.userId.username}</span>
-                  <span className="text-green-400">${p.cashRemaining}</span>
+                <div key={i} className="bid-player">
+                  <span className="cash">{p.userId.username}</span>
+                  <span className="cash">${p.cashRemaining}</span>
                 </div>
               ))}
             </div>
+
           </div>
         </div>
       )}
 
       {/* ── Bid Result Toast ── */}
       {bidResult && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 border border-yellow-500 rounded-xl px-6 py-3 text-center shadow-xl animate-bounce">
-          <p className="text-yellow-300 font-bold">{bidResult.winnerName} won {bidResult.cardName}</p>
-          <p className="text-green-400 text-lg font-bold">for ${bidResult.amount}</p>
+        <div className="bid-result-toast">
+
+          <div className="result-glow"></div>
+
+          <p className="result-title">
+            🏆 {bidResult.winnerName} won {bidResult.cardName}
+          </p>
+
+          <p className="result-amount">
+            ${bidResult.amount}
+          </p>
+
         </div>
       )}
 
       {/* ── Mystery Toast ── */}
       {mysteryCase && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-30 bg-gray-900 border border-purple-500 rounded-xl px-6 py-3 text-center shadow-xl">
-          <p className="text-purple-300 font-semibold">{mysteryCase.statement}</p>
-          <p className={`text-lg font-bold ${mysteryCase.amount > 0 ? "text-green-400" : "text-red-400"}`}>
-            {mysteryCase.amount > 0 ? `+$${mysteryCase.amount}` : `-$${Math.abs(mysteryCase.amount)}`}
+        <div className="mystery-toast">
+
+          <div className="mystery-glow"></div>
+
+          <p className="mystery-text">
+            ✨ {mysteryCase.statement}
           </p>
+
+          <p className={`mystery-amount ${mysteryCase.amount > 0 ? "gain" : "loss"}`}>
+            {mysteryCase.amount > 0
+              ? `+$${mysteryCase.amount}`
+              : `-$${Math.abs(mysteryCase.amount)}`}
+          </p>
+
         </div>
       )}
+
+
 
       {/* ── Turn Indicator ── */}
       <div className="fixed top-4 right-4 z-20 bg-gray-900/90 border border-cyan-700 rounded-xl px-4 py-2 text-sm text-white">
@@ -555,7 +644,7 @@ const Board = () => {
                   const isThisTurn = currentTurn?.toString() === player.userId._id?.toString();
                   return (
                     <div key={i} className={`player-cell ${hp <= 300 ? "low" : ""} ${isThisTurn ? "active-turn" : ""}`}>
-                      <div className="image-parent">
+                      <div className={`image-parent ${hitEffect ? "parliament-hit" : ""}`}>
                         <div className="name">
                           <span className={player.pawn}>{player.userId.username}</span>
                           {isThisTurn && <span className="text-xs text-green-400 ml-1">▶</span>}
@@ -569,7 +658,10 @@ const Board = () => {
                           <div className="shield-fill" style={{ width: `${shPct}%` }} />
                           <span className="shield-text">{shield} / {maxShield}</span>
                         </div>
-                        <div className="text-xs text-yellow-400 mt-1 money-tag">${player.cashRemaining}</div>
+                        <div className="money-scientist">
+                          <div className="text-xs text-yellow-400 mt-1 money-tag cash-tag">${player.cashRemaining}</div>
+                          <div className="money-tag sceintist-tag">scientist-card:{player.scientist}</div>
+                        </div>
                         <div className="flex gap-1 mt-1 justify-center flex-wrap">
                           {player.agent && <span className="text-xs bg-blue-800 text-blue-200 px-1 rounded">Agent</span>}
                           {player.scientist > 0 && <span className="text-xs bg-purple-800 text-purple-200 px-1 rounded">Sci ×{player.scientist}</span>}
