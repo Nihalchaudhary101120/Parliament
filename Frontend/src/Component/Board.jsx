@@ -197,10 +197,6 @@ const Board = () => {
       image: curruptionImg,
       color: "red",
     },
-    "Cyber attack repair cost": {
-      image: cyberattackImg,
-      color: "red",
-    },
     "Printed War money": {
       image: warmoneyImg,
       color: "red",
@@ -208,10 +204,6 @@ const Board = () => {
     "Bribe attempt works": {
       image: bribeworkImg,
       color: "green",
-    },
-    "Bribe attempt works": {
-      image: bribecaughtImg,
-      color: "red",
     },
     "Successful strike, looted enemy resources": {
       image: strikeImg,

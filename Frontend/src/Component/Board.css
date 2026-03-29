@@ -1653,13 +1653,13 @@ color:red;
   100% { transform: rotate(360deg); }
 }
 
-/* 💥 HIT EFFECT */
+/* 💥 HIT EFFECT
 .parliament-hit {
   animation: hitShake 0.4s ease;
 }
 
 /* 🔥 RED FLASH */
-.parliament-hit::after {
+/* .parliament-hit::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -1667,7 +1667,9 @@ color:red;
   border-radius: 12px;
   animation: flash 0.4s ease;
   pointer-events: none;
-}
+} */ */
+ 
+
 
 /* DARK BACKGROUND */
 .mystery-overlay {
