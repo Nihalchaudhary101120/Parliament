@@ -492,8 +492,29 @@ const Board = () => {
   <>
 
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
+
+      {activeMystery && (
+        <div className="mystery-overlay">
+          <div className="mystery-card">
+            <img
+              src={getMysteryVisual(activeMystery.statement).image}
+              className="mystery-img"
+            />
+
+            <h2 className="mystery-title">
+              {activeMystery.statement}
+            </h2>
+
+            <p className="mystery-amount">
+              {activeMystery.amount > 0 ? "+" : ""}
+              {activeMystery.amount}
+            </p>
+          </div>
+        </div>
+      )}
       <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
       <GameChatContainer players={players} />
+
 
       {/* ── Game Over ── */}
       {gameOver && (
@@ -790,25 +811,7 @@ const Board = () => {
       </div>
     </div>
 
-    {activeMystery && (
-        <div className="mystery-overlay">
-          <div className="mystery-card">
-            <img
-              src={getMysteryVisual(activeMystery.statement).image}
-              className="mystery-img"
-            />
-
-            <h2 className="mystery-title">
-              {activeMystery.statement}
-            </h2>
-
-            <p className="mystery-amount">
-              {activeMystery.amount > 0 ? "+" : ""}
-              {activeMystery.amount}
-            </p>
-          </div>
-        </div>
-      )}
+    
   </>
   
     
