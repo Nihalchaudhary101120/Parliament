@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-    origin: 'https://parliamentbattle.vercel.app/',
+    origin: 'https://parliamentbattle.vercel.app',
     credentials: true
 }));
 const sessionMiddleWare = session({
@@ -30,8 +30,9 @@ const sessionMiddleWare = session({
         sameSite: "none"
     }
 });
-app.use('/cards', cardController);
 app.use(sessionMiddleWare);
+app.use('/cards', cardController);
+
 app.use('/auth', authRoute);
 app.use('/friends', gameRoute);
 
