@@ -30,8 +30,9 @@ const sessionMiddleWare = session({
         sameSite: "none"
     }
 });
-app.use('/cards', cardController);
 app.use(sessionMiddleWare);
+app.use('/cards', cardController);
+
 app.use('/auth', authRoute);
 app.use('/friends', gameRoute);
 
