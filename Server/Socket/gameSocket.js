@@ -139,7 +139,7 @@ export default function gameSocket(io, socket) {
   socket.on("joinLobby", async ({ gameCode }) => {
     try {
       const game = await Game.findOne({ gameCode }).populate("players.userId");
-            await game.populate("players.cards.cardId");
+      await game.populate("players.cards.cardId");
 
       if (!game) return socket.emit("lobbyError", { message: "Game not found" });
 
@@ -188,7 +188,7 @@ export default function gameSocket(io, socket) {
   //  5. Broadcast diceResult to room for animation
   //  6. After animation client emits "playTurn" (no dice value sent)
   //
-  socket.on("rollDice", async ({ gameCode }) => {
+  socket.on("rollDice", async ({ gameCode, skippedChance }) => {
     try {
       // ── Atomic lock: find game where it's this player's turn AND not already processing
       const game = await Game.findOneAndUpdate(
@@ -202,10 +202,64 @@ export default function gameSocket(io, socket) {
         { new: true }
       );
 
-      // If null → either not their turn, or another rollDice already won the lock
       if (!game) return;
 
-      // Server decides dice — client has zero control over this
+      const currentIndex = game.players.findIndex(
+        p => p.userId.toString() === userId.toString()
+      );
+      const player = game.players[currentIndex];
+
+      if (skippedChance) {
+        player.skippedChances = (player.skippedChances || 0) + 1;
+
+        io.to(gameCode).emit("receiveMessage", {
+          id: Date.now(), sender: "System",
+          content: `⏱️ ${username} skipped their turn (${player.skippedChances}/3)`,
+          type: "system", time: new Date().toLocaleTimeString(),
+        });
+
+        if (player.skippedChances >= 4) {
+          player.isActive = false;
+          game.isProcessing = false;
+          game.pendingDice = null;
+
+          const activePlayers = game.players.filter(p => p.isActive);
+
+          io.to(gameCode).emit("receiveMessage", {
+            id: Date.now(), sender: "System",
+            content: `🚫 ${username} was eliminated for skipping 3 turns!`,
+            type: "system", time: new Date().toLocaleTimeString(),
+          });
+
+          if (activePlayers.length <= 1) {
+            game.status = "finished";
+            game.winner = activePlayers[0]?.userId || userId;
+            await game.save();
+            await game.populate("players.userId");
+            await game.populate("players.cards.cardId");
+            io.to(gameCode).emit("gameOver", { winner: game.winner, players: game.players });
+            return;
+          }
+          const nextIndex = getNextActiveIndex(game, currentIndex);
+          game.currentTurn = game.players[nextIndex].userId;
+          game.turnNo += 1;
+          game.pendingAction = null;
+          await game.save();
+          await game.populate("players.userId");
+          await game.populate("players.cards.cardId");
+
+          io.to(gameCode).emit("turnResult", {
+            players: game.players,
+            currentTurn: game.players[nextIndex].userId._id,
+            turnNo: game.turnNo,
+            mysteryCase: null,
+          });
+          return; // ← skip dice roll entirely
+        }
+
+        await game.save(); // save incremented skippedChances before proceeding
+      }
+
       const diceValue = Math.floor(Math.random() * 6) + 1;
 
       // Store on DB so playTurn uses server's value, not client's
@@ -414,7 +468,7 @@ export default function gameSocket(io, socket) {
         game.pendingDice = null;
         await game.save();
         await game.populate("players.userId");
-      await game.populate("players.cards.cardId");
+        await game.populate("players.cards.cardId");
 
         io.to(gameCode).emit("gameOver", {
           winner: game.winner,
@@ -434,7 +488,7 @@ export default function gameSocket(io, socket) {
 
         await game.save();
         await game.populate("players.userId");
-      await game.populate("players.cards.cardId");
+        await game.populate("players.cards.cardId");
 
         io.to(gameCode).emit("boardUpdate", { players: game.players });
 
@@ -492,7 +546,7 @@ export default function gameSocket(io, socket) {
         game.pendingAction = null;
         await game.save();
         await game.populate("players.userId");
-      await game.populate("players.cards.cardId");
+        await game.populate("players.cards.cardId");
         io.to(gameCode).emit("gameOver", { winner: game.winner, players: game.players });
         return;
       }
@@ -597,7 +651,7 @@ export default function gameSocket(io, socket) {
         game.pendingAction = null;
         await game.save();
         await game.populate("players.userId");
-      await game.populate("players.cards.cardId");
+        await game.populate("players.cards.cardId");
 
         io.to(gameCode).emit("turnResult", {
           players: game.players,
@@ -695,28 +749,34 @@ export default function gameSocket(io, socket) {
     );
 
     const player = game.players[currentIndex];
-    player.cashRemaining -= 200;
+    if (player.cashRemaining >= 200) {
 
-    for (let p of game.players) {
-      p.position = getRandomPosition();
+      player.cashRemaining -= 200;
+
+      for (let p of game.players) {
+        p.position = getRandomPosition();
+      }
+
+      await game.save();
+      await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
+
+      io.to(gameCode).emit("newPositions", {
+        players: game.players
+      });
+
+      io.to(gameCode).emit("receiveMessage", {
+        id: Date.now(),
+        sender: "System",
+        content: `${username} called Emergency Meeting`,
+        type: "system",
+        time: new Date().toLocaleTimeString(),
+      });
+    } else {
+      socket.emit("error", {
+        message: "Not enough money"
+      });
     }
-
-    await game.save();
-    await game.populate("players.userId");
-          await game.populate("players.cards.cardId");
-
-
-    io.to(gameCode).emit("newPositions", {
-      players: game.players
-    });
-
-    io.to(gameCode).emit("receiveMessage", {
-      id: Date.now(),
-      sender: "System",
-      content: `${username} called Emergency Meeting`,
-      type: "system",
-      time: new Date().toLocaleTimeString(),
-    });
   });
 
   socket.on("wall-purchase", async ({ gameCode, cardName }) => {
@@ -737,33 +797,53 @@ export default function gameSocket(io, socket) {
     const card = await Card.findOne({ name: getCardName.get(cardName) });
     if (!player || !card) return;
 
-    console.log("humara card", card);
-    player.cashRemaining -= card.price;
-    player.remainingShieldHp += card.ShieldHp;
-    console.log("remainingShieldHP is", player.remainingShieldHp);
+    let purchased = true;
+    if (card.name === "wall sena" && player.purchasedWallSena === false) {
+      purchased = false;
+      player.purchasedWallSena = true;
+    } else if (card.name === "wall rose" && player.purchasedWallRose === false) {
+      purchased = false;
+      player.purchasedWallRose = true;
+    }
+    else if (card.name === "wall maria" && player.purchasedWallMaria === false) {
+      purchased = false;
+      player.purchasedWallMaria = true;
+    }
 
-    await game.save();
+    if (player.cashRemaining >= card.price && purchased === false) {
+      player.cashRemaining -= card.price;
+      player.remainingShieldHp += card.ShieldHp;
+      console.log("remainingShieldHP is", player.remainingShieldHp);
 
-    await game.populate("players.userId");
+      await game.save();
+      await game.populate("players.userId");
       await game.populate("players.cards.cardId");
 
 
-    io.to(gameCode).emit("newPositions", {
-      players: game.players
-    });
+      io.to(gameCode).emit("newPositions", {
+        players: game.players
+      });
 
-    io.to(gameCode).emit("receiveMessage", {
-      id: Date.now(),
-      sender: "System",
-      content: `${username} purchased ${card.name}`,
-      type: "system",
-      time: new Date().toLocaleTimeString(),
-    });
+      io.to(gameCode).emit("receiveMessage", {
+        id: Date.now(),
+        sender: "System",
+        content: `${username} purchased ${card.name}`,
+        type: "system",
+        time: new Date().toLocaleTimeString(),
+      });
+
+    } else if (purchased) {
+      return socket.emit("error", {
+        message: "Already purchased"
+      });
+    }
+    else {
+      socket.emit("error", {
+        message: "Not enough money"
+      });
+    }
   });
 
-  // ─────────────────────────────────────────────
-  // 3. resolveBid helper — paste this OUTSIDE gameSocket export, near the other helpers
-  // ─────────────────────────────────────────────
 
   async function resolveBid(gameCode, card) {
     try {

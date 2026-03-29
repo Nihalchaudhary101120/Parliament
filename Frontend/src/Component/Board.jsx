@@ -62,6 +62,8 @@ import strikeImg from "../assets/strike.png";
 import droneImg from "../assets/drone.png";
 // import { createPortal } from "react-dom";
 
+
+
 const Board = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -88,7 +90,7 @@ const Board = () => {
   const [gameOver, setGameOver] = useState(null);
   const [agentActivatedPlayer, setAgentActivatedPlayer] = useState(null);
   const [hitEffect, setHitEffect] = useState(false);
-
+  const [turnTimeLeft, setTurnTimeLeft] = useState(0);
   // Buy modal — only the landing player sees this
   const [actionModal, setActionModal] = useState(null);
   // { card: { id, name, price }, playerCash }
@@ -241,7 +243,70 @@ const Board = () => {
     if (bidTimerRef.current) clearInterval(bidTimerRef.current);
   };
 
-  // ── Socket setup ────────────────────────────
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+
+  const autoRollTimerRef = useRef(null);
+  const startAutoRollCountdown = () => {
+    if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
+    setTurnTimeLeft(30);
+
+    autoRollTimerRef.current = setInterval(() => {
+      setTurnTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(autoRollTimerRef.current);
+          triggerAutoRoll(); // ← fires when countdown hits 0
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const stopAutoRollCountdown = () => {
+    if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
+    setTurnTimeLeft(0);
+  };
+
+  const triggerAutoRoll = () => {
+    // Guard: only fire if it's still my turn and not already rolling
+    if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
+    if (sharedRolling || actionModal || bidModal) return;
+
+    if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
+    setSharedRolling(true);
+    socket.current.emit("rollDice", { gameCode: roomId, skippedChance: true }); // ← flag
+  };
+
+  const actionTimerRef = useRef(null);
+  const [actionTimeLeft, setActionTimeLeft] = useState(0);
+
+  const clearActionTimer = () => {
+    if (actionTimerRef.current) clearInterval(actionTimerRef.current);
+    setActionTimeLeft(0);
+  };
+
+  const startActionTimer = (canBuy) => {
+    clearActionTimer();
+    if (!canBuy) return; // if they can't afford it, bid starts automatically anyway
+    setActionTimeLeft(15);
+    actionTimerRef.current = setInterval(() => {
+      setActionTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(actionTimerRef.current);
+          handleBuy(); // ← auto-buy when time runs out
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   useEffect(() => {
     if (!game) return;
 
@@ -260,14 +325,21 @@ const Board = () => {
     socket.current.on("identity", ({ myUserId }) => {
       myUserIdRef.current = myUserId;
       setMyUserId(myUserId);
+      if (currentTurnRef.current?.toString() === myUserId?.toString()) {
+        startAutoRollCountdown();
+      }
     });
 
     // Re-join room — also triggers identity emit from server
-    socket.current.emit("joinLobby", { gameCode: roomId });
+    socket.current.emit("joinLobby", ({ gameCode: roomId }));
 
-    // diceResult
+    socket.current.off("error");
+    socket.current.on("error", ({ message }) => {
+      showToast(message, "error");
+    });
     socket.current.off("diceResult");
     socket.current.on("diceResult", async ({ diceValue, rolledBy, players: updated }) => {
+      stopAutoRollCountdown();
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
       updateOptimisticPlayers(updated);
@@ -289,6 +361,7 @@ const Board = () => {
     // turnResult — normal turn end
     socket.current.off("turnResult");
     socket.current.on("turnResult", ({ players: updated, currentTurn: nextTurn, turnNo: newTurnNo, mysteryCase: mc }) => {
+      clearActionTimer();
       hasEmittedPlayTurn.current = false;
       setPlayers(updated);
       updateOptimisticPlayers(updated);
@@ -332,6 +405,13 @@ const Board = () => {
         }
       });
 
+
+      if (nextTurn?.toString() === myUserIdRef.current?.toString()) {
+        startAutoRollCountdown();
+      } else {
+        stopAutoRollCountdown(); // not my turn, no countdown needed
+      }
+
     });
 
     // boardUpdate — pawn moved but turn paused (buy/bid decision pending)
@@ -352,9 +432,9 @@ const Board = () => {
     socket.current.off("actionRequired");
     socket.current.on("actionRequired", ({ card, playerCash }) => {
       setActionModal({ card, playerCash });
+      startActionTimer(playerCash >= card.price);
     });
 
-    // bidStarted — server broadcasts to ALL players when bid begins
     socket.current.off("bidStarted");
     socket.current.on("bidStarted", ({ card, minBid, duration }) => {
       setActionModal(null); // close buy modal for the landing player
@@ -396,6 +476,7 @@ const Board = () => {
 
     return () => {
       socket.current.off("identity");
+      socket.current.off("error");
       socket.current.off("diceResult");
       socket.current.off("turnResult");
       socket.current.off("boardUpdate");
@@ -406,6 +487,8 @@ const Board = () => {
       socket.current.off("timebombExploded");
       socket.current.off("newPositions");
       if (bidTimerRef.current) clearInterval(bidTimerRef.current);
+      if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
+      if (actionTimerRef.current) clearInterval(actionTimerRef.current);
     };
   }, []);
 
@@ -438,11 +521,12 @@ const Board = () => {
     if (sharedRolling || actionModal || bidModal) return;
     if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
     setSharedRolling(true);
-    socket.current.emit("rollDice", { gameCode: roomId });
+    socket.current.emit("rollDice", { gameCode: roomId, skippedChance: false });
   };
 
   // Direct buy — full price, no auction
   const handleBuy = () => {
+    clearActionTimer();
     socket.current.emit("playerAction", { gameCode: roomId, action: "buy" });
     setActionModal(null);
     hasEmittedPlayTurn.current = false;
@@ -450,6 +534,7 @@ const Board = () => {
 
   // Start bid — triggers bidStarted for all players
   const handleStartBid = () => {
+    clearActionTimer();
     socket.current.emit("playerAction", { gameCode: roomId, action: "bid" });
     setActionModal(null);
     // bidStarted will open bid modal for everyone
@@ -490,7 +575,7 @@ const Board = () => {
   };
 
   return (
-  
+
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
 
       <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
@@ -513,7 +598,7 @@ const Board = () => {
             </p>
           </div>
         </div>
-            )}
+      )}
 
 
       {/* ── Game Over ── */}
@@ -532,7 +617,7 @@ const Board = () => {
         </div>
       )}
 
-      
+
 
       {
         agentActivatedPlayer &&
@@ -567,7 +652,17 @@ const Board = () => {
               💰 ${actionModal.playerCash}
             </div>
 
-            {/* Buttons */}
+            {actionTimeLeft > 0 && (
+              <div className="action-timer">
+                <div
+                  className="action-timer-bar"
+                  style={{ width: `${(actionTimeLeft / 15) * 100}%` }}
+                />
+                <span className={`action-timer-text ${actionTimeLeft <= 5 ? "urgent" : ""}`}>
+                  Auto-buying in {actionTimeLeft}s
+                </span>
+              </div>
+            )}
             <div className="modal-actions">
               {actionModal.playerCash >= actionModal.card.price && (
                 <button className="buy-btn" onClick={handleBuy}>
@@ -583,7 +678,14 @@ const Board = () => {
           </div>
         </div>
       )}
-      {/* ── Bid Modal (ALL players) ── */}
+      {toast && (
+        <div className={`wall-toast ${toast.type}`}>
+          <span className="toast-icon">
+            {toast.type === "success" ? "✅" : "❌"}
+          </span>
+          <span className="toast-message">{toast.message}</span>
+        </div>
+      )}
       {bidModal && (
         <div className="bid-overlay">
           <div className="bid-modal-premium">
@@ -677,9 +779,29 @@ const Board = () => {
 
 
       {/* ── Turn Indicator ── */}
-      <div className="fixed top-4 right-4 z-20 bg-gray-900/90 border border-cyan-700 rounded-xl px-4 py-2 text-sm text-white">
-        {isMyTurn ? <span className="text-green-400 font-bold">Your Turn</span> : <span className="text-gray-400">Waiting...</span>}
-        <span className="ml-2 text-gray-500">Turn #{turnNo}</span>
+      <div className="turn-indicator">
+        {/* Countdown ring */}
+        {turnTimeLeft > 0 && (
+          <div className={`turn-ring ${turnTimeLeft <= 10 ? "urgent" : isMyTurn ? "active" : "idle"}`}>
+            <span>{turnTimeLeft}s</span>
+          </div>
+        )}
+
+        <div className="turn-divider" />
+
+        <div className="turn-section">
+          <span className="turn-label">STATUS</span>
+          <span className={`turn-value ${isMyTurn ? "my-turn" : "waiting"}`}>
+            {isMyTurn ? "Your Turn" : "Waiting..."}
+          </span>
+        </div>
+
+        <div className="turn-divider" />
+
+        <div className="turn-section" style={{ alignItems: "flex-end" }}>
+          <span className="turn-label">TURN</span>
+          <span className="turn-value">#{turnNo}</span>
+        </div>
       </div>
 
       {/* ── Board ── */}
@@ -810,8 +932,8 @@ const Board = () => {
         </div>
       </div>
     </div>
-  
-    
+
+
   );
 };
 
