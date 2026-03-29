@@ -489,6 +489,8 @@ const Board = () => {
   };
 
   return (
+  <>
+
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
       <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
       <GameChatContainer players={players} />
@@ -509,25 +511,7 @@ const Board = () => {
         </div>
       )}
 
-      {activeMystery && (
-        <div className="mystery-overlay">
-          <div className="mystery-card">
-            <img
-              src={getMysteryVisual(activeMystery.statement).image}
-              className="mystery-img"
-            />
-
-            <h2 className="mystery-title">
-              {activeMystery.statement}
-            </h2>
-
-            <p className="mystery-amount">
-              {activeMystery.amount > 0 ? "+" : ""}
-              {activeMystery.amount}
-            </p>
-          </div>
-        </div>
-      )}
+      
 
       {
         agentActivatedPlayer &&
@@ -669,25 +653,6 @@ const Board = () => {
         </div>
       )}
 
-      {/* ── Mystery Toast ── */}
-      {mysteryCase && (
-        <div className="mystery-toast">
-
-          <div className="mystery-glow"></div>
-
-          <p className="mystery-text">
-            ✨ {mysteryCase.statement}
-          </p>
-
-          <p className={`mystery-amount ${mysteryCase.amount > 0 ? "gain" : "loss"}`}>
-            {mysteryCase.amount > 0
-              ? `+$${mysteryCase.amount}`
-              : `-$${Math.abs(mysteryCase.amount)}`}
-          </p>
-
-        </div>
-      )}
-
 
 
       {/* ── Turn Indicator ── */}
@@ -824,6 +789,29 @@ const Board = () => {
         </div>
       </div>
     </div>
+
+    {activeMystery && (
+        <div className="mystery-overlay">
+          <div className="mystery-card">
+            <img
+              src={getMysteryVisual(activeMystery.statement).image}
+              className="mystery-img"
+            />
+
+            <h2 className="mystery-title">
+              {activeMystery.statement}
+            </h2>
+
+            <p className="mystery-amount">
+              {activeMystery.amount > 0 ? "+" : ""}
+              {activeMystery.amount}
+            </p>
+          </div>
+        </div>
+      )}
+  </>
+  
+    
   );
 };
 
