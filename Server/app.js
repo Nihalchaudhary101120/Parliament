@@ -12,8 +12,20 @@ connectDB();
 const app = express();
 app.use(express.json());
 
+const allowedOrigins = [
+  'https://parliamentbattle.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
 app.use(cors({
-    origin: 'https://parliamentbattle.vercel.app',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
     credentials: true
 }));
 const sessionMiddleWare = session({
