@@ -12,16 +12,16 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: '*',
     credentials: true
 }));
 const sessionMiddleWare = session({
-    secret: "beverage-campa",
+    secret: process.env.Secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
-        secure: false,
-        httpOnly: true,
+        secure: true,
+        httpOnly: false,
         sameSite: 'lax'
     }
 });
