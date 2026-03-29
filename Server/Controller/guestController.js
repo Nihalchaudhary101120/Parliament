@@ -10,13 +10,6 @@ export const createGuest = async (req, res) => {
             isGuest: true,
         });
 
-        await new Promise((resolve, reject) => {
-            req.session.regenerate((err) => {
-                if (err) return reject(err);
-                resolve();
-            });
-        });
-
         // store full user info in session (including guest flag)
         req.session.user = {
             id: user._id,
