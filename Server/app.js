@@ -6,6 +6,7 @@ import authRoute from "./route/authRoute.js";
 import session from "express-session";
 import gameRoute from "./route/gameRoute.js";
 import cardController from "./Controller/card.Contoller.js";
+import MongoStore from "connect-mongo";
 
 connectDB();
 const app = express();
@@ -19,10 +20,14 @@ const sessionMiddleWare = session({
     secret: process.env.Secret,
     resave: false,
     saveUninitialized: true,
+    store: MongoStore.create({
+        mongoUrl: process.env.ATLAS_URI,
+        collectionName: "sessions"
+    }),
     cookie: {
         secure: true,
-        httpOnly: false,
-        sameSite: 'lax'
+        httpOnly: true,
+        sameSite: "none"
     }
 });
 app.use('/cards', cardController);
