@@ -1580,7 +1580,7 @@ color:red;
   overflow: hidden;
 } */
 
-🔮 rotating purple aura
+/* 🔮 rotating purple aura
 .mystery-toast::before {
   content: "";
   position: absolute;
@@ -1593,45 +1593,45 @@ color:red;
   animation: rotateGlow 6s linear infinite;
   opacity: 0.3;
   pointer-events: none;
-}
+} */
 
 /* ✨ glow */
-.mystery-glow {
+/* .mystery-glow {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at top, rgba(255,255,255,0.2), transparent 60%);
   pointer-events: none;
-}
+} */
 
 /* 🧠 TEXT */
-.mystery-text {
+/* .mystery-text {
   font-size: 14px;
   font-weight: 600;
   color: #c4b5fd;
   text-shadow: 0 0 10px rgba(168,85,247,0.8);
-}
+} */
 
 /* 💰 AMOUNT */
-.mystery-amount {
+/* .mystery-amount {
   font-size: 22px;
   font-weight: bold;
   margin-top: 4px;
-}
+} */
 
 /* gain */
-.mystery-amount.gain {
+/* .mystery-amount.gain {
   color: #22c55e;
   text-shadow: 0 0 10px rgba(34,197,94,0.9);
-}
+} */
 
 /* loss */
-.mystery-amount.loss {
+/* .mystery-amount.loss {
   color: #ef4444;
   text-shadow: 0 0 10px rgba(239,68,68,0.9);
-}
+} */
 
 /* 🎬 animation */
-@keyframes mysteryPop {
+/* @keyframes mysteryPop {
   0% {
     opacity: 0;
     transform: translate(-50%, 20px) scale(0.6);
@@ -1647,11 +1647,11 @@ color:red;
     opacity: 0;
     transform: translate(-50%, -20px) scale(0.9);
   }
-}
+} */
 
-@keyframes rotateGlow {
+/* @keyframes rotateGlow {
   100% { transform: rotate(360deg); }
-}
+} */
 
 /* 💥 HIT EFFECT
 .parliament-hit {
