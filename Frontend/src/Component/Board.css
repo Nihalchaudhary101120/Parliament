@@ -1555,7 +1555,7 @@ color:red;
 
 
 /* ✨ MAIN TOAST */
-.mystery-toast {
+/* .mystery-toast {
   position: fixed;
   top: 40px;
   left: 50%;
@@ -1578,9 +1578,9 @@ color:red;
 
   animation: mysteryPop 5.5s ease forwards;
   overflow: hidden;
-}
+} */
 
-/* 🔮 rotating purple aura */
+🔮 rotating purple aura
 .mystery-toast::before {
   content: "";
   position: absolute;

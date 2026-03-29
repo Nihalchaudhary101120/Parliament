@@ -60,6 +60,7 @@ import bribeworkImg from "../assets/bribework.png";
 import bribecaughtImg from "../assets/bribecaught.png";
 import strikeImg from "../assets/strike.png";
 import droneImg from "../assets/drone.png";
+import { createPortal } from "react-dom";
 
 const Board = () => {
   const location = useLocation();
@@ -489,11 +490,10 @@ const Board = () => {
   };
 
   return (
-  <>
-
+  
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
 
-      {activeMystery && (
+      {activeMystery && createPortal (
         <div className="mystery-overlay">
           <div className="mystery-card">
             <img
@@ -510,7 +510,8 @@ const Board = () => {
               {activeMystery.amount}
             </p>
           </div>
-        </div>
+        </div>,
+        document.body   // 👈 renders outside board's stacking context
       )}
       <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
       <GameChatContainer players={players} />
@@ -810,9 +811,6 @@ const Board = () => {
         </div>
       </div>
     </div>
-
-    
-  </>
   
     
   );
