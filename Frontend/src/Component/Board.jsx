@@ -492,6 +492,14 @@ const Board = () => {
     };
   }, []);
 
+  useEffect(() => {
+    Object.values(cardMap).forEach((src) => {
+      if (!src) return;
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
   const TOTAL_TILES = 32;
 
   const runTimeBombAnimation = async (center) => {
