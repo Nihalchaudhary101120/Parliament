@@ -107,6 +107,7 @@ const Board = () => {
   const [bidResult, setBidResult] = useState(null);
   // { winnerName, amount, cardName }
   const [activeMystery, setActiveMystery] = useState(null);
+  const isRollingRef = useRef(false)
   const { openCard } = useCardModal();
   const pawnImg = { redPawn, blackPawn, greenPawn, bluePawn, yellowPawn, whitePawn };
 
@@ -303,14 +304,48 @@ const Board = () => {
   const autoRollTimerRef = useRef(null);
 
 
-  const triggerAutoRoll = () => {
-    // Guard: only fire if it's still my turn and not already rolling
-    if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
-    if (sharedRolling || actionModal || bidModal) return;
+  // const triggerAutoRoll = () => {
+  //   // Guard: only fire if it's still my turn and not already rolling
+  //   if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
 
-    if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
+  //   if (
+  //     currentTurnRef.current?.toString() === myUserIdRef.current?.toString() &&
+  //     !sharedRollingRef.current &&
+  //     !actionModal &&
+  //     !bidModal &&
+  //     !isRollingRef.current
+  //   ) {
+  //     isRollingRef.current = true; // 🔒
+  //   }
+  //     if (sharedRolling || actionModal || bidModal) return;
+
+  //     if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
+  //     setSharedRolling(true);
+  //     socket.current.emit("rollDice", { gameCode: roomId, skippedChance: true }); // ← flag
+  //   };
+  const triggerAutoRoll = () => {
+    if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
+
+    if (
+      sharedRolling ||
+      actionModal ||
+      bidModal ||
+      isRollingRef.current // 🔥 important
+    ) return;
+
+    isRollingRef.current = true; // 🔒 lock
+
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => { });
+    }
+
     setSharedRolling(true);
-    socket.current.emit("rollDice", { gameCode: roomId, skippedChance: true }); // ← flag
+
+    socket.current.emit("rollDice", {
+      gameCode: roomId,
+      skippedChance: true
+    });
   };
 
   const actionTimerRef = useRef(null);
@@ -367,6 +402,7 @@ const Board = () => {
     });
     socket.current.off("diceResult");
     socket.current.on("diceResult", async ({ diceValue, rolledBy, players: updated }) => {
+      isRollingRef.current = false;
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
       updateOptimisticPlayers(updated);
@@ -390,6 +426,7 @@ const Board = () => {
     socket.current.on("turnResult", ({ players: updated, currentTurn: nextTurn, turnNo: newTurnNo, mysteryCase: mc }) => {
       clearActionTimer();
       hasEmittedPlayTurn.current = false;
+      isRollingRef.current = false;
       setPlayers(updated);
       updateOptimisticPlayers(updated);
       setCurrentTurn(nextTurn);
@@ -550,6 +587,8 @@ const Board = () => {
   const rollDice = () => {
     if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
     if (sharedRolling || actionModal || bidModal) return;
+
+    isRollingRef.current = true;
     if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
     setSharedRolling(true);
     socket.current.emit("rollDice", { gameCode: roomId, skippedChance: false });
