@@ -329,7 +329,7 @@ const Board = () => {
       setActionTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(actionTimerRef.current);
-          handleBid();
+          handleStartBid();
           return 0;
         }
         return prev - 1;
