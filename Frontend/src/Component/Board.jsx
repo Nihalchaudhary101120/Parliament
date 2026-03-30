@@ -304,49 +304,26 @@ const Board = () => {
   const autoRollTimerRef = useRef(null);
 
 
-  // const triggerAutoRoll = () => {
-  //   // Guard: only fire if it's still my turn and not already rolling
-  //   if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
-
-  //   if (
-  //     currentTurnRef.current?.toString() === myUserIdRef.current?.toString() &&
-  //     !sharedRollingRef.current &&
-  //     !actionModal &&
-  //     !bidModal &&
-  //     !isRollingRef.current
-  //   ) {
-  //     isRollingRef.current = true; // 🔒
-  //   }
-  //     if (sharedRolling || actionModal || bidModal) return;
-
-  //     if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
-  //     setSharedRolling(true);
-  //     socket.current.emit("rollDice", { gameCode: roomId, skippedChance: true }); // ← flag
-  //   };
   const triggerAutoRoll = () => {
+    // Guard: only fire if it's still my turn and not already rolling
     if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
 
     if (
-      sharedRolling ||
-      actionModal ||
-      bidModal ||
-      isRollingRef.current // 🔥 important
-    ) return;
-
-    isRollingRef.current = true; // 🔒 lock
-
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => { });
+      currentTurnRef.current?.toString() === myUserIdRef.current?.toString() &&
+      !sharedRollingRef.current &&
+      !actionModal &&
+      !bidModal &&
+      !isRollingRef.current
+    ) {
+      isRollingRef.current = true; // 🔒
     }
+    if (sharedRolling || actionModal || bidModal) return;
 
+    if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
     setSharedRolling(true);
-
-    socket.current.emit("rollDice", {
-      gameCode: roomId,
-      skippedChance: true
-    });
+    socket.current.emit("rollDice", { gameCode: roomId, skippedChance: true }); // ← flag
   };
+
 
   const actionTimerRef = useRef(null);
   const [actionTimeLeft, setActionTimeLeft] = useState(0);
@@ -622,6 +599,12 @@ const Board = () => {
 
   const isMyTurn = currentTurn?.toString() === myUserId?.toString();
   const myPlayer = optimisticPlayers.find(p => p.userId._id?.toString() === myUserId?.toString());
+  const isDiceDisabled =
+    !isMyTurn ||
+    sharedRolling ||
+    actionModal ||
+    bidModal ||
+    isRollingRef.current;
 
 
   const getPawnColor = (pawn) => {
@@ -992,7 +975,7 @@ const Board = () => {
 
         <div
           className={`dice-container ${sharedRolling ? "rolling" : "pop"} ${!isMyTurn || actionModal || bidModal ? "opacity-40 pointer-events-none" : ""}`}
-          onClick={rollDice}
+          onClick={!isDiceDisabled ? rollDice : null}
         >
           <div className="dice-display">
             <div className={`dice-face face-${sharedDiceValue}`}>
