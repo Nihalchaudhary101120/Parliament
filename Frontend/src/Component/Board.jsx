@@ -325,9 +325,11 @@ const Board = () => {
     socket.current.on("identity", ({ myUserId }) => {
       myUserIdRef.current = myUserId;
       setMyUserId(myUserId);
-      if (currentTurnRef.current?.toString() === myUserId?.toString()) {
-        startAutoRollCountdown();
-      }
+      // if (currentTurnRef.current?.toString() === myUserId?.toString()) {
+      //   startAutoRollCountdown();
+      // }
+      startAutoRollCountdown();
+
     });
 
     // Re-join room — also triggers identity emit from server
@@ -406,11 +408,13 @@ const Board = () => {
       });
 
 
-      if (nextTurn?.toString() === myUserIdRef.current?.toString()) {
-        startAutoRollCountdown();
-      } else {
-        stopAutoRollCountdown(); // not my turn, no countdown needed
-      }
+      // if (nextTurn?.toString() === myUserIdRef.current?.toString()) {
+      //   startAutoRollCountdown();
+      // } else {
+      //   stopAutoRollCountdown(); // not my turn, no countdown needed
+      // }
+
+      startAutoRollCountdown();
 
     });
 
