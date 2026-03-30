@@ -260,7 +260,7 @@ const Board = () => {
       setTurnTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(autoRollTimerRef.current);
-          triggerAutoRoll(); // ← fires when countdown hits 0
+          triggerAutoRoll(); 
           return 0;
         }
         return prev - 1;
@@ -299,7 +299,7 @@ const Board = () => {
       setActionTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(actionTimerRef.current);
-          handleBuy(); // ← auto-buy when time runs out
+          handleBid();
           return 0;
         }
         return prev - 1;
@@ -431,8 +431,6 @@ const Board = () => {
       updateOptimisticPlayers(updated);
     });
 
-    // actionRequired — only landing player gets this
-    // They choose: Buy (full price) OR Start Bid (open to everyone)
     socket.current.off("actionRequired");
     socket.current.on("actionRequired", ({ card, playerCash }) => {
       setActionModal({ card, playerCash });

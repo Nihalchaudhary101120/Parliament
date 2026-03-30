@@ -257,7 +257,7 @@ export default function gameSocket(io, socket) {
           return; // ← skip dice roll entirely
         }
 
-        await game.save(); // save incremented skippedChances before proceeding
+        await game.save(); 
       }
 
       const diceValue = Math.floor(Math.random() * 6) + 1;
@@ -733,7 +733,7 @@ export default function gameSocket(io, socket) {
       game.pendingAction.bids.push({ userId, amount: bidAmt });
       await game.save();
 
-      console.log(`${username} bid $${bidAmt} on ${game.pendingAction.cardId}`);
+      console.log(`${username} bid ₹${bidAmt} on ${game.pendingAction.cardId}`);
 
     } catch (err) {
       console.error("submitBid error:", err);
@@ -922,7 +922,7 @@ export default function gameSocket(io, socket) {
 
         io.to(gameCode).emit("receiveMessage", {
           id: Date.now(), sender: "System",
-          content: `${winner.player.userId?.username} won ${card.name} for $${winner.amount}`,
+          content: `${winner.player.userId?.username} won ${card.name} for ₹${winner.amount}`,
           type: "system", time: new Date().toLocaleTimeString(),
         });
       }
