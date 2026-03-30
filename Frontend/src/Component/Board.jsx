@@ -899,7 +899,7 @@ const Board = () => {
                           <span className="shield-text">{shield} / {maxShield}</span>
                         </div>
                         <div className="money-scientist">
-                          <div className="text-xs text-yellow-400 mt-1 money-tag cash-tag">${player.cashRemaining}</div>
+                          <div className="text-xs text-yellow-400 mt-1 money-tag cash-tag">₹{player.cashRemaining}</div>
                           <div className="money-tag sceintist-tag">scientist-card:{player.scientist}</div>
                         </div>
                         <div className="flex gap-1 mt-1 justify-center flex-wrap">
