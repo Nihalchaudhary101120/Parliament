@@ -155,6 +155,7 @@ const Board = () => {
     6: [{ x: -18, y: -18, scale: 0.65 }, { x: 18, y: -18, scale: 0.65 }, { x: -18, y: 0, scale: 0.65 }, { x: 18, y: 0, scale: 0.65 }, { x: -18, y: 18, scale: 0.65 }, { x: 18, y: 18, scale: 0.65 }],
   };
 
+
   const updateOptimisticPlayers = (val) => {
     optimisticPlayersRef.current = val;
     setOptimisticPlayers(val);
@@ -218,6 +219,54 @@ const Board = () => {
     },
   };
 
+  const sharedRollingRef = useRef(false);
+  useEffect(() => {
+    sharedRollingRef.current = sharedRolling;
+  }, [sharedRolling]);
+
+  useEffect(() => {
+    if (!currentTurn || !myUserId) return;
+
+    if (sharedRolling) {
+      if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
+      setTurnTimeLeft(0);
+      return;
+    }
+
+    if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
+    setTurnTimeLeft(30);
+
+    autoRollTimerRef.current = setInterval(() => {
+      setTurnTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(autoRollTimerRef.current);
+
+          // Only the current player emits — others just see 0
+          if (
+            currentTurnRef.current?.toString() === myUserIdRef.current?.toString() &&
+            !sharedRollingRef.current &&
+            !actionModal &&   // these are fine here — this effect re-runs when they change
+            !bidModal
+          ) {
+            if (audioRef.current) {
+              audioRef.current.currentTime = 0;
+              audioRef.current.play().catch(() => { });
+            }
+            setSharedRolling(true);
+            socket.current?.emit("rollDice", { gameCode: roomId, skippedChance: true });
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
+    };
+
+  }, [currentTurn, myUserId, sharedRolling]); // ← re-runs on turn change OR roll
+
   const animateMove = (steps, movingIndex) =>
     new Promise((resolve) => {
       let step = 0;
@@ -252,26 +301,7 @@ const Board = () => {
 
 
   const autoRollTimerRef = useRef(null);
-  const startAutoRollCountdown = () => {
-    if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
-    setTurnTimeLeft(30);
 
-    autoRollTimerRef.current = setInterval(() => {
-      setTurnTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(autoRollTimerRef.current);
-          triggerAutoRoll(); 
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const stopAutoRollCountdown = () => {
-    if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
-    setTurnTimeLeft(0);
-  };
 
   const triggerAutoRoll = () => {
     // Guard: only fire if it's still my turn and not already rolling
@@ -325,10 +355,6 @@ const Board = () => {
     socket.current.on("identity", ({ myUserId }) => {
       myUserIdRef.current = myUserId;
       setMyUserId(myUserId);
-      // if (currentTurnRef.current?.toString() === myUserId?.toString()) {
-      //   startAutoRollCountdown();
-      // }
-      startAutoRollCountdown();
 
     });
 
@@ -341,7 +367,6 @@ const Board = () => {
     });
     socket.current.off("diceResult");
     socket.current.on("diceResult", async ({ diceValue, rolledBy, players: updated }) => {
-      stopAutoRollCountdown();
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
       updateOptimisticPlayers(updated);
@@ -408,13 +433,6 @@ const Board = () => {
       });
 
 
-      // if (nextTurn?.toString() === myUserIdRef.current?.toString()) {
-      //   startAutoRollCountdown();
-      // } else {
-      //   stopAutoRollCountdown(); // not my turn, no countdown needed
-      // }
-
-      startAutoRollCountdown();
 
     });
 
