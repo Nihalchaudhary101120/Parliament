@@ -17,6 +17,9 @@ const GameSchema = new mongoose.Schema({
                     }
                 }
             ],
+            purchasedWallSena: { type: Boolean, default: false },
+            purchasedWallRose: { type: Boolean, default: false },
+            purchasedWallMaria: { type: Boolean, default: false },
             isBot: { type: Boolean, required: true },
             remainingParliamentHp: { type: Number, required: true },
             remainingShieldHp: { type: Number },
@@ -68,12 +71,12 @@ const GameSchema = new mongoose.Schema({
         }
     ]
 
-} , {timestamps:true});
+}, { timestamps: true });
 
 // Auto delete after 2 days 
 GameSchema.index(
     { createdAt: 1 },
-    { expireAfterSeconds:  172800 }
+    { expireAfterSeconds: 172800 }
 );
 
 export default mongoose.model('game-session', GameSchema);

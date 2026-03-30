@@ -10,16 +10,30 @@ import MongoStore from "connect-mongo";
 
 connectDB();
 const app = express();
+app.set('trust proxy', 1);
 app.use(express.json());
 
+const allowedOrigins = [
+  'https://parliamentbattle.vercel.app',
+  // 'http://localhost:5173'
+
+];
+
 app.use(cors({
-    origin: 'https://parliamentbattle.vercel.app',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
     credentials: true
 }));
+
 const sessionMiddleWare = session({
     secret: process.env.Secret,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: MongoStore.create({
         mongoUrl: process.env.ATLAS_URI,
         collectionName: "sessions"
@@ -27,7 +41,8 @@ const sessionMiddleWare = session({
     cookie: {
         secure: true,
         httpOnly: true,
-        sameSite: "none"
+        sameSite: "none",
+        maxAge: 1000 * 60 * 60 * 24 * 7 
     }
 });
 app.use(sessionMiddleWare);

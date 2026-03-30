@@ -12,7 +12,9 @@ export const createGuest = async (req, res) => {
 
         await new Promise((resolve, reject) => {
             req.session.regenerate((err) => {
-                if (err) return reject(err);
+                if (err) {
+                    return reject(err);
+                }
                 resolve();
             });
         });
@@ -23,6 +25,14 @@ export const createGuest = async (req, res) => {
             username: user.username,
             isGuest: true
         };
+
+        // ensure session is persisted before returning
+        await new Promise((resolve, reject) => {
+            req.session.save((err) => {
+                if (err) return reject(err);
+                resolve();
+            });
+        });
 
         user.sessionToken = req.session.user.id;
         await user.save();
