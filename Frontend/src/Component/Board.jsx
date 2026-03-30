@@ -267,7 +267,7 @@ const Board = () => {
       if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
     };
 
-  }, [currentTurn, myUserId, sharedRolling]); // ← re-runs on turn change OR roll
+  }, [currentTurn, myUserId]); // ← re-runs on turn change OR roll
 
   const animateMove = (steps, movingIndex) =>
     new Promise((resolve) => {
