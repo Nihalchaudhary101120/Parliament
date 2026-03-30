@@ -506,8 +506,11 @@ const Board = () => {
       socket.current.off("gameOver");
       socket.current.off("timebombExploded");
       socket.current.off("newPositions");
+      if (autoRollTimerRef.current) {
+        clearInterval(autoRollTimerRef.current);
+        autoRollTimerRef.current = null;
+      }
       if (bidTimerRef.current) clearInterval(bidTimerRef.current);
-      if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
       if (actionTimerRef.current) clearInterval(actionTimerRef.current);
     };
   }, []);
