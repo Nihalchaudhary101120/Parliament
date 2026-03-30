@@ -656,12 +656,12 @@ const Board = () => {
             {/* Price Section */}
             <div className="price-box">
               <span>Price</span>
-              <h2>${actionModal.card.price}</h2>
+              <h2>₹{actionModal.card.price}</h2>
             </div>
 
             {/* Player Cash */}
             <div className="cash-box">
-              💰 ${actionModal.playerCash}
+              💰 ₹{actionModal.playerCash}
             </div>
 
             {actionTimeLeft > 0 && (
@@ -712,9 +712,9 @@ const Board = () => {
 
             {/* Info */}
             <p className="bid-info">
-              Min bid: <span className="highlight">${bidModal.minBid}</span>
+              Min bid: <span className="highlight">₹{bidModal.minBid}</span>
               {" · "}
-              Your cash: <span className="cash">${myPlayer?.cashRemaining ?? 0}</span>
+              Your cash: <span className="cash">₹{myPlayer?.cashRemaining ?? 0}</span>
             </p>
 
             {/* Input */}
@@ -727,7 +727,7 @@ const Board = () => {
                   value={bidAmount}
                   onChange={(e) => setBidAmount(e.target.value)}
                   className="bid-input"
-                  placeholder={`Min $${bidModal.minBid}`}
+                  placeholder={`Min ₹${bidModal.minBid}`}
                 />
 
                 <div className="bid-actions">
@@ -762,7 +762,7 @@ const Board = () => {
               {optimisticPlayers.filter(p => p.isActive).map((p, i) => (
                 <div key={i} className="bid-player">
                   <span className="cash">{p.userId.username}</span>
-                  <span className="cash">${p.cashRemaining}</span>
+                  <span className="cash">₹{p.cashRemaining}</span>
                 </div>
               ))}
             </div>
@@ -782,7 +782,7 @@ const Board = () => {
           </p>
 
           <p className="result-amount">
-            ${bidResult.amount}
+            ₹{bidResult.amount}
           </p>
 
         </div>
