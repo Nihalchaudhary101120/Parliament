@@ -243,19 +243,20 @@ const Board = () => {
           clearInterval(autoRollTimerRef.current);
 
           // Only the current player emits — others just see 0
-          if (
-            currentTurnRef.current?.toString() === myUserIdRef.current?.toString() &&
-            !sharedRollingRef.current &&
-            !actionModal &&   // these are fine here — this effect re-runs when they change
-            !bidModal
-          ) {
-            if (audioRef.current) {
-              audioRef.current.currentTime = 0;
-              audioRef.current.play().catch(() => { });
-            }
-            setSharedRolling(true);
-            socket.current?.emit("rollDice", { gameCode: roomId, skippedChance: true });
-          }
+          // if (
+          //   currentTurnRef.current?.toString() === myUserIdRef.current?.toString() &&
+          //   !sharedRollingRef.current &&
+          //   !actionModal &&   // these are fine here — this effect re-runs when they change
+          //   !bidModal
+          // ) {
+          //   if (audioRef.current) {
+          //     audioRef.current.currentTime = 0;
+          //     audioRef.current.play().catch(() => { });
+          //   }
+          //   setSharedRolling(true);
+          //   socket.current?.emit("rollDice", { gameCode: roomId, skippedChance: true });
+          // }
+          triggerAutoRoll();
           return 0;
         }
         return prev - 1;
@@ -304,24 +305,48 @@ const Board = () => {
   const autoRollTimerRef = useRef(null);
 
 
+  // const triggerAutoRoll = () => {
+  //   // Guard: only fire if it's still my turn and not already rolling
+  //   if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
+
+  //   if (
+  //     currentTurnRef.current?.toString() === myUserIdRef.current?.toString() &&
+  //     !sharedRollingRef.current &&
+  //     !actionModal &&
+  //     !bidModal &&
+  //     !isRollingRef.current
+  //   ) {
+  //     isRollingRef.current = true; // 🔒
+  //   }
+  //   if (sharedRolling || actionModal || bidModal) return;
+
+  //   if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
+  //   setSharedRolling(true);
+  //   socket.current.emit("rollDice", { gameCode: roomId, skippedChance: true }); // ← flag
+  // };
   const triggerAutoRoll = () => {
-    // Guard: only fire if it's still my turn and not already rolling
     if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
 
     if (
-      currentTurnRef.current?.toString() === myUserIdRef.current?.toString() &&
-      !sharedRollingRef.current &&
-      !actionModal &&
-      !bidModal &&
-      !isRollingRef.current
-    ) {
-      isRollingRef.current = true; // 🔒
-    }
-    if (sharedRolling || actionModal || bidModal) return;
+      sharedRollingRef.current ||
+      actionModal ||
+      bidModal ||
+      isRollingRef.current
+    ) return;
 
-    if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
+    isRollingRef.current = true;
+
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => { });
+    }
+
     setSharedRolling(true);
-    socket.current.emit("rollDice", { gameCode: roomId, skippedChance: true }); // ← flag
+
+    socket.current.emit("rollDice", {
+      gameCode: roomId,
+      skippedChance: true
+    });
   };
 
 
