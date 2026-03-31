@@ -107,6 +107,9 @@ const Board = () => {
   const [bidResult, setBidResult] = useState(null);
   // { winnerName, amount, cardName }
   const [activeMystery, setActiveMystery] = useState(null);
+  const [tileSize, setTileSize] = useState({ w: 90, h: 70 });
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
   const isRollingRef = useRef(false)
   const { openCard } = useCardModal();
   const pawnImg = { redPawn, blackPawn, greenPawn, bluePawn, yellowPawn, whitePawn };
@@ -147,13 +150,24 @@ const Board = () => {
     "torpedo": torpedoIcon, "brahmos": brahmosIcon, "safe-zone": safeZoneIcon,
   };
 
+  // const tileLayouts = {
+  //   1: [{ x: 0, y: 0, scale: 1 }],
+  //   2: [{ x: -18, y: 0, scale: 0.85 }, { x: 18, y: 0, scale: 0.85 }],
+  //   3: [{ x: 0, y: -18, scale: 0.8 }, { x: -18, y: 18, scale: 0.8 }, { x: 18, y: 18, scale: 0.8 }],
+  //   4: [{ x: -18, y: -18, scale: 0.75 }, { x: 18, y: -18, scale: 0.75 }, { x: -18, y: 18, scale: 0.75 }, { x: 18, y: 18, scale: 0.75 }],
+  //   5: [{ x: 0, y: -22, scale: 0.7 }, { x: -20, y: -5, scale: 0.7 }, { x: 20, y: -5, scale: 0.7 }, { x: -12, y: 18, scale: 0.7 }, { x: 12, y: 18, scale: 0.7 }],
+  //   6: [{ x: -18, y: -18, scale: 0.65 }, { x: 18, y: -18, scale: 0.65 }, { x: -18, y: 0, scale: 0.65 }, { x: 18, y: 0, scale: 0.65 }, { x: -18, y: 18, scale: 0.65 }, { x: 18, y: 18, scale: 0.65 }],
+  // };
+
+  //ise bhi hata dunga 
+  const ls = tileSize.w / 90; // layout scale ratio
   const tileLayouts = {
     1: [{ x: 0, y: 0, scale: 1 }],
-    2: [{ x: -18, y: 0, scale: 0.85 }, { x: 18, y: 0, scale: 0.85 }],
-    3: [{ x: 0, y: -18, scale: 0.8 }, { x: -18, y: 18, scale: 0.8 }, { x: 18, y: 18, scale: 0.8 }],
-    4: [{ x: -18, y: -18, scale: 0.75 }, { x: 18, y: -18, scale: 0.75 }, { x: -18, y: 18, scale: 0.75 }, { x: 18, y: 18, scale: 0.75 }],
-    5: [{ x: 0, y: -22, scale: 0.7 }, { x: -20, y: -5, scale: 0.7 }, { x: 20, y: -5, scale: 0.7 }, { x: -12, y: 18, scale: 0.7 }, { x: 12, y: 18, scale: 0.7 }],
-    6: [{ x: -18, y: -18, scale: 0.65 }, { x: 18, y: -18, scale: 0.65 }, { x: -18, y: 0, scale: 0.65 }, { x: 18, y: 0, scale: 0.65 }, { x: -18, y: 18, scale: 0.65 }, { x: 18, y: 18, scale: 0.65 }],
+    2: [{ x: -18 * ls, y: 0, scale: 0.85 }, { x: 18 * ls, y: 0, scale: 0.85 }],
+    3: [{ x: 0, y: -18 * ls, scale: 0.8 }, { x: -18 * ls, y: 18 * ls, scale: 0.8 }, { x: 18 * ls, y: 18 * ls, scale: 0.8 }],
+    4: [{ x: -18 * ls, y: -18 * ls, scale: 0.75 }, { x: 18 * ls, y: -18 * ls, scale: 0.75 }, { x: -18 * ls, y: 18 * ls, scale: 0.75 }, { x: 18 * ls, y: 18 * ls, scale: 0.75 }],
+    5: [{ x: 0, y: -22 * ls, scale: 0.7 }, { x: -20 * ls, y: -5 * ls, scale: 0.7 }, { x: 20 * ls, y: -5 * ls, scale: 0.7 }, { x: -12 * ls, y: 18 * ls, scale: 0.7 }, { x: 12 * ls, y: 18 * ls, scale: 0.7 }],
+    6: [{ x: -18 * ls, y: -18 * ls, scale: 0.65 }, { x: 18 * ls, y: -18 * ls, scale: 0.65 }, { x: -18 * ls, y: 0, scale: 0.65 }, { x: 18 * ls, y: 0, scale: 0.65 }, { x: -18 * ls, y: 18 * ls, scale: 0.65 }, { x: 18 * ls, y: 18 * ls, scale: 0.65 }],
   };
 
 
@@ -365,6 +379,21 @@ const Board = () => {
       });
     }, 1000);
   };
+
+  //hata dunga yadi kaam nhi kiya
+  useEffect(() => {
+    const update = () => {
+      const vw = window.innerWidth;
+      if (vw < 480) setTileSize({ w: 36, h: 28 });
+      else if (vw < 640) setTileSize({ w: 46, h: 36 });
+      else if (vw < 900) setTileSize({ w: 58, h: 45 });
+      else if (vw < 1200) setTileSize({ w: 72, h: 56 });
+      else setTileSize({ w: 90, h: 70 });
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   useEffect(() => {
     if (!game) return;
@@ -649,7 +678,20 @@ const Board = () => {
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
 
       <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
-      <GameChatContainer players={players} />
+      {/* <GameChatContainer players={players} /> */}
+      
+      {/* Chat Drawer */} 
+      <div className={`chat-drawer ${isChatOpen ? 'open' : ''}`}>
+        <GameChatContainer players={players} />
+      </div>
+      <button
+        className="chat-toggle-btn"
+        onClick={() => setIsChatOpen(p => !p)}
+      >
+        {isChatOpen ? '✕' : '💬'}
+      </button>
+      
+
       {activeMystery && (
         <div className="mystery-overlay">
           <div className="mystery-card">
@@ -897,7 +939,8 @@ const Board = () => {
       <div className="board-wrapper">
         <div className="bg-transparent p-6 rounded-3xl shadow-2xl">
           <div className="grid gap-2 bg-transparent p-4 rounded-2xl"
-            style={{ gridTemplateColumns: `repeat(${size}, 90px)`, gridTemplateRows: `repeat(${size}, 70px)` }}
+            // style={{ gridTemplateColumns: `repeat(${size}, 90px)`, gridTemplateRows: `repeat(${size}, 70px)` }}
+            style={{ gridTemplateColumns: `repeat(${size}, ${tileSize.w}px)`, gridTemplateRows: `repeat(${size}, ${tileSize.h}px)` }}
           >
             {border.map((cell, i) => {
               const tilePlayers = optimisticPlayers.filter(p => p.position === i);
