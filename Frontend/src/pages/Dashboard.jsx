@@ -18,7 +18,7 @@ const DashBoard = () => {
     const [joinError, setJoinError] = useState("");
     const [joining, setJoining] = useState(false);
     const [logout , setLogout]=useState(false)
-
+    const [creating , setCreating] = useState(false)
     const navigate = useNavigate();
 
     const generateRoomCode = () => {
