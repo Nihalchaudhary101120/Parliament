@@ -696,58 +696,56 @@ const Board = () => {
         </div>
       }
 
-      {/* ── Buy / Start Bid Modal (landing player only) ── */}
       {actionModal && isMyTurn && (
         <div className="modal-overlay">
           <div className="buy-modal-premium">
-
-            {/* Glow Background Effect */}
             <div className="modal-glow"></div>
 
-            {/* Title */}
-            <h3 className="modal-title">
-              {actionModal.card.name}
-            </h3>
-
-            <p className="modal-subtext">Unowned Territory</p>
-
-            {/* Price Section */}
-            <div className="price-box">
-              <span>Price</span>
-              <h2>₹{actionModal.card.price}</h2>
-            </div>
-
-            {/* Player Cash */}
-            <div className="cash-box">
-              💰 ₹{actionModal.playerCash}
+            <div className="modal-card-preview">
+              <img
+                src={cardMap[actionModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
+                className="modal-card-img"
+                alt={actionModal.card.name}
+              />
+              <div className="modal-card-info">
+                <h3 className="modal-title">{actionModal.card.name}</h3>
+                <p className="modal-subtext">Unowned Weapon</p>
+                <div className="modal-stat">
+                  <span className="stat-label">💰 Price</span>
+                  <span className="stat-value price">₹{actionModal.card.price}</span>
+                </div>
+                {actionModal.card.weaponDamage > 0 && (
+                  <div className="modal-stat">
+                    <span className="stat-label">💥 Damage</span>
+                    <span className="stat-value damage">{actionModal.card.weaponDamage} HP</span>
+                  </div>
+                )}
+                <div className="modal-stat">
+                  <span className="stat-label">🪙 Your Cash</span>
+                  <span className="stat-value cash">₹{actionModal.playerCash}</span>
+                </div>
+              </div>
             </div>
 
             {actionTimeLeft > 0 && (
               <div className="action-timer">
-                <div
-                  className="action-timer-bar"
-                  style={{ width: `${(actionTimeLeft / 15) * 100}%` }}
-                />
+                <div className="action-timer-bar" style={{ width: `${(actionTimeLeft / 15) * 100}%` }} />
                 <span className={`action-timer-text ${actionTimeLeft <= 5 ? "urgent" : ""}`}>
-                  Auto-buying in {actionTimeLeft}s
+                  Auto-auction in {actionTimeLeft}s
                 </span>
               </div>
             )}
+
             <div className="modal-actions">
               {actionModal.playerCash >= actionModal.card.price && (
-                <button className="buy-btn" onClick={handleBuy}>
-                  Buy Now
-                </button>
+                <button className="buy-btn" onClick={handleBuy}>Buy Now</button>
               )}
-
-              <button className="bid-btn" onClick={handleStartBid}>
-                🔨 Auction
-              </button>
+              <button className="bid-btn" onClick={handleStartBid}>🔨 Auction</button>
             </div>
-
           </div>
         </div>
       )}
+
       {toast && (
         <div className={`wall-toast ${toast.type}`}>
           <span className="toast-icon">
@@ -775,6 +773,27 @@ const Board = () => {
               Your cash: <span className="cash">₹{myPlayer?.cashRemaining ?? 0}</span>
             </p>
 
+            {/* Card preview — add this right after the bid-header div */}
+            <div className="bid-card-preview">
+              <img
+                src={cardMap[bidModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
+                className="bid-card-img"
+                alt={bidModal.card.name}
+              />
+              <div className="bid-card-stats">
+                <div className="bid-stat">
+                  <span>💰 Price</span>
+                  <span className="highlight">₹{bidModal.card.price}</span>
+                </div>
+                {bidModal.card.weaponDamage > 0 && (
+                  <div className="bid-stat">
+                    <span>💥 Damage</span>
+                    <span style={{ color: "#f87171", fontWeight: "bold" }}>{bidModal.card.weaponDamage} HP</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
             {/* Input */}
             {!myBidSubmitted ? (
               <>

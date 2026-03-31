@@ -1901,3 +1901,91 @@ color:red;
   color: #f87171;
   animation: urgentPulse 0.6s ease infinite alternate;
 }
+
+/* ── Action modal card preview ── */
+.modal-card-preview {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.modal-card-img {
+  width: 90px;
+  height: 120px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.5));
+}
+
+.modal-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.modal-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 13px;
+}
+
+.stat-label {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.stat-value.price  { color: #facc15; font-weight: bold; }
+.stat-value.damage { color: #f87171; font-weight: bold; }
+.stat-value.cash   { color: #22c55e; font-weight: bold; }
+
+/* ── Bid modal card preview ── */
+.bid-card-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 12px 0;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  text-align: left;
+}
+
+.bid-card-img {
+  width: 60px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  border: 1px solid rgba(250, 204, 21, 0.25);
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.4));
+}
+
+.bid-card-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.bid-stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #9ca3af;
+  padding: 4px 0;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
+}
