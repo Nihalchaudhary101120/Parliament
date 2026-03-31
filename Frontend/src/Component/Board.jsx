@@ -514,6 +514,7 @@ const Board = () => {
           </div>
         </div>
             )}
+      
 
 
       {/* ── Game Over ── */}

@@ -5,7 +5,7 @@ let socket = null;
 // call this AFTER login/guest API success
 export function connectSocket() {
   if (!socket) {
-    socket = io("https://parliamentbackend.onrender.com", {
+    socket = io("http://localhost:3000", {
       withCredentials: true,
       autoConnect: true
     });

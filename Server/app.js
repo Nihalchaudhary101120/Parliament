@@ -14,7 +14,7 @@ app.set('trust proxy', 1);
 app.use(express.json());
 
 const allowedOrigins = [
-  'https://parliamentbattle.vercel.app',
+  'http://localhost:5173',
 
 ];
 
@@ -38,9 +38,9 @@ const sessionMiddleWare = session({
         collectionName: "sessions"
     }),
     cookie: {
-        secure: true,
+        secure: false,
         httpOnly: true,
-        sameSite: "none",
+        sameSite: "lax",
         maxAge: 1000 * 60 * 60 * 24 * 7 
     }
 });
