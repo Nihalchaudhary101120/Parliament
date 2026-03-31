@@ -60,7 +60,7 @@ import bribeworkImg from "../assets/bribework.png";
 import bribecaughtImg from "../assets/bribecaught.png";
 import strikeImg from "../assets/strike.png";
 import droneImg from "../assets/drone.png";
-// import { createPortal } from "react-dom";
+import { createPortal } from "react-dom";
 
 
 
@@ -652,7 +652,6 @@ const Board = () => {
     bidModal ||
     isRollingRef.current;
 
-
   const getPawnColor = (pawn) => {
     const map = {
       redPawn: "red",
@@ -692,7 +691,7 @@ const Board = () => {
       </button>
       
 
-      {activeMystery && (
+      {activeMystery &&  createPortal(
         <div className="mystery-overlay">
           <div className="mystery-card">
             <img
@@ -709,7 +708,8 @@ const Board = () => {
               {activeMystery.amount}
             </p>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
 

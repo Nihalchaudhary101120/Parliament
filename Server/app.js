@@ -44,6 +44,23 @@ const sessionMiddleWare = session({
         maxAge: 1000 * 60 * 60 * 24 * 7 
     }
 });
+
+app.get("/ping" , (req , res)=>{
+  res.send("Server is alive")
+})
+
+cron.schedule("*/5 * * * *" , async()=>{
+  try {
+    await axios.get("https://parliamentbackend.onrender.com/ping");
+    console.log("self ping succesful");
+    
+  } catch (error) {
+    console.log("ping failed" , error.message);
+    
+  }
+})
+
+
 app.use(sessionMiddleWare);
 app.use('/cards', cardController);
 

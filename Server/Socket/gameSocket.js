@@ -78,6 +78,7 @@ async function checkTimebombExplosions(game, io, gameCode) {
 
     // Build blast zone: 3 tiles before + bomb tile + 3 tiles after
     const blastPositions = new Set();
+    if(offset == 2) continue; //safe zone here
     for (let offset = -BLAST_RADIUS; offset <= BLAST_RADIUS; offset++) {
       blastPositions.add((bomb.position + offset + TOTAL_TILES) % TOTAL_TILES);
     }
