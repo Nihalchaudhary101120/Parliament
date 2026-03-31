@@ -309,15 +309,7 @@ const Board = () => {
   //   // Guard: only fire if it's still my turn and not already rolling
   //   if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
 
-  //   if (
-  //     currentTurnRef.current?.toString() === myUserIdRef.current?.toString() &&
-  //     !sharedRollingRef.current &&
-  //     !actionModal &&
-  //     !bidModal &&
-  //     !isRollingRef.current
-  //   ) {
-  //     isRollingRef.current = true; // 🔒
-  //   }
+
   //   if (sharedRolling || actionModal || bidModal) return;
 
   //   if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
@@ -588,7 +580,7 @@ const Board = () => {
 
   const rollDice = () => {
     if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
-    if (sharedRolling || actionModal || bidModal) return;
+    if (sharedRolling || actionModal || bidModal || isRollingRef.current) return;
 
     isRollingRef.current = true;
     if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
