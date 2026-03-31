@@ -1,5 +1,4 @@
 import "./Auth.css";
-import "./EntryPage.css";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +10,6 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadout, setLoadout] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -28,59 +26,44 @@ export default function Login() {
 
   return (
 
-    <>
-      {loadout && (
-        <div className="entry-loading">
-          <div className="entry-spinner"></div>
-          <p>Logging-out...</p>
-        </div>
-      )}
+    
 
-      <div className="auth-container">
-        <div className="auth-card">
-          <h2 className="auth-title">Sign in to Parliament</h2>
+    <div className="auth-container">
+      
+      <div className="auth-card">
+        <h2 className="auth-title">Sign in to Parliament</h2>
 
-          <form onSubmit={onSubmit} className="auth-form">
-            <input
-              className="auth-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              type="email"
-              autoComplete="username"
-            />
+        <form onSubmit={onSubmit} className="auth-form">
+          <input
+            className="auth-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            type="email"
+            autoComplete="username"
+          />
 
-            <input
-              className="auth-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              type="password"
-              autoComplete="current-password"
-            />
+          <input
+            className="auth-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            type="password"
+            autoComplete="current-password"
+          />
 
-            {error && <div className="auth-error">{error}</div>}
+          {error && <div className="auth-error">{error}</div>}
 
-            <button className="auth-btn" type="submit" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
-            </button>
-          </form>
+          <button className="auth-btn" type="submit" disabled={loading}>
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
 
-          <div className="auth-footer">
-            <button className="auth-link" onClick={() => navigate('/signup')}>Create account</button>
-            <button className="auth-guest" disabled={loading}
-              onClick={async () => {
-                setLoadout(true);
-
-                // 🔥 allow UI to update
-                await new Promise(res => setTimeout(res, 50));
-
-                await handleGuest();
-              }}>{loadout? "logging-out..." : "Continue as Guest"}</button>
-          </div>
+        <div className="auth-footer">
+          <button className="auth-link" onClick={() => navigate('/signup')}>Create account</button>
+          <button className="auth-guest" onClick={handleGuest}>Continue as Guest</button>
         </div>
       </div>
-    </>
-
+    </div>
   );
 }

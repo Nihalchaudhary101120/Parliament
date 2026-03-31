@@ -17,6 +17,7 @@ const DashBoard = () => {
     const [joinCode, setJoinCode] = useState("");
     const [joinError, setJoinError] = useState("");
     const [joining, setJoining] = useState(false);
+    const [logout , setLogout]=useState(false)
 
     const navigate = useNavigate();
 
@@ -111,7 +112,13 @@ const DashBoard = () => {
     };
 
     return (
-
+        <>
+        {logout && (
+                <div className="entry-loadout">
+                    <div className="entry-spinner"></div>
+                    <p>Logging-out...</p>
+                </div>
+            )}
         <div className='hero'>
             <div className='kuch'>
                 <h1 className="logo-name">PARLIAMENT  BATTLEGROUND</h1>
@@ -127,7 +134,15 @@ const DashBoard = () => {
                     ) : (
                         <button className="action-btn" onClick={() => navigate('/signup')}>Create account to set name</button>
                     )}
-                    <button className="action-btn" onClick={signout}>Logout</button>
+                    <button className="action-btn" disabled={logout}
+                        onClick={async () => {
+                            setLogout(true);
+
+                            // 🔥 allow UI to update
+                            await new Promise(res => setTimeout(res, 50));
+
+                            await signout();
+                        }} >{logout ? "logging-out..." : "logout"}</button>
                 </div>
             </div>
 
@@ -291,7 +306,7 @@ const DashBoard = () => {
             </div> */}
 
         </div>
-
+</>
     );
 }
 
