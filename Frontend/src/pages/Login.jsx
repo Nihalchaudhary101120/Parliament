@@ -1,4 +1,5 @@
 import "./Auth.css";
+import "./EntryPage.css";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
@@ -25,41 +26,60 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Sign in to Parliament</h2>
 
-        <form onSubmit={onSubmit} className="auth-form">
-          <input
-            className="auth-input"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            type="email"
-            autoComplete="username"
-          />
+    <>
+      {loading && (
+        <div className="entry-loading">
+          <div className="entry-spinner"></div>
+          <p>Entering Battlefield...</p>
+        </div>
+      )}
 
-          <input
-            className="auth-input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            type="password"
-            autoComplete="current-password"
-          />
+      <div className="auth-container">
+        <div className="auth-card">
+          <h2 className="auth-title">Sign in to Parliament</h2>
 
-          {error && <div className="auth-error">{error}</div>}
+          <form onSubmit={onSubmit} className="auth-form">
+            <input
+              className="auth-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              type="email"
+              autoComplete="username"
+            />
 
-          <button className="auth-btn" type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
+            <input
+              className="auth-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              type="password"
+              autoComplete="current-password"
+            />
 
-        <div className="auth-footer">
-          <button className="auth-link" onClick={() => navigate('/signup')}>Create account</button>
-          <button className="auth-guest" onClick={handleGuest}>Continue as Guest</button>
+            {error && <div className="auth-error">{error}</div>}
+
+            <button className="auth-btn" type="submit" disabled={loading}>
+              {loading ? "Signing in..." : "Sign in"}
+            </button>
+          </form>
+
+          <div className="auth-footer">
+            <button className="auth-link" onClick={() => navigate('/signup')}>Create account</button>
+            <button className="auth-guest" disabled={loading}
+              onClick={async () => {
+                setLoading(true);
+
+                // 🔥 allow UI to update
+                await new Promise(res => setTimeout(res, 50));
+
+                await handleGuest();
+              }}>{loading ? "Entering..." : "Continue as Guest"}</button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
+
   );
 }
