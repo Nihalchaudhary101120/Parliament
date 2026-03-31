@@ -2074,32 +2074,9 @@ color:red;
   .dice-container { width: 78px; height: 78px; }
   .dice-face { width: 64px; height: 64px; }
 }
-/*for mobile board is center ok */
-@media (max-width: 768px) {
-  .board-wrapper {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
 
-    width: 100%;
-    height: auto;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-}
-@media (max-width: 768px) {
-  .board {
-    transform: scale(0.65);
-    transform-origin: top center;
-  }
-}
 /* ── Mobile ── */
 @media (max-width: 640px) {
-
-
   .hero2 { padding-top: 48px; gap: 10px; }
 
   .tile-icon { width: 20px; height: 20px; animation: none; }
