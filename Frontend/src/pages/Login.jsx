@@ -57,7 +57,16 @@ export default function Login() {
 
         <div className="auth-footer">
           <button className="auth-link" onClick={() => navigate('/signup')}>Create account</button>
-          <button className="auth-guest" onClick={handleGuest}>Continue as Guest</button>
+          <button className="auth-guest" disabled={loading} onClick={async () => {
+            setLoading(true);
+
+            await handleGuest(); // your existing logic
+
+            // optional small delay for smooth UX
+            setTimeout(() => {
+              setLoading(false);
+            }, 500);
+          }}>{loading ? "Entering..." : "Continue as Guest"}</button>
         </div>
       </div>
     </div>

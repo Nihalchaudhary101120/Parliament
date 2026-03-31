@@ -7,6 +7,7 @@ import session from "express-session";
 import gameRoute from "./route/gameRoute.js";
 import cardController from "./Controller/card.Contoller.js";
 import MongoStore from "connect-mongo";
+import cron from "node-cron";
 
 connectDB();
 const app = express();
@@ -15,6 +16,7 @@ app.use(express.json());
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'https://parliamentbattle.vercel.app'
 
 ];
 
@@ -38,9 +40,9 @@ const sessionMiddleWare = session({
         collectionName: "sessions"
     }),
     cookie: {
-        secure: false,
+        secure: true,
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
         maxAge: 1000 * 60 * 60 * 24 * 7 
     }
 });

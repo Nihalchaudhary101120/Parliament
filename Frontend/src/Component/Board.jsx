@@ -91,6 +91,7 @@ const Board = () => {
   const [agentActivatedPlayer, setAgentActivatedPlayer] = useState(null);
   const [hitEffect, setHitEffect] = useState(false);
   const [turnTimeLeft, setTurnTimeLeft] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   // Buy modal — only the landing player sees this
   const [actionModal, setActionModal] = useState(null);
   // { card: { id, name, price }, playerCash }
@@ -239,6 +240,16 @@ const Board = () => {
     sharedRollingRef.current = sharedRolling;
   }, [sharedRolling]);
 
+
+  useEffect(() => {
+  if (game && players.length > 0) {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500); // smooth delay (important)
+  }
+}, [game, players]);
+
+
   useEffect(() => {
     if (!currentTurn || !myUserId) return;
 
@@ -307,6 +318,8 @@ const Board = () => {
     setBidAmount("");
     if (bidTimerRef.current) clearInterval(bidTimerRef.current);
   };
+
+  
 
   const [toast, setToast] = useState(null);
 
@@ -671,6 +684,17 @@ const Board = () => {
     if (i >= 16 && i < 24) return "top";       // top row
     return "right";                            // right side
   };
+
+  if (isLoading) {
+  return (
+    <div className="loading-screen">
+      <div className="loader">
+        <div className="spinner"></div>
+        <p>Entering Battlefield...</p>
+      </div>
+    </div>
+  );
+}
 
   return (
 
