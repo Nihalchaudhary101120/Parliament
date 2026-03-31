@@ -73,7 +73,7 @@ const GameSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-// Auto delete after 2 days 
+// Auto delete after 2 days
 GameSchema.index(
     { createdAt: 1 },
     { expireAfterSeconds: 172800 }
