@@ -36,12 +36,12 @@ body {
   content: '';
   position: fixed;
   inset: 0;
-  background: linear-gradient(
+  /* background: linear-gradient(
     180deg,
-    rgba(2, 8, 30, 0.55) 0%,
+    rgba(14, 40, 136, 0.55) 0%,
     rgba(0, 20, 60, 0.45) 50%,
     rgba(2, 8, 30, 0.7) 100%
-  );
+  ); */
   pointer-events: none;
   z-index: 0;
 }
