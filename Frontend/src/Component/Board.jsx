@@ -127,10 +127,10 @@ const Board = () => {
   const tileData = [
     "Start", "Mine", "Mystery", "Radiation Zone", "Scientist",
     "Dragon Cannon", "Engineer", "Ballistic Missile", "Terrorist Attack",
-    "Agent", "Tsunami", "Mystery", "Revolver", "Engineer",
+    "Agent", "Tsunami Attack", "Mystery", "Revolver", "Engineer",
     "Time Bomb", "Air Strike", "safe-zone",
-    "Hammer", "Double Barrel", "Mystery", "Scientist",
-    "Torpedo", "Brahmos", "Laser", "Shock Wave",
+    "Hammer", "Double Barrel Shotgun", "Mystery", "Scientist",
+    "Torpedo Attack", "Brahmos", "Laser", "Shock Wave",
     "Agent", "Tank", "Machine Gun", "Mystery",
     "Engineer", "Grenade", "Nuclear Attack",
   ];
@@ -145,9 +145,9 @@ const Board = () => {
     "laser": laserIcon, "shock-wave": shockwaveIcon,
     "agent": agentIcon, "revolver": revolverIcon,
     "engineer": engineerIcon, "start": startIcon,
-    "double-barrel": shotgunIcon, "tsunami": tsunamiIcon,
+    "double-barrel-shotgun": shotgunIcon, "tsunami-attack": tsunamiIcon,
     "machine-gun": machineGunIcon, "time-bomb": timeBombIcon,
-    "torpedo": torpedoIcon, "brahmos": brahmosIcon, "safe-zone": safeZoneIcon,
+    "torpedo-attack": torpedoIcon, "brahmos": brahmosIcon, "safe-zone": safeZoneIcon,
   };
 
   // const tileLayouts = {

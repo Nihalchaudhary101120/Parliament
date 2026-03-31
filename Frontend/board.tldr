@@ -321,8 +321,8 @@
 			"typeName": "shape"
 		},
 		{
-			"x": 284.48792928844455,
-			"y": 372.9650170020601,
+			"x": 275.1480469932244,
+			"y": 1101.4799779036525,
 			"rotation": 0,
 			"isLocked": false,
 			"opacity": 1,
@@ -992,9 +992,9 @@
 			"typeName": "shape"
 		},
 		{
-			"x": 46.772127310302736,
-			"y": -332.9650170020601,
-			"z": 0.8446377615598225,
+			"x": -0.12616607086511067,
+			"y": -1084.807616521632,
+			"z": 0.6852295539293459,
 			"meta": {},
 			"id": "camera:page:page",
 			"typeName": "camera"
@@ -1343,8 +1343,10 @@
 		{
 			"editingShapeId": null,
 			"croppingShapeId": null,
-			"selectedShapeIds": [],
-			"hoveredShapeId": null,
+			"selectedShapeIds": [
+				"shape:37KoBdvDk53xpONVGbrpE"
+			],
+			"hoveredShapeId": "shape:37KoBdvDk53xpONVGbrpE",
 			"erasingShapeIds": [],
 			"hintingShapeIds": [],
 			"focusedGroupId": null,
