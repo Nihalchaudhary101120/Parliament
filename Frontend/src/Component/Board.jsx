@@ -129,7 +129,7 @@ const Board = () => {
     "Dragon Cannon", "Engineer", "Ballistic Missile", "Terrorist Attack",
     "Agent", "Tsunami Attack", "Mystery", "Revolver", "Engineer",
     "Time Bomb", "Air Strike", "safe-zone",
-    "Hammer", "Double Barrel Shotgun", "Mystery", "Scientist",
+    "Hammer", "Double Barrel", "Mystery", "Scientist",
     "Torpedo Attack", "Brahmos", "Laser", "Shock Wave",
     "Agent", "Tank", "Machine Gun", "Mystery",
     "Engineer", "Grenade", "Nuclear Attack",
@@ -145,7 +145,7 @@ const Board = () => {
     "laser": laserIcon, "shock-wave": shockwaveIcon,
     "agent": agentIcon, "revolver": revolverIcon,
     "engineer": engineerIcon, "start": startIcon,
-    "double-barrel-shotgun": shotgunIcon, "tsunami-attack": tsunamiIcon,
+    "double-barrel": shotgunIcon, "tsunami-attack": tsunamiIcon,
     "machine-gun": machineGunIcon, "time-bomb": timeBombIcon,
     "torpedo-attack": torpedoIcon, "brahmos": brahmosIcon, "safe-zone": safeZoneIcon,
   };

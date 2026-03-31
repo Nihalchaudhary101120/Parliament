@@ -35,7 +35,7 @@ import wallRose from "../assets/weapons/wall-rose.png";
 
 export const cardMap = {
   "start": startCard,
-  "double-barrel-shotgun": doubleBarrelCard,
+  "double-barrel": doubleBarrelCard,
 
   "air-strike": airStrikeCard,
   "ballistic-missile": ballisticMissileCard,
