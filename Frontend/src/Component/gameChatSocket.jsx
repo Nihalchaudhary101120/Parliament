@@ -6,11 +6,17 @@ import { getSocket } from "./socket";
 
 
 
-export default function GameChatContainer({players}) {
+export default function GameChatContainer({ players }) {
   const [messages, setMessages] = useState([]);
 
   const location = useLocation();
   const roomId = new URLSearchParams(location.search).get("room");
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
   useEffect(() => {
     const socket = getSocket();
     console.log("socket and roomId", socket, roomId);
@@ -29,6 +35,10 @@ export default function GameChatContainer({players}) {
     // }
     socket.on("receiveMessage", (msg) => {
       setMessages(prev => [...prev, msg]);
+
+      if (msg.type === "system" && msg.content?.toLowerCase().includes("purchased")) {
+        showToast(content, "success");
+      }
     });
 
     return () => {
@@ -53,7 +63,8 @@ export default function GameChatContainer({players}) {
     <GameChat
       messages={messages}
       addMessage={addMessage}
-      players = {players}
+      players={players}
+      toast={toast}
     />
   );
 }

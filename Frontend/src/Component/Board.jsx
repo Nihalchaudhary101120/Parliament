@@ -62,6 +62,8 @@ import strikeImg from "../assets/strike.png";
 import droneImg from "../assets/drone.png";
 // import { createPortal } from "react-dom";
 
+
+
 const Board = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -88,7 +90,7 @@ const Board = () => {
   const [gameOver, setGameOver] = useState(null);
   const [agentActivatedPlayer, setAgentActivatedPlayer] = useState(null);
   const [hitEffect, setHitEffect] = useState(false);
-
+  const [turnTimeLeft, setTurnTimeLeft] = useState(0);
   // Buy modal — only the landing player sees this
   const [actionModal, setActionModal] = useState(null);
   // { card: { id, name, price }, playerCash }
@@ -105,6 +107,10 @@ const Board = () => {
   const [bidResult, setBidResult] = useState(null);
   // { winnerName, amount, cardName }
   const [activeMystery, setActiveMystery] = useState(null);
+  const [tileSize, setTileSize] = useState({ w: 90, h: 70 });
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const isRollingRef = useRef(false)
   const { openCard } = useCardModal();
   const pawnImg = { redPawn, blackPawn, greenPawn, bluePawn, yellowPawn, whitePawn };
 
@@ -144,14 +150,26 @@ const Board = () => {
     "torpedo": torpedoIcon, "brahmos": brahmosIcon, "safe-zone": safeZoneIcon,
   };
 
+  // const tileLayouts = {
+  //   1: [{ x: 0, y: 0, scale: 1 }],
+  //   2: [{ x: -18, y: 0, scale: 0.85 }, { x: 18, y: 0, scale: 0.85 }],
+  //   3: [{ x: 0, y: -18, scale: 0.8 }, { x: -18, y: 18, scale: 0.8 }, { x: 18, y: 18, scale: 0.8 }],
+  //   4: [{ x: -18, y: -18, scale: 0.75 }, { x: 18, y: -18, scale: 0.75 }, { x: -18, y: 18, scale: 0.75 }, { x: 18, y: 18, scale: 0.75 }],
+  //   5: [{ x: 0, y: -22, scale: 0.7 }, { x: -20, y: -5, scale: 0.7 }, { x: 20, y: -5, scale: 0.7 }, { x: -12, y: 18, scale: 0.7 }, { x: 12, y: 18, scale: 0.7 }],
+  //   6: [{ x: -18, y: -18, scale: 0.65 }, { x: 18, y: -18, scale: 0.65 }, { x: -18, y: 0, scale: 0.65 }, { x: 18, y: 0, scale: 0.65 }, { x: -18, y: 18, scale: 0.65 }, { x: 18, y: 18, scale: 0.65 }],
+  // };
+
+  //ise bhi hata dunga 
+  const ls = tileSize.w / 90; // layout scale ratio
   const tileLayouts = {
     1: [{ x: 0, y: 0, scale: 1 }],
-    2: [{ x: -18, y: 0, scale: 0.85 }, { x: 18, y: 0, scale: 0.85 }],
-    3: [{ x: 0, y: -18, scale: 0.8 }, { x: -18, y: 18, scale: 0.8 }, { x: 18, y: 18, scale: 0.8 }],
-    4: [{ x: -18, y: -18, scale: 0.75 }, { x: 18, y: -18, scale: 0.75 }, { x: -18, y: 18, scale: 0.75 }, { x: 18, y: 18, scale: 0.75 }],
-    5: [{ x: 0, y: -22, scale: 0.7 }, { x: -20, y: -5, scale: 0.7 }, { x: 20, y: -5, scale: 0.7 }, { x: -12, y: 18, scale: 0.7 }, { x: 12, y: 18, scale: 0.7 }],
-    6: [{ x: -18, y: -18, scale: 0.65 }, { x: 18, y: -18, scale: 0.65 }, { x: -18, y: 0, scale: 0.65 }, { x: 18, y: 0, scale: 0.65 }, { x: -18, y: 18, scale: 0.65 }, { x: 18, y: 18, scale: 0.65 }],
+    2: [{ x: -18 * ls, y: 0, scale: 0.85 }, { x: 18 * ls, y: 0, scale: 0.85 }],
+    3: [{ x: 0, y: -18 * ls, scale: 0.8 }, { x: -18 * ls, y: 18 * ls, scale: 0.8 }, { x: 18 * ls, y: 18 * ls, scale: 0.8 }],
+    4: [{ x: -18 * ls, y: -18 * ls, scale: 0.75 }, { x: 18 * ls, y: -18 * ls, scale: 0.75 }, { x: -18 * ls, y: 18 * ls, scale: 0.75 }, { x: 18 * ls, y: 18 * ls, scale: 0.75 }],
+    5: [{ x: 0, y: -22 * ls, scale: 0.7 }, { x: -20 * ls, y: -5 * ls, scale: 0.7 }, { x: 20 * ls, y: -5 * ls, scale: 0.7 }, { x: -12 * ls, y: 18 * ls, scale: 0.7 }, { x: 12 * ls, y: 18 * ls, scale: 0.7 }],
+    6: [{ x: -18 * ls, y: -18 * ls, scale: 0.65 }, { x: 18 * ls, y: -18 * ls, scale: 0.65 }, { x: -18 * ls, y: 0, scale: 0.65 }, { x: 18 * ls, y: 0, scale: 0.65 }, { x: -18 * ls, y: 18 * ls, scale: 0.65 }, { x: 18 * ls, y: 18 * ls, scale: 0.65 }],
   };
+
 
   const updateOptimisticPlayers = (val) => {
     optimisticPlayersRef.current = val;
@@ -216,6 +234,55 @@ const Board = () => {
     },
   };
 
+  const sharedRollingRef = useRef(false);
+  useEffect(() => {
+    sharedRollingRef.current = sharedRolling;
+  }, [sharedRolling]);
+
+  useEffect(() => {
+    if (!currentTurn || !myUserId) return;
+
+    if (sharedRolling) {
+      if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
+      setTurnTimeLeft(0);
+      return;
+    }
+
+    if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
+    setTurnTimeLeft(30);
+
+    autoRollTimerRef.current = setInterval(() => {
+      setTurnTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(autoRollTimerRef.current);
+
+          // Only the current player emits — others just see 0
+          // if (
+          //   currentTurnRef.current?.toString() === myUserIdRef.current?.toString() &&
+          //   !sharedRollingRef.current &&
+          //   !actionModal &&   // these are fine here — this effect re-runs when they change
+          //   !bidModal
+          // ) {
+          //   if (audioRef.current) {
+          //     audioRef.current.currentTime = 0;
+          //     audioRef.current.play().catch(() => { });
+          //   }
+          //   setSharedRolling(true);
+          //   socket.current?.emit("rollDice", { gameCode: roomId, skippedChance: true });
+          // }
+          triggerAutoRoll();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (autoRollTimerRef.current) clearInterval(autoRollTimerRef.current);
+    };
+
+  }, [currentTurn, myUserId, sharedRolling]); // ← re-runs on turn change OR roll
+
   const animateMove = (steps, movingIndex) =>
     new Promise((resolve) => {
       let step = 0;
@@ -241,7 +308,93 @@ const Board = () => {
     if (bidTimerRef.current) clearInterval(bidTimerRef.current);
   };
 
-  // ── Socket setup ────────────────────────────
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+
+  const autoRollTimerRef = useRef(null);
+
+
+  // const triggerAutoRoll = () => {
+  //   // Guard: only fire if it's still my turn and not already rolling
+  //   if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
+
+
+  //   if (sharedRolling || actionModal || bidModal) return;
+
+  //   if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
+  //   setSharedRolling(true);
+  //   socket.current.emit("rollDice", { gameCode: roomId, skippedChance: true }); // ← flag
+  // };
+  const triggerAutoRoll = () => {
+    if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
+
+    if (
+      sharedRollingRef.current ||
+      actionModal ||
+      bidModal ||
+      isRollingRef.current
+    ) return;
+
+    isRollingRef.current = true;
+
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => { });
+    }
+
+    setSharedRolling(true);
+
+    socket.current.emit("rollDice", {
+      gameCode: roomId,
+      skippedChance: true
+    });
+  };
+
+
+  const actionTimerRef = useRef(null);
+  const [actionTimeLeft, setActionTimeLeft] = useState(0);
+
+  const clearActionTimer = () => {
+    if (actionTimerRef.current) clearInterval(actionTimerRef.current);
+    setActionTimeLeft(0);
+  };
+
+  const startActionTimer = (canBuy) => {
+    clearActionTimer();
+    if (!canBuy) return; // if they can't afford it, bid starts automatically anyway
+    setActionTimeLeft(15);
+    actionTimerRef.current = setInterval(() => {
+      setActionTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(actionTimerRef.current);
+          handleStartBid();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  //hata dunga yadi kaam nhi kiya
+  useEffect(() => {
+    const update = () => {
+      const vw = window.innerWidth;
+      if (vw < 480) setTileSize({ w: 36, h: 28 });
+      else if (vw < 640) setTileSize({ w: 46, h: 36 });
+      else if (vw < 900) setTileSize({ w: 58, h: 45 });
+      else if (vw < 1200) setTileSize({ w: 72, h: 56 });
+      else setTileSize({ w: 90, h: 70 });
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
   useEffect(() => {
     if (!game) return;
 
@@ -260,14 +413,19 @@ const Board = () => {
     socket.current.on("identity", ({ myUserId }) => {
       myUserIdRef.current = myUserId;
       setMyUserId(myUserId);
+
     });
 
     // Re-join room — also triggers identity emit from server
-    socket.current.emit("joinLobby", { gameCode: roomId });
+    socket.current.emit("joinLobby", ({ gameCode: roomId }));
 
-    // diceResult
+    socket.current.off("error");
+    socket.current.on("error", ({ message }) => {
+      showToast(message, "error");
+    });
     socket.current.off("diceResult");
     socket.current.on("diceResult", async ({ diceValue, rolledBy, players: updated }) => {
+      // isRollingRef.current = false;
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
       updateOptimisticPlayers(updated);
@@ -289,7 +447,9 @@ const Board = () => {
     // turnResult — normal turn end
     socket.current.off("turnResult");
     socket.current.on("turnResult", ({ players: updated, currentTurn: nextTurn, turnNo: newTurnNo, mysteryCase: mc }) => {
+      clearActionTimer();
       hasEmittedPlayTurn.current = false;
+      isRollingRef.current = false;
       setPlayers(updated);
       updateOptimisticPlayers(updated);
       setCurrentTurn(nextTurn);
@@ -332,6 +492,8 @@ const Board = () => {
         }
       });
 
+
+
     });
 
     // boardUpdate — pawn moved but turn paused (buy/bid decision pending)
@@ -347,14 +509,12 @@ const Board = () => {
       updateOptimisticPlayers(updated);
     });
 
-    // actionRequired — only landing player gets this
-    // They choose: Buy (full price) OR Start Bid (open to everyone)
     socket.current.off("actionRequired");
     socket.current.on("actionRequired", ({ card, playerCash }) => {
       setActionModal({ card, playerCash });
+      startActionTimer(playerCash >= card.price);
     });
 
-    // bidStarted — server broadcasts to ALL players when bid begins
     socket.current.off("bidStarted");
     socket.current.on("bidStarted", ({ card, minBid, duration }) => {
       setActionModal(null); // close buy modal for the landing player
@@ -396,6 +556,7 @@ const Board = () => {
 
     return () => {
       socket.current.off("identity");
+      socket.current.off("error");
       socket.current.off("diceResult");
       socket.current.off("turnResult");
       socket.current.off("boardUpdate");
@@ -405,8 +566,21 @@ const Board = () => {
       socket.current.off("gameOver");
       socket.current.off("timebombExploded");
       socket.current.off("newPositions");
+      if (autoRollTimerRef.current) {
+        clearInterval(autoRollTimerRef.current);
+        autoRollTimerRef.current = null;
+      }
       if (bidTimerRef.current) clearInterval(bidTimerRef.current);
+      if (actionTimerRef.current) clearInterval(actionTimerRef.current);
     };
+  }, []);
+
+  useEffect(() => {
+    Object.values(cardMap).forEach((src) => {
+      if (!src) return;
+      const img = new Image();
+      img.src = src;
+    });
   }, []);
 
   const TOTAL_TILES = 32;
@@ -435,14 +609,17 @@ const Board = () => {
 
   const rollDice = () => {
     if (currentTurnRef.current?.toString() !== myUserIdRef.current?.toString()) return;
-    if (sharedRolling || actionModal || bidModal) return;
+    if (sharedRolling || actionModal || bidModal || isRollingRef.current) return;
+
+    isRollingRef.current = true;
     if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => { }); }
     setSharedRolling(true);
-    socket.current.emit("rollDice", { gameCode: roomId });
+    socket.current.emit("rollDice", { gameCode: roomId, skippedChance: false });
   };
 
   // Direct buy — full price, no auction
   const handleBuy = () => {
+    clearActionTimer();
     socket.current.emit("playerAction", { gameCode: roomId, action: "buy" });
     setActionModal(null);
     hasEmittedPlayTurn.current = false;
@@ -450,6 +627,7 @@ const Board = () => {
 
   // Start bid — triggers bidStarted for all players
   const handleStartBid = () => {
+    clearActionTimer();
     socket.current.emit("playerAction", { gameCode: roomId, action: "bid" });
     setActionModal(null);
     // bidStarted will open bid modal for everyone
@@ -467,6 +645,12 @@ const Board = () => {
 
   const isMyTurn = currentTurn?.toString() === myUserId?.toString();
   const myPlayer = optimisticPlayers.find(p => p.userId._id?.toString() === myUserId?.toString());
+  const isDiceDisabled =
+    !isMyTurn ||
+    sharedRolling ||
+    actionModal ||
+    bidModal ||
+    isRollingRef.current;
 
 
   const getPawnColor = (pawn) => {
@@ -490,11 +674,24 @@ const Board = () => {
   };
 
   return (
-  
+
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
 
       <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
-      <GameChatContainer players={players} />
+      {/* <GameChatContainer players={players} /> */}
+      
+      {/* Chat Drawer */} 
+      <div className={`chat-drawer ${isChatOpen ? 'open' : ''}`}>
+        <GameChatContainer players={players} />
+      </div>
+      <button
+        className="chat-toggle-btn"
+        onClick={() => setIsChatOpen(p => !p)}
+      >
+        {isChatOpen ? '✕' : '💬'}
+      </button>
+      
+
       {activeMystery && (
         <div className="mystery-overlay">
           <div className="mystery-card">
@@ -513,8 +710,7 @@ const Board = () => {
             </p>
           </div>
         </div>
-            )}
-      
+      )}
 
 
       {/* ── Game Over ── */}
@@ -533,7 +729,7 @@ const Board = () => {
         </div>
       )}
 
-      
+
 
       {
         agentActivatedPlayer &&
@@ -542,50 +738,65 @@ const Board = () => {
         </div>
       }
 
-      {/* ── Buy / Start Bid Modal (landing player only) ── */}
-      {actionModal && isMyTurn && (
+      {actionModal && actionModal.card && isMyTurn && (
         <div className="modal-overlay">
           <div className="buy-modal-premium">
-
-            {/* Glow Background Effect */}
             <div className="modal-glow"></div>
 
-            {/* Title */}
-            <h3 className="modal-title">
-              {actionModal.card.name}
-            </h3>
-
-            <p className="modal-subtext">Unowned Territory</p>
-
-            {/* Price Section */}
-            <div className="price-box">
-              <span>Price</span>
-              <h2>${actionModal.card.price}</h2>
+            <div className="modal-card-preview">
+              <img
+                src={cardMap[actionModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
+                className="modal-card-img"
+                alt={actionModal.card.name}
+              />
+              <div className="modal-card-info">
+                <h3 className="modal-title">{actionModal.card.name}</h3>
+                <p className="modal-subtext">Unowned Weapon</p>
+                <div className="modal-stat">
+                  <span className="stat-label">💰 Price</span>
+                  <span className="stat-value price">₹{actionModal.card.price}</span>
+                </div>
+                {actionModal.card.weaponDamage > 0 && (
+                  <div className="modal-stat">
+                    <span className="stat-label">💥 Damage</span>
+                    <span className="stat-value damage">{actionModal.card.weaponDamage} HP</span>
+                  </div>
+                )}
+                <div className="modal-stat">
+                  <span className="stat-label">🪙 Your Cash</span>
+                  <span className="stat-value cash">₹{actionModal.playerCash}</span>
+                </div>
+              </div>
             </div>
 
-            {/* Player Cash */}
-            <div className="cash-box">
-              💰 ${actionModal.playerCash}
-            </div>
+            {actionTimeLeft > 0 && (
+              <div className="action-timer">
+                <div className="action-timer-bar" style={{ width: `${(actionTimeLeft / 15) * 100}%` }} />
+                <span className={`action-timer-text ${actionTimeLeft <= 5 ? "urgent" : ""}`}>
+                  Auto-auction in {actionTimeLeft}s
+                </span>
+              </div>
+            )}
 
-            {/* Buttons */}
             <div className="modal-actions">
               {actionModal.playerCash >= actionModal.card.price && (
-                <button className="buy-btn" onClick={handleBuy}>
-                  Buy Now
-                </button>
+                <button className="buy-btn" onClick={handleBuy}>Buy Now</button>
               )}
-
-              <button className="bid-btn" onClick={handleStartBid}>
-                🔨 Auction
-              </button>
+              <button className="bid-btn" onClick={handleStartBid}>🔨 Auction</button>
             </div>
-
           </div>
         </div>
       )}
-      {/* ── Bid Modal (ALL players) ── */}
-      {bidModal && (
+
+      {toast && (
+        <div className={`wall-toast ${toast.type}`}>
+          <span className="toast-icon">
+            {toast.type === "success" ? "✅" : "❌"}
+          </span>
+          <span className="toast-message">{toast.message}</span>
+        </div>
+      )}
+      {bidModal && bidModal.card && (
         <div className="bid-overlay">
           <div className="bid-modal-premium">
 
@@ -599,10 +810,31 @@ const Board = () => {
 
             {/* Info */}
             <p className="bid-info">
-              Min bid: <span className="highlight">${bidModal.minBid}</span>
+              Min bid: <span className="highlight">₹{bidModal.minBid}</span>
               {" · "}
-              Your cash: <span className="cash">${myPlayer?.cashRemaining ?? 0}</span>
+              Your cash: <span className="cash">₹{myPlayer?.cashRemaining ?? 0}</span>
             </p>
+
+            {/* Card preview — add this right after the bid-header div */}
+            <div className="bid-card-preview">
+              <img
+                src={cardMap[bidModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
+                className="bid-card-img"
+                alt={bidModal.card.name}
+              />
+              <div className="bid-card-stats">
+                <div className="bid-stat">
+                  <span>💰 Price</span>
+                  <span className="highlight">₹{bidModal.card.price}</span>
+                </div>
+                {bidModal.card.weaponDamage > 0 && (
+                  <div className="bid-stat">
+                    <span>💥 Damage</span>
+                    <span style={{ color: "#f87171", fontWeight: "bold" }}>{bidModal.card.weaponDamage} HP</span>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Input */}
             {!myBidSubmitted ? (
@@ -614,7 +846,7 @@ const Board = () => {
                   value={bidAmount}
                   onChange={(e) => setBidAmount(e.target.value)}
                   className="bid-input"
-                  placeholder={`Min $${bidModal.minBid}`}
+                  placeholder={`Min ₹${bidModal.minBid}`}
                 />
 
                 <div className="bid-actions">
@@ -649,7 +881,7 @@ const Board = () => {
               {optimisticPlayers.filter(p => p.isActive).map((p, i) => (
                 <div key={i} className="bid-player">
                   <span className="cash">{p.userId.username}</span>
-                  <span className="cash">${p.cashRemaining}</span>
+                  <span className="cash">₹{p.cashRemaining}</span>
                 </div>
               ))}
             </div>
@@ -669,7 +901,7 @@ const Board = () => {
           </p>
 
           <p className="result-amount">
-            ${bidResult.amount}
+            ₹{bidResult.amount}
           </p>
 
         </div>
@@ -678,16 +910,37 @@ const Board = () => {
 
 
       {/* ── Turn Indicator ── */}
-      <div className="fixed top-4 right-4 z-20 bg-gray-900/90 border border-cyan-700 rounded-xl px-4 py-2 text-sm text-white">
-        {isMyTurn ? <span className="text-green-400 font-bold">Your Turn</span> : <span className="text-gray-400">Waiting...</span>}
-        <span className="ml-2 text-gray-500">Turn #{turnNo}</span>
+      <div className="turn-indicator">
+        {/* Countdown ring */}
+        {turnTimeLeft > 0 && (
+          <div className={`turn-ring ${turnTimeLeft <= 10 ? "urgent" : isMyTurn ? "active" : "idle"}`}>
+            <span>{turnTimeLeft}s</span>
+          </div>
+        )}
+
+        <div className="turn-divider" />
+
+        <div className="turn-section">
+          <span className="turn-label">STATUS</span>
+          <span className={`turn-value ${isMyTurn ? "my-turn" : "waiting"}`}>
+            {isMyTurn ? "Your Turn" : "Waiting..."}
+          </span>
+        </div>
+
+        <div className="turn-divider" />
+
+        <div className="turn-section" style={{ alignItems: "flex-end" }}>
+          <span className="turn-label">TURN</span>
+          <span className="turn-value">#{turnNo}</span>
+        </div>
       </div>
 
       {/* ── Board ── */}
       <div className="board-wrapper">
         <div className="bg-transparent p-6 rounded-3xl shadow-2xl">
           <div className="grid gap-2 bg-transparent p-4 rounded-2xl"
-            style={{ gridTemplateColumns: `repeat(${size}, 90px)`, gridTemplateRows: `repeat(${size}, 70px)` }}
+            // style={{ gridTemplateColumns: `repeat(${size}, 90px)`, gridTemplateRows: `repeat(${size}, 70px)` }}
+            style={{ gridTemplateColumns: `repeat(${size}, ${tileSize.w}px)`, gridTemplateRows: `repeat(${size}, ${tileSize.h}px)` }}
           >
             {border.map((cell, i) => {
               const tilePlayers = optimisticPlayers.filter(p => p.position === i);
@@ -766,7 +1019,7 @@ const Board = () => {
                           <span className="shield-text">{shield} / {maxShield}</span>
                         </div>
                         <div className="money-scientist">
-                          <div className="text-xs text-yellow-400 mt-1 money-tag cash-tag">${player.cashRemaining}</div>
+                          <div className="text-xs text-yellow-400 mt-1 money-tag cash-tag">₹{player.cashRemaining}</div>
                           <div className="money-tag sceintist-tag">scientist-card:{player.scientist}</div>
                         </div>
                         <div className="flex gap-1 mt-1 justify-center flex-wrap">
@@ -801,7 +1054,7 @@ const Board = () => {
 
         <div
           className={`dice-container ${sharedRolling ? "rolling" : "pop"} ${!isMyTurn || actionModal || bidModal ? "opacity-40 pointer-events-none" : ""}`}
-          onClick={rollDice}
+          onClick={!isDiceDisabled ? rollDice : null}
         >
           <div className="dice-display">
             <div className={`dice-face face-${sharedDiceValue}`}>
@@ -811,8 +1064,8 @@ const Board = () => {
         </div>
       </div>
     </div>
-  
-    
+
+
   );
 };
 
