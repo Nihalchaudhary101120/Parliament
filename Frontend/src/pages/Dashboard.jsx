@@ -114,7 +114,7 @@ const DashBoard = () => {
     return (
         <>
         {logout && (
-                <div className="entry-loadout">
+                <div className="entry-logout">
                     <div className="entry-spinner"></div>
                     <p>Logging-out...</p>
                 </div>
