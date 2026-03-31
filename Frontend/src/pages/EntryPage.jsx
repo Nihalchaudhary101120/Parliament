@@ -3,10 +3,10 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-const [loading, setLoading] = useState(false);
 
 export default function EntryPage() {
-
+    
+    const [loading, setLoading] = useState(false);
 
     const { handleGuest } = useAuth();
     const navigate = useNavigate();
