@@ -2078,7 +2078,7 @@ color:red;
 /* ── Mobile ── */
 @media (max-width: 640px) {
   .chat-toggle-btn{
-    display:flex;
+    display:flex !important;
   }
   .hero2 { padding-top: 48px; gap: 10px; }
 
