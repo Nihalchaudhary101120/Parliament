@@ -11,6 +11,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loding, setLoding] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -28,7 +29,7 @@ export default function Login() {
   return (
 
 <>
-    {loading && (
+    {loding && (
                 <div className="entry-loading">
                     <div className="entry-spinner"></div>
                     <p>Entering Battlefield...</p>
@@ -67,15 +68,15 @@ export default function Login() {
 
         <div className="auth-footer">
           <button className="auth-link" onClick={() => navigate('/signup')}>Create account</button>
-          <button className="auth-guest" disabled={loading}
+          <button className="auth-guest" disabled={loding}
             onClick={async () => {
-              setLoading(true);
+              setLoding(true);
 
               // 🔥 allow UI to update
               await new Promise(res => setTimeout(res, 50));
 
               await handleGuest();
-            }}>{loading ? "Entering..." : "Continue as Guest"}</button>
+            }}>{loding ? "Entering..." : "Continue as Guest"}</button>
         </div>
       </div>
     </div>
