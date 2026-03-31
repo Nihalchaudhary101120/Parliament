@@ -486,10 +486,6 @@ const Board = () => {
       startActionTimer(playerCash >= card.price);
     });
 
-    console.log(actionModal.card.weaponDamage);
-    console.log(actionModal.card);
-    console.log("actionModal", actionModal);
-
     socket.current.off("bidStarted");
     socket.current.on("bidStarted", ({ card, minBid, duration }) => {
       setActionModal(null); // close buy modal for the landing player
@@ -700,7 +696,7 @@ const Board = () => {
         </div>
       }
 
-      {actionModal && isMyTurn && (
+      {actionModal && actionModal.card && isMyTurn && (
         <div className="modal-overlay">
           <div className="buy-modal-premium">
             <div className="modal-glow"></div>
@@ -758,7 +754,7 @@ const Board = () => {
           <span className="toast-message">{toast.message}</span>
         </div>
       )}
-      {bidModal && (
+      {bidModal && bidModal.card && (
         <div className="bid-overlay">
           <div className="bid-modal-premium">
 

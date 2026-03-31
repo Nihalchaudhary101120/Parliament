@@ -380,6 +380,7 @@ export default function gameSocket(io, socket) {
                   id: card._id,
                   name: card.name,
                   price: card.price,
+                  weaponDamage: card.weaponDamage,
                 },
               };
             } else {
@@ -389,6 +390,7 @@ export default function gameSocket(io, socket) {
                   id: card._id,
                   name: card.name,
                   price: card.price,
+                  weaponDamage: card.weaponDamage,
                 },
               };
             }
@@ -679,7 +681,7 @@ export default function gameSocket(io, socket) {
 
         // Broadcast bid start to ALL players in the room
         io.to(gameCode).emit("bidStarted", {
-          card: { id: card._id, name: card.name, price: card.price },
+          card: { id: card._id, name: card.name, price: card.price, weaponDamage: card.weaponDamage },
           minBid: 1,
           duration: BID_DURATION,
         });
