@@ -396,7 +396,7 @@ const Board = () => {
     });
     socket.current.off("diceResult");
     socket.current.on("diceResult", async ({ diceValue, rolledBy, players: updated }) => {
-      isRollingRef.current = false;
+      // isRollingRef.current = false;
       setSharedDiceValue(diceValue);
       setSharedRolling(false);
       updateOptimisticPlayers(updated);
