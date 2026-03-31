@@ -1,4 +1,5 @@
 import "./Auth.css";
+import "./EntryPage.css";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
@@ -26,10 +27,15 @@ export default function Login() {
 
   return (
 
-    
-
+<>
+    {loading && (
+                <div className="entry-loading">
+                    <div className="entry-spinner"></div>
+                    <p>Entering Battlefield...</p>
+                </div>
+            )}
     <div className="auth-container">
-      
+
       <div className="auth-card">
         <h2 className="auth-title">Sign in to Parliament</h2>
 
@@ -61,9 +67,18 @@ export default function Login() {
 
         <div className="auth-footer">
           <button className="auth-link" onClick={() => navigate('/signup')}>Create account</button>
-          <button className="auth-guest" onClick={handleGuest}>Continue as Guest</button>
+          <button className="auth-guest" disabled={loading}
+            onClick={async () => {
+              setLoading(true);
+
+              // 🔥 allow UI to update
+              await new Promise(res => setTimeout(res, 50));
+
+              await handleGuest();
+            }}>{loading ? "Entering..." : "Continue as Guest"}</button>
         </div>
       </div>
     </div>
+</>
   );
 }
