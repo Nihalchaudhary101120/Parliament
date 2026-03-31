@@ -113,6 +113,14 @@ const DashBoard = () => {
 
     return (
         <>
+
+        {creating && (
+                <div className="entry-logout">
+                    <div className="entry-spinner"></div>
+                    <p>Creating Room...</p>
+                </div>
+            )}
+
         {logout && (
                 <div className="entry-logout">
                     <div className="entry-spinner"></div>
@@ -227,7 +235,15 @@ const DashBoard = () => {
 
                         <div className="modal-actions">
                             <button onClick={() => setShowCreateModal(false)}>Cancel</button>
-                            <button onClick={handleCreateRoom}>Create</button>
+                            <button disabled={creating}
+                        onClick={async () => {
+                            setCreating(true);
+
+                            // 🔥 allow UI to update
+                            await new Promise(res => setTimeout(res, 50));
+
+                            await handleCreateRoom();
+                        }}>{creating ? 'Creating...' : 'Create'}</button>
                         </div>
                     </div>
                 </div>
