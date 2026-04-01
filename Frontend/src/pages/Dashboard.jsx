@@ -28,6 +28,7 @@ const DashBoard = () => {
     // CREATE ROOM
     const handleCreateRoom = async () => {
         try {
+            setCreating(true);
             const roomCode = generateRoomCode();
 
             const res = await api.post("/friends/create", {
@@ -35,21 +36,29 @@ const DashBoard = () => {
                 gameCode: roomCode
             });
 
-            console.log(res);
+            console.log("Create room response:", res);
             if (!res.data.success) {
-                alert("Room creation failed");
+                alert("Room creation failed: " + (res.data.message || "Unknown error"));
                 return;
             }
 
-            connectSocket();
+            // Connect socket and wait for connection
+            const socket = connectSocket();
+            console.log("Socket connected:", socket?.connected);
+            
             setShowCreateModal(false);
             setShowFriendOption(false);
 
-            navigate(`/lobby?room=${roomCode}`);
+            // Add small delay to ensure socket is connected before navigating
+            setTimeout(() => {
+                navigate(`/lobby?room=${roomCode}`);
+            }, 500);
 
         } catch (err) {
-            alert("Something went wrong while creating room");
-            console.log("Room creation error:", err);
+            console.error("Room creation error:", err);
+            alert("Something went wrong while creating room: " + (err.response?.data?.message || err.message));
+        } finally {
+            setCreating(false);
         }
     };
 
@@ -68,22 +77,30 @@ const DashBoard = () => {
                 gameCode: joinCode.trim().toUpperCase()
             });
 
+            console.log("Join room response:", res);
             if (!res.data.success) {
-                setJoinError("Failed to join room");
+                setJoinError("Failed to join room: " + (res.data.message || "Unknown error"));
                 return;
             }
 
-            connectSocket();
+            // Connect socket and wait for connection
+            const socket = connectSocket();
+            console.log("Socket connected:", socket?.connected);
+            
             setShowJoinModal(false);
             setShowFriendOption(false);
 
-            navigate(`/lobby?room=${joinCode.trim().toUpperCase()}`);
+            // Add small delay to ensure socket is connected before navigating
+            setTimeout(() => {
+                navigate(`/lobby?room=${joinCode.trim().toUpperCase()}`);
+            }, 500);
 
         } catch (err) {
+            console.error("Join room error:", err);
             if (err.response?.data?.error) {
                 setJoinError(err.response.data.error);
             } else {
-                setJoinError("Something went wrong");
+                setJoinError("Something went wrong: " + (err.message || "Unknown error"));
             }
         } finally {
             setJoining(false);

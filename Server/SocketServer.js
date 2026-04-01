@@ -6,13 +6,26 @@ import gameSocket from "./Socket/gameSocket.js"
 
 const server = http.createServer(app);
 
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://parliamentbattle.vercel.app'
+];
+
 const io = new Server(server,
     {
         cors: {
-            // origin: "http://localhost:5173",
-            origin: "https://parliamentbattle.vercel.app",
-            credentials: true
-        }
+            origin: (origin, callback) => {
+                if (!origin || allowedOrigins.includes(origin)) {
+                    callback(null, true);
+                } else {
+                    console.warn(`Socket CORS blocked for origin: ${origin}`);
+                    callback(new Error(`CORS blocked for origin: ${origin}`));
+                }
+            },
+            credentials: true,
+            methods: ["GET", "POST"]
+        },
+        transports: ['websocket', 'polling']
     }
 )
 io.use((socket, next) => {
