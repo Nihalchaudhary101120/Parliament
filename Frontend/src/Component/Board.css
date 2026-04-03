@@ -3,8 +3,34 @@ html, body, #root {
 }
 
 .hero2 {
-  background-image: url('../assets/backofboard.png');
   position: relative;
+
+  /* instant fallback */
+  background: linear-gradient(135deg, #020617, #0f172a);
+
+  overflow: hidden;
+}
+
+/* image layer with fade */
+.hero2::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: url('../assets/backofboard.png') center/cover no-repeat;
+
+  opacity: 0;
+  animation: bgFade 0.8s ease forwards;
+}
+
+/* keep content above */
+.hero2 > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes bgFade {
+  to { opacity: 1; }
 }
 
 .image-parent {
