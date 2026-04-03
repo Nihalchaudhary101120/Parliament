@@ -9,7 +9,7 @@ const server = http.createServer(app);
 const allowedOrigins = [
     'http://localhost:5173',
     'https://parliamentbattle.aalsicoders.in',
-    'https://aalsicoders.in'
+    'https://parliamentbattle.vercel.app'
 ];
 
 const io = new Server(server,

@@ -17,7 +17,7 @@ app.use(express.json());
 const allowedOrigins = [
   'http://localhost:5173',
   'https://parliamentbattle.aalsicoders.in',
-  'https://aalsicoders.in'
+  'https://parliamentbattle.vercel.app'
 ];
 
 app.use(cors({
