@@ -17,18 +17,27 @@ body {
 
 /* ===== HERO ===== */
 .hero {
-  background-image: url("../assets/parliament.jpeg");
+  /* background-image: url("../assets/parliament.jpeg");
+   */
+  background: #010912;
   margin: 0;
   width: 100vw;
   min-height: 100vh;
-  height: 100dvh; /* dynamic viewport for mobile browsers */
+  height: 100dvh;
+  /* dynamic viewport for mobile browsers */
   overflow-x: hidden;
   overflow-y: auto;
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
-  background-attachment: scroll; /* fixed breaks on iOS */
+  background-attachment: scroll;
+  /* fixed breaks on iOS */
   position: relative;
+}
+
+.hero>*:not(canvas) {
+  position: relative;
+  z-index: 1;
 }
 
 /* dark gradient overlay for readability on mobile */
@@ -46,7 +55,7 @@ body {
   z-index: 0;
 }
 
-.hero > * {
+.hero>* {
   position: relative;
   z-index: 1;
 }
@@ -107,7 +116,7 @@ body {
   backdrop-filter: blur(6px);
   padding: 4px 10px;
   border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .top-user .user-actions {
@@ -294,14 +303,15 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2, 6, 23, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+
   display: flex;
   justify-content: center;
-  align-items: flex-end; /* slide up from bottom on mobile */
+  align-items: center;   /* 🔥 center vertically */
+
+  background: transparent;   /* 🔥 REMOVE BLACK LAYER */
+  backdrop-filter: none;     /* 🔥 REMOVE BLUR */
+
   z-index: 999;
-  padding: 0;
 }
 
 /* ===== MODAL BOX ===== */
@@ -309,7 +319,8 @@ body {
   width: 100%;
   max-width: 420px;
   padding: 28px 24px 32px;
-  border-radius: 24px 24px 0 0; /* bottom-sheet style */
+  border-radius: 24px 24px 0 0;
+  /* bottom-sheet style */
 
   background: rgba(10, 18, 45, 0.96);
   backdrop-filter: blur(20px);
@@ -369,7 +380,8 @@ body {
   background: rgba(255, 255, 255, 0.07);
   color: white;
 
-  font-size: 16px; /* 16px prevents iOS zoom */
+  font-size: 16px;
+  /* 16px prevents iOS zoom */
   font-family: 'Rajdhani', sans-serif;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -429,7 +441,8 @@ body {
   position: relative;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
-  min-height: 48px; /* tap target */
+  min-height: 48px;
+  /* tap target */
 }
 
 .modal-actions button::before {
@@ -451,7 +464,7 @@ body {
 .modal-actions button:first-child {
   background: rgba(148, 163, 184, 0.18);
   color: #cbd5f5;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-actions button:first-child:hover {
@@ -486,6 +499,7 @@ body {
     opacity: 0;
     transform: translateY(60px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -673,7 +687,8 @@ body {
   }
 
   .modal-overlay {
-    align-items: center; /* center on tablet/desktop */
+    align-items: center;
+    /* center on tablet/desktop */
     padding: 16px;
   }
 
@@ -684,7 +699,8 @@ body {
   }
 
   .modal-box::before {
-    display: none; /* no drag handle on tablet+ */
+    display: none;
+    /* no drag handle on tablet+ */
   }
 
   .friend-modal {
@@ -696,6 +712,7 @@ body {
       opacity: 0;
       transform: scale(0.88) translateY(16px);
     }
+
     to {
       opacity: 1;
       transform: scale(1) translateY(0);
@@ -779,7 +796,7 @@ body {
 .entry-logout {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.9);
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -791,7 +808,7 @@ body {
 .entry-spinner {
   width: 60px;
   height: 60px;
-  border: 5px solid rgba(255,255,255,0.2);
+  border: 5px solid rgba(255, 255, 255, 0.2);
   border-top: 5px solid #22c55e;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -799,5 +816,76 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+
+/* ── BOTTOM BAR fix — add width constraint ── */
+.bottom-bar {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: fit-content;          /* ← THIS is the fix — was stretching full width */
+  display: flex;
+  gap: clamp(16px, 5vw, 30px);
+  padding: clamp(10px, 3vw, 15px) clamp(18px, 5vw, 30px);
+  background: rgba(0, 20, 60, 0.55);
+  border: 2px solid rgba(0, 200, 255, 0.4);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 0 25px rgba(0, 150, 255, 0.5), 0 4px 30px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  white-space: nowrap;
+}
+
+/* ── GLASS PANEL fix — push down below title ── */
+.glass-panel {
+  position: absolute;
+  left: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 300px;
+}
+
+/* ── KUCH (title area) — less top padding so layout fits ── */
+.kuch {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 2rem;           /* was 6rem */
+  padding-bottom: 0.5rem;
+  text-align: center;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* ── CORNER BRACKETS — were missing from CSS ── */
+.corner {
+  position: fixed;
+  width: 36px;
+  height: 36px;
+  z-index: 2;
+  pointer-events: none;
+}
+.corner.tl { top: 16px;    left: 16px;  border-top: 2px solid rgba(0,200,255,0.4); border-left: 2px solid rgba(0,200,255,0.4); }
+.corner.tr { top: 16px;    right: 16px; border-top: 2px solid rgba(0,200,255,0.4); border-right: 2px solid rgba(0,200,255,0.4); }
+.corner.bl { bottom: 16px; left: 16px;  border-bottom: 2px solid rgba(0,200,255,0.4); border-left: 2px solid rgba(0,200,255,0.4); }
+.corner.br { bottom: 16px; right: 16px; border-bottom: 2px solid rgba(0,200,255,0.4); border-right: 2px solid rgba(0,200,255,0.4); }
+
+/* ── Desktop override ── */
+@media (min-width: 900px) {
+  .glass-panel {
+    position: absolute;
+    left: 40px;
+    top: 120px;
+    width: 300px;
+    margin: 0;
+    max-width: none;
+  }
+  .kuch { padding-top: 1.5em; }
 }
