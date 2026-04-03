@@ -2094,7 +2094,7 @@ color:red;
   .chat-toggle-btn{
     display:flex !important;
   }
-  .hero2 { padding-top: 23vh; gap: 8vh; }
+  .hero2 { padding-top: 20vh; gap: 7vh; }
   .grid{grid-template-rows: repeat(9, 70px);grid-template-columns: repeat(9, 90px);}
   
 
