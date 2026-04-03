@@ -53,7 +53,7 @@ app.get("/ping", (req, res) => {
 
 cron.schedule("*/5 * * * *", async () => {
   try {
-    await axios.get("https://parliamentbackend.onrender.com/ping");
+    await fetch("https://parliamentbackend.onrender.com/ping");
     console.log("self ping succesful");
 
   } catch (error) {
