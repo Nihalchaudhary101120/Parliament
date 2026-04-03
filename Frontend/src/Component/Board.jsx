@@ -698,21 +698,14 @@ const Board = () => {
 
   return (
 
+    <>
+
     <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
 
       <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
       {/* <GameChatContainer players={players} /> */}
       
-      {/* Chat Drawer */} 
-      <div className={`chat-drawer ${isChatOpen ? 'open' : ''}`}>
-        <GameChatContainer players={players} />
-      </div>
-      <button
-        className="chat-toggle-btn"
-        onClick={() => setIsChatOpen(p => !p)}
-      >
-        {isChatOpen ? '✕' : '💬'}
-      </button>
+      
       
 
       {activeMystery &&  createPortal(
@@ -1088,6 +1081,19 @@ const Board = () => {
         </div>
       </div>
     </div>
+
+    {/* Chat Drawer */} 
+      <div className={`chat-drawer ${isChatOpen ? 'open' : ''}`}>
+        <GameChatContainer players={players} />
+      </div>
+      <button
+        className="chat-toggle-btn"
+        onClick={() => setIsChatOpen(p => !p)}
+      >
+        {isChatOpen ? '✕' : '💬'}
+      </button>
+
+      </>
 
 
   );
