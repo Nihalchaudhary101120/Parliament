@@ -37,7 +37,7 @@ export default function GameChatContainer({ players }) {
       setMessages(prev => [...prev, msg]);
 
       if (msg.type === "system" && msg.content?.toLowerCase().includes("purchased")) {
-        showToast(content, "success");
+        showToast(msg.content, "success");
       }
     });
 
