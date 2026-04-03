@@ -2260,6 +2260,10 @@ body,
     gap: 16px;
   }
 
+  .border-cell{
+    border-radius: 5px;
+  }
+
   /* Board becomes flow element */
   .board-wrapper {
     position: relative;
@@ -2370,6 +2374,10 @@ body,
 @media (max-width: 640px) {
   .chat-toggle-btn {
     display: flex !important;
+  }
+
+  .border-cell{
+    border-radius: 5px;
   }
 
   .hero2 {
