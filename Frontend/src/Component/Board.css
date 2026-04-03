@@ -2249,6 +2249,10 @@ body,
 
 /* ── Tablet + below: restructure layout to column ── */
 @media (max-width: 1200px) {
+
+  .chat-toggle-btn {
+    display: flex !important;
+  }
   .hero2 {
     display: flex;
     flex-direction: column;
@@ -2312,6 +2316,10 @@ body,
 
 /* ── Small tablet / large phone ── */
 @media (max-width: 900px) {
+  .chat-toggle-btn {
+    display: flex !important;
+  }
+
   .hero2 {
     padding-top: 52px;
     gap: 12px;
@@ -2522,6 +2530,9 @@ body,
 
 /* ── Very small phones (iPhone SE etc) ── */
 @media (max-width: 400px) {
+  .chat-toggle-btn {
+    display: flex !important;
+  }
   .tile-label {
     font-size: 6px;
   }
