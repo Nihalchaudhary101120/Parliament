@@ -2094,7 +2094,7 @@ color:red;
   .chat-toggle-btn{
     display:flex !important;
   }
-  .hero2 { padding-top: 20vh; gap: 7vh; }
+  .hero2 { padding-top: 19vh; gap: 7vh; }
   .grid{grid-template-rows: repeat(9, 70px);grid-template-columns: repeat(9, 90px);}
   
 
@@ -2105,6 +2105,7 @@ color:red;
   .hp-bar  { height: 9px; width: 80%; bottom: 33%; }
   .shield-bar { height: 8px; width: 65%; bottom: 18%; }
   .hp-text, .shield-text { font-size: 8px; }
+  .money-scientist{ gap:4px;}
 
   .player-cell { min-height: 80px; }
   .center-grid { padding: 5px; gap: 3px; }
@@ -2119,6 +2120,13 @@ color:red;
   .dice-container { width: 64px; height: 64px; border-radius: 14px; }
   .dice-face { width: 52px; height: 52px; }
   .pip { width: 9px; height: 9px; }
+
+
+  .weapon-tile {
+    box-shadow:
+      0 0 12px rgba(0,255,255,0.5),
+      inset 0 0 12px rgba(255,255,255,0.15);
+}
 
   /* Modals full-width */
   .buy-modal-premium,
