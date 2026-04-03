@@ -2120,8 +2120,29 @@ color:red;
     display:flex !important;
   }
   .hero2 { padding-top: 19vh; gap: 7vh; }
-  .grid{grid-template-rows: repeat(9, 70px);grid-template-columns: repeat(9, 90px);}
-  
+  /* IMAGE */
+.hero2::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../assets/backofboard.png') center/cover no-repeat;
+  z-index: 0;
+}
+
+/* DARK OVERLAY */
+.hero2::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6); /* 🔥 DARKNESS */
+  z-index: 1;
+}
+
+/* CONTENT ABOVE */
+.hero2 > * {
+  position: relative;
+  z-index: 2;
+}
 
   .tile-icon { width: 12px; height: 20px; animation: none; }
   .tile-label { font-size: 4.5px; padding: 1px 3px; bottom: 2px; }
@@ -2147,14 +2168,6 @@ color:red;
   .pip { width: 9px; height: 9px; }
 
 
-  .weapon-tile {
- 
- 
-  box-shadow:
-    0 0 12px rgba(0,255,255,0.2),
-    inset 0 0 12px rgba(255,255,255,0.15);
-  
-}
 
   /* Modals full-width */
   .buy-modal-premium,
