@@ -16,49 +16,49 @@ app.use(express.json());
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://parliamentbattle.vercel.app'
-
+  'https://parliamentbattle.aalsicoders.in',
+  'https://aalsicoders.in'
 ];
 
 app.use(cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS blocked for origin: ${origin}`));
-      }
-    },
-    credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    }
+  },
+  credentials: true
 }));
 
 const sessionMiddleWare = session({
-    secret: process.env.Secret,
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-        mongoUrl: process.env.ATLAS_URI,
-        collectionName: "sessions"
-    }),
-    cookie: {
-        secure: true,
-        httpOnly: true,
-        sameSite: "none",
-        maxAge: 1000 * 60 * 60 * 24 * 7 
-    }
+  secret: process.env.Secret,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.ATLAS_URI,
+    collectionName: "sessions"
+  }),
+  cookie: {
+    secure: true,
+    httpOnly: true,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  }
 });
 
-app.get("/ping" , (req , res)=>{
+app.get("/ping", (req, res) => {
   res.send("Server is alive")
 })
 
-cron.schedule("*/5 * * * *" , async()=>{
+cron.schedule("*/5 * * * *", async () => {
   try {
     await axios.get("https://parliamentbackend.onrender.com/ping");
     console.log("self ping succesful");
-    
+
   } catch (error) {
-    console.log("ping failed" , error.message);
-    
+    console.log("ping failed", error.message);
+
   }
 })
 
