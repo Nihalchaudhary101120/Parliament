@@ -8,7 +8,8 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
     'http://localhost:5173',
-    'https://parliamentbattle.vercel.app'
+    'https://parliamentbattle.aalsicoders.in',
+    'https://aalsicoders.in'
 ];
 
 const io = new Server(server,
