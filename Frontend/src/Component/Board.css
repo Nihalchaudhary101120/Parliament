@@ -592,6 +592,11 @@ body,
   transition: all .25s ease;
 }
 
+.weapon {
+  color: #ffcc00;
+  text-shadow: 0 0 6px orange;
+}
+
 .weapon-tile:hover {
   transform: scale(1.06);
   box-shadow:

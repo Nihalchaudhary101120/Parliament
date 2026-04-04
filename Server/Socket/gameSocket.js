@@ -1,5 +1,6 @@
 import Game from "../models/GameSession.js";
 import Card from "../models/cards.js";
+import User from "../models/user.js"
 
 
 function getMysteryCard() {
@@ -113,13 +114,17 @@ async function checkTimebombExplosions(game, io, gameCode) {
       const hitPlayer = game.players.find(
         p => (p.userId._id || p.userId).toString() === targetUserId
       );
+      const attackerUser= await User.findById(bomb.ownerId)
+      const victimIds = casualties.map(c => c.userId);
 
-      io.to(targetUserId).emit("damageTaken", {
+      const victims= await User.find({_id: {$in : victimIds}})
+      const victimNames=victims.map( v=> v.username).join(", ")
+      io.to(gameCode).emit("damageTaken", {
         amount: casualty.damage,
         cardName: "Time Bomb",
         shieldAbsorbed: hitPlayer ? hitPlayer.remainingShieldHp > 0 : false,
-        attacker: "Time Bomb",
-        victim: hitPlayer?.userId?.username
+        attacker: attackerUser?.username || "Unknown",
+        victim:  victimNames || "Players",
       });
     }
 
@@ -311,11 +316,11 @@ export default function gameSocket(io, socket) {
   //
   socket.on("playTurn", async ({ gameCode }) => {
     try {
-      const game = await Game.findOne({ gameCode });
+      const game = await Game.findOne({ gameCode })
 
       if (!game || game.status !== "active") return;
 
-      // Must be this player's turn
+     // Must be this player's turn
       if (game.currentTurn.toString() !== userId.toString()) return;
 
       // Must have gone through rollDice (isProcessing flag proves it)
@@ -369,12 +374,13 @@ export default function gameSocket(io, socket) {
           applyPublicDamage(player, card.weaponDamage);
 
           console.log('time to hit pubic damaage');
-          socket.emit("damageTaken", {
+          const victimUser = await User.findById(player.userId);
+          io.to(gameCode).emit("damageTaken", {
             amount: Math.floor(card.weaponDamage),
             cardName: card.name,
             shieldAbsorbed: false, // public damage hits both
             attacker: "System",              // ✅ ADD
-            victim: player.userId.username,
+            victim: victimUser?.username || "Unknown",
           });
           break;
         }
@@ -386,7 +392,7 @@ export default function gameSocket(io, socket) {
             applyDamage(player, card.weaponDamage);
 
             console.log('time to hit weapon damage');
-            socket.emit("damageTaken", {
+            io.to(gameCode).emit("damageTaken", {
               amount: Math.floor(card.weaponDamage),
               cardName: card.name,
               shieldAbsorbed: player.remainingShieldHp > 0,
@@ -436,11 +442,19 @@ export default function gameSocket(io, socket) {
               applyDamage(player, dmg);
 
               console.log("time to frinds damage");
-              socket.emit("damageTaken", {
+              
+             
+              console.log(player.userId)
+              console.log(player.userId)
+              console.log(player.userId.username)
+
+              const attackerUser= await User.findById(owner.userId);
+              const victimUser= await User.findById(player.userId)
+              io.to(gameCode).emit("damageTaken", {
                 amount: Math.floor(dmg),
                 cardName: card.name,
-                attacker: owner.userId?.username || "Unknown",
-                victim: player.userId?.username || "Unknown",
+                attacker: attackerUser?.username || "Unknown",
+                victim: victimUser?.username || "Unknown",
                 shieldAbsorbed: player.remainingShieldHp > 0,
               })
             }

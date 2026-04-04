@@ -700,7 +700,7 @@ const Board = () => {
 
     <>
 
-      {damageToast && (
+      {/* {damageToast && (
         <div className="attack-toast">
           ⚔️ <b>{damageToast.attacker}</b> attacked <b>{damageToast.victim}</b> using{" "}
           <span className="weapon">{damageToast.cardName}</span>
@@ -708,7 +708,7 @@ const Board = () => {
           💥 Damage: {damageToast.amount}
           {damageToast.shieldAbsorbed && " (shield absorbed)"}
         </div>
-      )}
+      )} */}
 
       <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
 
@@ -827,7 +827,11 @@ const Board = () => {
           <div className="damage-toast">
             <div className="damage-toast-icon">💥</div>
             <div className="damage-toast-body">
-              <span className="damage-toast-card">{damageToast.cardName}</span>
+              <span className="damage-toast-card">
+                ⚔️ <b>{damageToast.attacker || "System"}</b> attacked{" "}
+                <b>{damageToast.victim || "Player"}</b> using{" "}
+                <span className="weapon">{damageToast.cardName}</span>
+              </span>
               <span className="damage-toast-amount">−{damageToast.amount} HP</span>
               <span className="damage-toast-sub">
                 {damageToast.shieldAbsorbed ? "Shield absorbed damage" : "Parliament HP reduced"}
