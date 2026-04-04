@@ -308,11 +308,9 @@ export default function gameSocket(io, socket) {
       // Must have gone through rollDice (isProcessing flag proves it)
       if (!game.isProcessing) return;
 
-      // Server uses its own stored dice — client cannot manipulate this
       const dice = game.pendingDice;
       if (!dice) return;
 
-      // ── Find current player
       const currentIndex = game.players.findIndex(
         p => p.userId.toString() === userId.toString()
       );
@@ -321,19 +319,17 @@ export default function gameSocket(io, socket) {
       const player = game.players[currentIndex];
       const oldPosition = player.position;
       const newPosition = (player.position + dice) % 32;
+
       if (newPosition < oldPosition) player.cashRemaining += 200;
 
-      // ── Move player position (server-calculated)
       player.position = (player.position + dice) % 32;
 
-      // ── Find card at new position
       const card = await Card.findOne({ position: player.position });
       if (!card) {
         console.error("No card found at position:", player.position);
         return;
       }
 
-      // ── Card effect
       let mysteryCase = null;
       let needsAction = false;
       let actionPayload = null;
@@ -386,8 +382,6 @@ export default function gameSocket(io, socket) {
           const owner = findCardOwner(game, card._id);
 
           if (!owner) {
-            // Nobody owns it — player needs to buy or start a bid
-            // DO NOT advance turn yet — pause here
             needsAction = true;
             if (player.cashRemaining < card.price) {
               actionPayload = {
@@ -413,22 +407,24 @@ export default function gameSocket(io, socket) {
 
           } else if (owner.userId.toString() === userId.toString()) {
             // Player landed on their own card — no effect
-          } else {
-            // Owned by someone else — apply damage to current player
-            const scientistBonus = 1 + (owner.scientist * 0.03);
-            let dmg = card.weaponDamage * scientistBonus;
+          }
+          else {
+            if (newPosition != 14) {
+              const scientistBonus = 1 + (owner.scientist * 0.03);
+              let dmg = card.weaponDamage * scientistBonus;
 
-            // Agent halves the damage received
-            if (player.agent) dmg = dmg / 2;
+              // Agent halves the damage received
+              if (player.agent) dmg = dmg / 2;
 
-            applyDamage(player, dmg);
+              applyDamage(player, dmg);
 
-            console.log("time to frinds damage");
-            socket.emit("damageTaken", {
-              amount: Math.floor(dmg),
-              cardName: card.name,
-              shieldAbsorbed: player.remainingShieldHp > 0,
-            })
+              console.log("time to frinds damage");
+              socket.emit("damageTaken", {
+                amount: Math.floor(dmg),
+                cardName: card.name,
+                shieldAbsorbed: player.remainingShieldHp > 0,
+              })
+            }
           }
           break;
         }
