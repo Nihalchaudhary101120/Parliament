@@ -501,8 +501,8 @@ const Board = () => {
     });
 
     socket.current.off("damageTaken");
-    socket.current.on("damageTaken", ({ amount, cardName, shieldAbsorbed }) => {
-      setDamageToast({ amount, cardName, shieldAbsorbed });
+    socket.current.on("damageTaken", ({ amount, cardName, shieldAbsorbed, attacker, victim }) => {
+      setDamageToast({ amount, cardName, shieldAbsorbed, attacker, victim });
       setTimeout(() => {
         setDamageToast(null);
       }, 3500);
@@ -699,6 +699,16 @@ const Board = () => {
   return (
 
     <>
+
+      {damageToast && (
+        <div className="attack-toast">
+          ⚔️ <b>{damageToast.attacker}</b> attacked <b>{damageToast.victim}</b> using{" "}
+          <span className="weapon">{damageToast.cardName}</span>
+          <br />
+          💥 Damage: {damageToast.amount}
+          {damageToast.shieldAbsorbed && " (shield absorbed)"}
+        </div>
+      )}
 
       <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
 

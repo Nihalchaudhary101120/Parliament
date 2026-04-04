@@ -2920,3 +2920,51 @@ body,
   80%  { transform: translateX(3px); }
   100% { transform: translateX(0); }
 }
+
+
+.attack-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  background: linear-gradient(135deg, #1a0000, #330000);
+  border: 1px solid rgba(255, 80, 80, 0.6);
+
+  padding: 12px 20px;
+  border-radius: 12px;
+
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+
+  box-shadow:
+    0 0 12px rgba(255, 0, 0, 0.8),
+    0 0 30px rgba(255, 0, 0, 0.5);
+
+  z-index: 999999;
+  animation: toastSlide 0.4s ease, fadeOut 0.4s ease 2.6s forwards;
+}
+
+.attack-toast .weapon {
+  color: #ffcc00;
+  text-shadow: 0 0 6px orange;
+}
+
+@keyframes toastSlide {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -30px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+}
