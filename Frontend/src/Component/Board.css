@@ -1082,7 +1082,7 @@ body,
 }
 
 .name .blackPawn {
-  color: black;
+  color: rgb(255, 89, 0);
 }
 
 .name .whitePawn {
@@ -1094,7 +1094,7 @@ body,
 }
 
 .name .bluePawn {
-  color: blue;
+  color: rgb(251, 0, 255);
 }
 
 .money-tag {
