@@ -5,18 +5,18 @@ import Card from "../models/cards.js";
 function getMysteryCard() {
   const MysteryBox = [
     { amount: +150, statement: "Foreign investment deal approved" },
-    { amount: +100, statement: "Tax from citizens" },
-    { amount: +110, statement: "Black Money Raid" },
-    { amount: +130, statement: "Received emergency funding from supporters" },
-    { amount: +101, statement: "Public rally success donation" },
-    { amount: -100, statement: "Corruption investigation fine" },
-    { amount: -90, statement: "Emergency defence spending" },
     { amount: -120, statement: "Cyber attack repair cost" },
+    { amount: +100, statement: "Tax from citizens" },
+    { amount: -90, statement: "Emergency defence spending" },
+    { amount: +110, statement: "Black Money Raid" },
+    { amount: -100, statement: "Defence Drone deployed" },
+    { amount: +130, statement: "Received emergency funding from supporters" },
+    { amount: -100, statement: "Corruption investigation fine" },
+    { amount: +101, statement: "Public rally success donation" },
     { amount: +50, statement: "Printed War money" },
     { amount: +100, statement: "Bribe attempt works" },
     { amount: -100, statement: "Bribe attempt caught" },
     { amount: +100, statement: "Successful strike, looted enemy resources" },
-    { amount: -100, statement: "Defence Drone deployed" },
   ];
   return MysteryBox[Math.floor(Math.random() * MysteryBox.length)];
 }
