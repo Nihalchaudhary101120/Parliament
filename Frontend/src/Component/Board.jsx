@@ -466,7 +466,7 @@ const Board = () => {
 
         setTimeout(() => {
           setActiveMystery(null);
-        }, 6000); // duration of animation
+        }, 1500); // duration of animation
       }
       setTimeout(() => setMysteryCase(null), 3500);
       setActionModal(null);
@@ -731,20 +731,26 @@ const Board = () => {
 
 
 
-        {/* ── Game Over ── */}
-        {gameOver && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-            <div className="bg-gray-900 border border-yellow-500 rounded-2xl p-10 text-center">
-              <h2 className="text-4xl font-bold text-yellow-400 mb-4">Game Over</h2>
-              <p className="text-white text-xl mb-6">
+        {gameOver && createPortal(
+          <div className="gameover-overlay">
+            <div className="gameover-modal">
+              <h2>Game Over</h2>
+
+              <p>
                 Winner:{" "}
-                {optimisticPlayers.find(p => p.userId._id?.toString() === gameOver.winner?.toString())?.userId?.username || "Unknown"}
+                {
+                  optimisticPlayers.find(
+                    p => p.userId._id?.toString() === gameOver.winner?.toString()
+                  )?.userId?.username || "Unknown"
+                }
               </p>
-              <button className="px-6 py-2 bg-yellow-500 text-black rounded-xl font-bold" onClick={() => navigate("/dashboard")}>
+
+              <button onClick={() => navigate("/dashboard")}>
                 Back to Home
               </button>
             </div>
-          </div>
+          </div>,
+          document.getElementById("modal-root") // 🔥 SAME ROOT
         )}
 
 
