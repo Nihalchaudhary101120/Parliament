@@ -91,7 +91,7 @@ body {
 /* ===== TOP USER PANEL ===== */
 .top-user {
   position: absolute;
-  top: 14px;
+  
   right: 16px;
   font-weight: bold;
   color: white;
@@ -148,8 +148,10 @@ body {
 /* ===== GLASS PANEL (GAME MODE) ===== */
 .glass-panel {
   position: absolute;
-  left: auto;
-  top: 30%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
   display: flex;
   align-items: center;
   justify-content: baseline;
@@ -681,7 +683,10 @@ body {
 @media (min-width: 600px) {
 
   .glass-panel {
-    max-width: 360px;
+    /* max-width: 360px; */
+    position:fixed;
+    top:30vh;
+    left:30%;
     padding: 24px 22px;
   }
 
@@ -719,6 +724,7 @@ body {
   }
 }
 
+
 /* ============================================
    DESKTOP (≥ 900px) — restore original layout
    ============================================ */
@@ -734,13 +740,18 @@ body {
     padding-top: 1.5em;
   }
 
-  .glass-panel {
+  /* .glass-panel {
     position: absolute;
     left: 40px;
     top: 120px;
     width: 300px;
     margin: 0;
     max-width: none;
+  } */
+   .glass-panel {
+    left: 80px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .sharp-btn {
@@ -871,7 +882,7 @@ body {
   .glass-panel {
     position: absolute;
     left: 40px;
-    top: 120px;
+    top: 30vh;
     width: 300px;
     margin: 0;
     max-width: none;
