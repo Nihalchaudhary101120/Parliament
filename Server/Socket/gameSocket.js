@@ -76,14 +76,12 @@ async function checkTimebombExplosions(game, io, gameCode) {
   for (const bomb of game.timebombs) {
     if (game.turnNo < bomb.explodeAtTurn) continue;
 
-    // Build blast zone: 3 tiles before + bomb tile + 3 tiles after
     const blastPositions = new Set();
     for (let offset = -BLAST_RADIUS; offset <= BLAST_RADIUS; offset++) {
       if (offset == 2) continue; //safe zone here
       blastPositions.add((bomb.position + offset + TOTAL_TILES) % TOTAL_TILES);
     }
 
-    // Damage every active player standing in blast range
     const casualties = [];
     for (const p of game.players) {
       if (!p.isActive) continue;
@@ -109,6 +107,19 @@ async function checkTimebombExplosions(game, io, gameCode) {
       casualties,
       nextBlastInTurns: bomb.cycleLength,
     });
+
+    for (const casualty of casualties) {
+      const targetUserId = (casualty.userId._id || casualty.userId).toString();
+      const hitPlayer = game.players.find(
+        p => (p.userId._id || p.userId).toString() === targetUserId
+      );
+
+      io.to(targetUserId).emit("damageTaken", {
+        amount: casualty.damage,
+        cardName: "Time Bomb",
+        shieldAbsorbed: hitPlayer ? hitPlayer.remainingShieldHp > 0 : false,
+      });
+    }
 
     io.to(gameCode).emit("receiveMessage", {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -413,7 +424,6 @@ export default function gameSocket(io, socket) {
               const scientistBonus = 1 + (owner.scientist * 0.03);
               let dmg = card.weaponDamage * scientistBonus;
 
-              // Agent halves the damage received
               if (player.agent) dmg = dmg / 2;
 
               applyDamage(player, dmg);
@@ -554,7 +564,6 @@ export default function gameSocket(io, socket) {
       // (bomb checks against turnNo to know if Shlok's turn just completed)
       game.turnNo += 1;
 
-      // ✅ CHECK TIMEBOMB EXPLOSIONS after turn advances
       await checkTimebombExplosions(game, io, gameCode);
 
       // ── Re-check win condition after bomb damage
