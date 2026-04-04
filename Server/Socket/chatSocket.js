@@ -18,7 +18,7 @@
     
     socket.on("sendMessage", ({ roomId, message ,type}) => {
       io.to(roomId).emit("receiveMessage", {
-        id: Date.now(),
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         sender:type === "system" ? "System" : user.username,
         content: message,
         type,

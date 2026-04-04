@@ -35,11 +35,6 @@ body {
   position: relative;
 }
 
-.hero>*:not(canvas) {
-  position: relative;
-  z-index: 1;
-}
-
 /* dark gradient overlay for readability on mobile */
 .hero::before {
   content: '';
@@ -152,9 +147,13 @@ body {
 
 /* ===== GLASS PANEL (GAME MODE) ===== */
 .glass-panel {
-  position: relative;
+  position: absolute;
   left: auto;
-  top: auto;
+  top: 30%;
+  display: flex;
+  align-items: center;
+  justify-content: baseline;
+  flex-direction: column;
   width: calc(100% - 32px);
   max-width: 320px;
   margin: 8rem auto 0;
@@ -843,16 +842,6 @@ body {
   white-space: nowrap;
 }
 
-/* ── GLASS PANEL fix — push down below title ── */
-.glass-panel {
-  position: absolute;
-  left: 40px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 300px;
-}
-
-/* ── KUCH (title area) — less top padding so layout fits ── */
 .kuch {
   display: flex;
   align-items: center;

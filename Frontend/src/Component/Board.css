@@ -1847,7 +1847,6 @@ body,
   pointer-events: none;
 } */
 */
-
 /* DARK BACKGROUND */
 
 #modal-root {
@@ -1857,13 +1856,14 @@ body,
   z-index: 999999;
   pointer-events: none;
 }
+
 .mystery-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  isolation: isolate; 
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2263,6 +2263,7 @@ body,
   .chat-toggle-btn {
     display: flex !important;
   }
+
   .hero2 {
     display: flex;
     flex-direction: column;
@@ -2274,7 +2275,7 @@ body,
     gap: 16px;
   }
 
-  .border-cell{
+  .border-cell {
     border-radius: 5px;
   }
 
@@ -2321,6 +2322,49 @@ body,
     width: 85px;
     height: 85px;
     flex-shrink: 0;
+  }
+
+
+  .chat-drawer {
+    position: fixed;
+    left: -320px;
+    bottom: 0;
+    top: auto;
+    z-index: 99999;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .chat-drawer.open {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+
+    position: fixed;
+    /* important */
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .chat-drawer .chat-container {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    border-radius: 20px 20px 0 0;
+    height: 400px;
+  }
+
+
+
+  .chat-toggle-btn {
+    display: flex;
+  }
+
+  .damage-toast {
+    /* board is roughly in the top 60% on mobile column layout */
+    top: 35%;
+    transform: translate(-50%, -50%);
+    /* truly centered */
   }
 }
 
@@ -2394,7 +2438,7 @@ body,
     display: flex !important;
   }
 
-  .border-cell{
+  .border-cell {
     border-radius: 5px;
   }
 
@@ -2536,6 +2580,22 @@ body,
   .turn-divider {
     height: 22px;
   }
+
+
+  .damage-toast {
+    top: 38%;
+    transform: translate(-50%, -50%);
+    padding: 12px 18px;
+    gap: 10px;
+  }
+
+  .damage-toast-amount {
+    font-size: 28px;
+  }
+
+  .damage-toast-card {
+    font-size: 12px;
+  }
 }
 
 /* ── Very small phones (iPhone SE etc) ── */
@@ -2543,6 +2603,7 @@ body,
   .chat-toggle-btn {
     display: flex !important;
   }
+
   .tile-label {
     font-size: 6px;
   }
@@ -2570,44 +2631,6 @@ body,
   .pip {
     width: 7px;
     height: 7px;
-  }
-}
-
-/* ── Chat Drawer (mobile) ── */
-@media (max-width: 1200px) {
-  .chat-drawer {
-    position: fixed;
-    left: -320px;
-    bottom: 0;
-    top: auto;
-    z-index: 99999;
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .chat-drawer.open {
-    display: flex;
-    justify-content: center;
-    align-items: end;
-
-    position: fixed;
-    /* important */
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .chat-drawer .chat-container {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    border-radius: 20px 20px 0 0;
-    height: 400px;
-  }
-
-
-
-  .chat-toggle-btn {
-    display: flex;
   }
 }
 
@@ -2673,4 +2696,85 @@ body,
   font-size: 14px;
   letter-spacing: 1px;
   opacity: 0.8;
+}
+
+
+.damage-toast {
+  position: fixed;
+  /* center horizontally always */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+
+  /* desktop: near top */
+  top: 70px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+  border-radius: 16px;
+  background: rgba(60, 5, 5, 0.95);
+  border: 1px solid rgba(239, 68, 68, 0.65);
+  box-shadow:
+    0 0 28px rgba(239, 68, 68, 0.45),
+    0 4px 20px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(14px);
+  min-width: 220px;
+  max-width: 88vw;
+  animation: damageSlideIn 0.35s ease, damageSlideOut 0.4s ease 3.1s forwards;
+  pointer-events: none;
+}
+
+.damage-toast-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  animation: damageShake 0.4s ease;
+}
+
+.damage-toast-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.damage-toast-card {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fca5a5;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.damage-toast-amount {
+  font-size: 32px;
+  font-weight: 900;
+  color: #ef4444;
+  text-shadow: 0 0 16px rgba(239, 68, 68, 0.9);
+  line-height: 1;
+}
+
+.damage-toast-sub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 2px;
+}
+
+@keyframes damageSlideIn {
+  from { opacity: 0; transform: translate(-50%, calc(-50% - 16px)) scale(0.88); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes damageSlideOut {
+  from { opacity: 1; }
+  to   { opacity: 0; transform: translate(-50%, calc(-50% - 10px)); }
+}
+
+@keyframes damageShake {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-5px); }
+  40%  { transform: translateX(5px); }
+  60%  { transform: translateX(-3px); }
+  80%  { transform: translateX(3px); }
+  100% { transform: translateX(0); }
 }

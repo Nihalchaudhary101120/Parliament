@@ -53,8 +53,8 @@ export default function GameChat({ messages = [], addMessage, players, toast }) 
                     </div>
                 </div>
                 <div className="chat-messages">
-                    {messages.map((message) => (
-                        <div key={message.id} className={`message ${message.type}`}>
+                    {messages.map((message, index) => (
+                        <div key={`${message.id}-${index}`} className={`message ${message.type}`}>
                             <div className="message-sender">{message.sender}</div>
                             <div className="message-content">{message.content}</div>
                             <div className="message-time">{message.time}</div>

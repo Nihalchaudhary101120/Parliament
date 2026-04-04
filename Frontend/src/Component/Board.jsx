@@ -113,6 +113,7 @@ const Board = () => {
 
   const isRollingRef = useRef(false)
   const { openCard } = useCardModal();
+  const [damageToast, setDamageToast] = useState(null);
   const pawnImg = { redPawn, blackPawn, greenPawn, bluePawn, yellowPawn, whitePawn };
 
   const size = 9;
@@ -151,16 +152,6 @@ const Board = () => {
     "torpedo-attack": torpedoIcon, "brahmos": brahmosIcon, "safe-zone": safeZoneIcon,
   };
 
-  // const tileLayouts = {
-  //   1: [{ x: 0, y: 0, scale: 1 }],
-  //   2: [{ x: -18, y: 0, scale: 0.85 }, { x: 18, y: 0, scale: 0.85 }],
-  //   3: [{ x: 0, y: -18, scale: 0.8 }, { x: -18, y: 18, scale: 0.8 }, { x: 18, y: 18, scale: 0.8 }],
-  //   4: [{ x: -18, y: -18, scale: 0.75 }, { x: 18, y: -18, scale: 0.75 }, { x: -18, y: 18, scale: 0.75 }, { x: 18, y: 18, scale: 0.75 }],
-  //   5: [{ x: 0, y: -22, scale: 0.7 }, { x: -20, y: -5, scale: 0.7 }, { x: 20, y: -5, scale: 0.7 }, { x: -12, y: 18, scale: 0.7 }, { x: 12, y: 18, scale: 0.7 }],
-  //   6: [{ x: -18, y: -18, scale: 0.65 }, { x: 18, y: -18, scale: 0.65 }, { x: -18, y: 0, scale: 0.65 }, { x: 18, y: 0, scale: 0.65 }, { x: -18, y: 18, scale: 0.65 }, { x: 18, y: 18, scale: 0.65 }],
-  // };
-
-  //ise bhi hata dunga 
   const ls = tileSize.w / 90; // layout scale ratio
   const tileLayouts = {
     1: [{ x: 0, y: 0, scale: 1 }],
@@ -242,12 +233,12 @@ const Board = () => {
 
 
   useEffect(() => {
-  if (game && players.length > 0) {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500); // smooth delay (important)
-  }
-}, [game, players]);
+    if (game && players.length > 0) {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500); // smooth delay (important)
+    }
+  }, [game, players]);
 
 
   useEffect(() => {
@@ -319,7 +310,7 @@ const Board = () => {
     if (bidTimerRef.current) clearInterval(bidTimerRef.current);
   };
 
-  
+
 
   const [toast, setToast] = useState(null);
 
@@ -432,6 +423,8 @@ const Board = () => {
     // Re-join room — also triggers identity emit from server
     socket.current.emit("joinLobby", ({ gameCode: roomId }));
 
+
+
     socket.current.off("error");
     socket.current.on("error", ({ message }) => {
       showToast(message, "error");
@@ -505,9 +498,15 @@ const Board = () => {
         }
       });
 
-
-
     });
+
+    socket.current.off("damageTaken");
+    socket.current.on("damageTaken", ({ amount, cardName, shieldAbsorbed }) => {
+      setDamageToast({ amount, cardName, shieldAbsorbed });
+      setTimeout(() => {
+        setDamageToast(null);
+      }, 3500);
+    })
 
     // boardUpdate — pawn moved but turn paused (buy/bid decision pending)
     socket.current.off("boardUpdate");
@@ -579,6 +578,7 @@ const Board = () => {
       socket.current.off("gameOver");
       socket.current.off("timebombExploded");
       socket.current.off("newPositions");
+      socket.current.off("damageTaken");
       if (autoRollTimerRef.current) {
         clearInterval(autoRollTimerRef.current);
         autoRollTimerRef.current = null;
@@ -686,403 +686,420 @@ const Board = () => {
   };
 
   if (isLoading) {
-  return (
-    <div className="loading-screen">
-      <div className="loader">
-        <div className="spinner"></div>
-        <p>Entering Battlefield...</p>
+    return (
+      <div className="loading-screen">
+        <div className="loader">
+          <div className="spinner"></div>
+          <p>Entering Battlefield...</p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
 
     <>
 
-    <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
+      <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
 
-      <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
-      {/* <GameChatContainer players={players} /> */}
-      
-      
-      
-
-      {activeMystery &&  createPortal(
-        <div className="mystery-overlay">
-          <div className="mystery-card">
-            <img
-              src={getMysteryVisual(activeMystery.statement).image}
-              className="mystery-img"
-            />
-
-            <h2 className="mystery-title">
-              {activeMystery.statement}
-            </h2>
-
-            <p className="mystery-amount">
-              {activeMystery.amount > 0 ? "+" : ""}
-              {activeMystery.amount}
-            </p>
-          </div>
-        </div>,
-        document.body
-      )}
-
-
-      {/* ── Game Over ── */}
-      {gameOver && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-          <div className="bg-gray-900 border border-yellow-500 rounded-2xl p-10 text-center">
-            <h2 className="text-4xl font-bold text-yellow-400 mb-4">Game Over</h2>
-            <p className="text-white text-xl mb-6">
-              Winner:{" "}
-              {optimisticPlayers.find(p => p.userId._id?.toString() === gameOver.winner?.toString())?.userId?.username || "Unknown"}
-            </p>
-            <button className="px-6 py-2 bg-yellow-500 text-black rounded-xl font-bold" onClick={() => navigate("/dashboard")}>
-              Back to Home
-            </button>
-          </div>
-        </div>
-      )}
+        <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
+        {/* <GameChatContainer players={players} /> */}
 
 
 
-      {
-        agentActivatedPlayer &&
-        <div className="agent-animated">
-          Agent Card Activated
-        </div>
-      }
 
-      {actionModal && actionModal.card && isMyTurn && (
-        <div className="modal-overlay">
-          <div className="buy-modal-premium">
-            <div className="modal-glow"></div>
-
-            <div className="modal-card-preview">
+        {activeMystery && createPortal(
+          <div className="mystery-overlay">
+            <div className="mystery-card">
               <img
-                src={cardMap[actionModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
-                className="modal-card-img"
-                alt={actionModal.card.name}
+                src={getMysteryVisual(activeMystery.statement).image}
+                className="mystery-img"
               />
-              <div className="modal-card-info">
-                <h3 className="modal-title">{actionModal.card.name}</h3>
-                <p className="modal-subtext">Unowned Weapon</p>
-                <div className="modal-stat">
-                  <span className="stat-label">💰 Price</span>
-                  <span className="stat-value price">₹{actionModal.card.price}</span>
-                </div>
-                {actionModal.card.weaponDamage > 0 && (
-                  <div className="modal-stat">
-                    <span className="stat-label">💥 Damage</span>
-                    <span className="stat-value damage">{actionModal.card.weaponDamage} HP</span>
-                  </div>
-                )}
-                <div className="modal-stat">
-                  <span className="stat-label">🪙 Your Cash</span>
-                  <span className="stat-value cash">₹{actionModal.playerCash}</span>
-                </div>
-              </div>
+
+              <h2 className="mystery-title">
+                {activeMystery.statement}
+              </h2>
+
+              <p className="mystery-amount">
+                {activeMystery.amount > 0 ? "+" : ""}
+                {activeMystery.amount}
+              </p>
             </div>
+          </div>,
+          document.body
+        )}
 
-            {actionTimeLeft > 0 && (
-              <div className="action-timer">
-                <div className="action-timer-bar" style={{ width: `${(actionTimeLeft / 15) * 100}%` }} />
-                <span className={`action-timer-text ${actionTimeLeft <= 5 ? "urgent" : ""}`}>
-                  Auto-auction in {actionTimeLeft}s
-                </span>
-              </div>
-            )}
 
-            <div className="modal-actions">
-              {actionModal.playerCash >= actionModal.card.price && (
-                <button className="buy-btn" onClick={handleBuy}>Buy Now</button>
-              )}
-              <button className="bid-btn" onClick={handleStartBid}>🔨 Auction</button>
+
+        {/* ── Game Over ── */}
+        {gameOver && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+            <div className="bg-gray-900 border border-yellow-500 rounded-2xl p-10 text-center">
+              <h2 className="text-4xl font-bold text-yellow-400 mb-4">Game Over</h2>
+              <p className="text-white text-xl mb-6">
+                Winner:{" "}
+                {optimisticPlayers.find(p => p.userId._id?.toString() === gameOver.winner?.toString())?.userId?.username || "Unknown"}
+              </p>
+              <button className="px-6 py-2 bg-yellow-500 text-black rounded-xl font-bold" onClick={() => navigate("/dashboard")}>
+                Back to Home
+              </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {toast && (
-        <div className={`wall-toast ${toast.type}`}>
-          <span className="toast-icon">
-            {toast.type === "success" ? "✅" : "❌"}
-          </span>
-          <span className="toast-message">{toast.message}</span>
-        </div>
-      )}
-      {bidModal && bidModal.card && (
-        <div className="bid-overlay">
-          <div className="bid-modal-premium">
-
-            {/* Header */}
-            <div className="bid-header">
-              <h3 className="bid-title"> {bidModal.card.name}</h3>
-              <span className={`bid-timer ${bidTimeLeft <= 5 ? "danger" : ""}`}>
-                {bidTimeLeft}s
-              </span>
-            </div>
-
-            {/* Info */}
-            <p className="bid-info">
-              Min bid: <span className="highlight">₹{bidModal.minBid}</span>
-              {" · "}
-              Your cash: <span className="cash">₹{myPlayer?.cashRemaining ?? 0}</span>
-            </p>
-
-            {/* Card preview — add this right after the bid-header div */}
-            <div className="bid-card-preview">
-              <img
-                src={cardMap[bidModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
-                className="bid-card-img"
-                alt={bidModal.card.name}
-              />
-              <div className="bid-card-stats">
-                <div className="bid-stat">
-                  <span>💰 Price</span>
-                  <span className="highlight">₹{bidModal.card.price}</span>
-                </div>
-                {bidModal.card.weaponDamage > 0 && (
-                  <div className="bid-stat">
-                    <span>💥 Damage</span>
-                    <span style={{ color: "#f87171", fontWeight: "bold" }}>{bidModal.card.weaponDamage} HP</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Input */}
-            {!myBidSubmitted ? (
-              <>
-                <input
-                  type="number"
-                  min={bidModal.minBid}
-                  max={myPlayer?.cashRemaining ?? 0}
-                  value={bidAmount}
-                  onChange={(e) => setBidAmount(e.target.value)}
-                  className="bid-input"
-                  placeholder={`Min ₹${bidModal.minBid}`}
-                />
-
-                <div className="bid-actions">
-                  <button
-                    className="bid-btn-main"
-                    disabled={
-                      !bidAmount ||
-                      Number(bidAmount) < bidModal.minBid ||
-                      Number(bidAmount) > (myPlayer?.cashRemaining ?? 0)
-                    }
-                    onClick={handleSubmitBid}
-                  >
-                    Place Bid
-                  </button>
-
-                  <button
-                    className="pass-btn"
-                    onClick={() => setMyBidSubmitted(true)}
-                  >
-                    Pass
-                  </button>
-                </div>
-              </>
-            ) : (
-              <p className="waiting-text">✅ Waiting for others...</p>
-            )}
-
-            {/* Players */}
-            <div className="bid-players">
-              <p className="players-title">Players:</p>
-
-              {optimisticPlayers.filter(p => p.isActive).map((p, i) => (
-                <div key={i} className="bid-player">
-                  <span className="cash">{p.userId.username}</span>
-                  <span className="cash">₹{p.cashRemaining}</span>
-                </div>
-              ))}
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* ── Bid Result Toast ── */}
-      {bidResult && (
-        <div className="bid-result-toast">
-
-          <div className="result-glow"></div>
-
-          <p className="result-title">
-            🏆 {bidResult.winnerName} won {bidResult.cardName}
-          </p>
-
-          <p className="result-amount">
-            ₹{bidResult.amount}
-          </p>
-
-        </div>
-      )}
-
-
-
-      {/* ── Turn Indicator ── */}
-      <div className="turn-indicator">
-        {/* Countdown ring */}
-        {turnTimeLeft > 0 && (
-          <div className={`turn-ring ${turnTimeLeft <= 10 ? "urgent" : isMyTurn ? "active" : "idle"}`}>
-            <span>{turnTimeLeft}s</span>
           </div>
         )}
 
-        <div className="turn-divider" />
 
-        <div className="turn-section">
-          <span className="turn-label">STATUS</span>
-          <span className={`turn-value ${isMyTurn ? "my-turn" : "waiting"}`}>
-            {isMyTurn ? "Your Turn" : "Waiting..."}
-          </span>
-        </div>
 
-        <div className="turn-divider" />
+        {
+          agentActivatedPlayer &&
+          <div className="agent-animated">
+            Agent Card Activated
+          </div>
+        }
 
-        <div className="turn-section" style={{ alignItems: "flex-end" }}>
-          <span className="turn-label">TURN</span>
-          <span className="turn-value">#{turnNo}</span>
-        </div>
-      </div>
+        {actionModal && actionModal.card && isMyTurn && (
+          <div className="modal-overlay">
+            <div className="buy-modal-premium">
+              <div className="modal-glow"></div>
 
-      {/* ── Board ── */}
-      <div className="board-wrapper">
-        <div className="bg-transparent p-6 rounded-3xl shadow-2xl">
-          <div className="grid gap-2 bg-transparent p-4 rounded-2xl"
-            // style={{ gridTemplateColumns: `repeat(${size}, 90px)`, gridTemplateRows: `repeat(${size}, 70px)` }}
-            style={{ gridTemplateColumns: `repeat(${size}, ${tileSize.w}px)`, gridTemplateRows: `repeat(${size}, ${tileSize.h}px)` }}
-          >
-            {border.map((cell, i) => {
-              const tilePlayers = optimisticPlayers.filter(p => p.position === i);
-              const layout = tileLayouts[Math.min(tilePlayers.length, 6)] || tileLayouts[6];
-              const key = tileData[i].toLowerCase().replace(/\s+/g, "-");
-              return (
-                <div key={i}
-                  className={`border-cell weapon-tile ${tileData[i].toLowerCase().replace(/\s+/g, '-')}  ${explodingTiles.includes(i) ? 'bomb-exploding' : ''}`}
-                  style={{ gridRow: cell.r + 1, gridColumn: cell.c + 1 }}
-                  onClick={() => openCard(cardMap[key], false, key)}
-                >
-                  <div className="ownership-container">
-                    {optimisticPlayers.flatMap((player) =>
-                      player.cards.map((cardObj, idx) => {
-                        const card = cardObj.cardId;
-                        if (!card) return null;
-
-                        if (card.position === i) {
-                          return (
-                            <div
-                              key={player.userId._id + idx}
-                              className={`flag ${getDirectionClass(i)}`}
-                            >
-                              <div className="flag-pole"></div>
-                              <div
-                                className="flag-cloth"
-                                style={{ backgroundColor: getPawnColor(player.pawn) }}
-                              ></div>
-                            </div>
-                          );
-                        }
-
-                        return null;
-                      })
-                    )}
+              <div className="modal-card-preview">
+                <img
+                  src={cardMap[actionModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
+                  className="modal-card-img"
+                  alt={actionModal.card.name}
+                />
+                <div className="modal-card-info">
+                  <h3 className="modal-title">{actionModal.card.name}</h3>
+                  <p className="modal-subtext">Unowned Weapon</p>
+                  <div className="modal-stat">
+                    <span className="stat-label">💰 Price</span>
+                    <span className="stat-value price">₹{actionModal.card.price}</span>
                   </div>
-                  {tileIcons[key] && <img className="tile-icon" src={tileIcons[key]} alt={tileData[i]} />}
-                  <div className="tile-label">{tileData[i]}</div>
-                  {tilePlayers.map((player, idx) => {
-                    const slot = layout[idx];
+                  {actionModal.card.weaponDamage > 0 && (
+                    <div className="modal-stat">
+                      <span className="stat-label">💥 Damage</span>
+                      <span className="stat-value damage">{actionModal.card.weaponDamage} HP</span>
+                    </div>
+                  )}
+                  <div className="modal-stat">
+                    <span className="stat-label">🪙 Your Cash</span>
+                    <span className="stat-value cash">₹{actionModal.playerCash}</span>
+                  </div>
+                </div>
+              </div>
+
+              {actionTimeLeft > 0 && (
+                <div className="action-timer">
+                  <div className="action-timer-bar" style={{ width: `${(actionTimeLeft / 15) * 100}%` }} />
+                  <span className={`action-timer-text ${actionTimeLeft <= 5 ? "urgent" : ""}`}>
+                    Auto-auction in {actionTimeLeft}s
+                  </span>
+                </div>
+              )}
+
+              <div className="modal-actions">
+                {actionModal.playerCash >= actionModal.card.price && (
+                  <button className="buy-btn" onClick={handleBuy}>Buy Now</button>
+                )}
+                <button className="bid-btn" onClick={handleStartBid}>🔨 Auction</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+        {damageToast && (
+          <div className="damage-toast">
+            <div className="damage-toast-icon">💥</div>
+            <div className="damage-toast-body">
+              <span className="damage-toast-card">{damageToast.cardName}</span>
+              <span className="damage-toast-amount">−{damageToast.amount} HP</span>
+              <span className="damage-toast-sub">
+                {damageToast.shieldAbsorbed ? "Shield absorbed damage" : "Parliament HP reduced"}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {toast && (
+          <div className={`wall-toast ${toast.type}`}>
+            <span className="toast-icon">
+              {toast.type === "success" ? "✅" : "❌"}
+            </span>
+            <span className="toast-message">{toast.message}</span>
+          </div>
+        )}
+
+
+        {bidModal && bidModal.card && (
+          <div className="bid-overlay">
+            <div className="bid-modal-premium">
+
+              {/* Header */}
+              <div className="bid-header">
+                <h3 className="bid-title"> {bidModal.card.name}</h3>
+                <span className={`bid-timer ${bidTimeLeft <= 5 ? "danger" : ""}`}>
+                  {bidTimeLeft}s
+                </span>
+              </div>
+
+              {/* Info */}
+              <p className="bid-info">
+                Min bid: <span className="highlight">₹{bidModal.minBid}</span>
+                {" · "}
+                Your cash: <span className="cash">₹{myPlayer?.cashRemaining ?? 0}</span>
+              </p>
+
+              {/* Card preview — add this right after the bid-header div */}
+              <div className="bid-card-preview">
+                <img
+                  src={cardMap[bidModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
+                  className="bid-card-img"
+                  alt={bidModal.card.name}
+                />
+                <div className="bid-card-stats">
+                  <div className="bid-stat">
+                    <span>💰 Price</span>
+                    <span className="highlight">₹{bidModal.card.price}</span>
+                  </div>
+                  {bidModal.card.weaponDamage > 0 && (
+                    <div className="bid-stat">
+                      <span>💥 Damage</span>
+                      <span style={{ color: "#f87171", fontWeight: "bold" }}>{bidModal.card.weaponDamage} HP</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Input */}
+              {!myBidSubmitted ? (
+                <>
+                  <input
+                    type="number"
+                    min={bidModal.minBid}
+                    max={myPlayer?.cashRemaining ?? 0}
+                    value={bidAmount}
+                    onChange={(e) => setBidAmount(e.target.value)}
+                    className="bid-input"
+                    placeholder={`Min ₹${bidModal.minBid}`}
+                  />
+
+                  <div className="bid-actions">
+                    <button
+                      className="bid-btn-main"
+                      disabled={
+                        !bidAmount ||
+                        Number(bidAmount) < bidModal.minBid ||
+                        Number(bidAmount) > (myPlayer?.cashRemaining ?? 0)
+                      }
+                      onClick={handleSubmitBid}
+                    >
+                      Place Bid
+                    </button>
+
+                    <button
+                      className="pass-btn"
+                      onClick={() => setMyBidSubmitted(true)}
+                    >
+                      Pass
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className="waiting-text">✅ Waiting for others...</p>
+              )}
+
+              {/* Players */}
+              <div className="bid-players">
+                <p className="players-title">Players:</p>
+
+                {optimisticPlayers.filter(p => p.isActive).map((p, i) => (
+                  <div key={i} className="bid-player">
+                    <span className="cash">{p.userId.username}</span>
+                    <span className="cash">₹{p.cashRemaining}</span>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ── Bid Result Toast ── */}
+        {bidResult && (
+          <div className="bid-result-toast">
+
+            <div className="result-glow"></div>
+
+            <p className="result-title">
+              🏆 {bidResult.winnerName} won {bidResult.cardName}
+            </p>
+
+            <p className="result-amount">
+              ₹{bidResult.amount}
+            </p>
+
+          </div>
+        )}
+
+
+
+        {/* ── Turn Indicator ── */}
+        <div className="turn-indicator">
+          {/* Countdown ring */}
+          {turnTimeLeft > 0 && (
+            <div className={`turn-ring ${turnTimeLeft <= 10 ? "urgent" : isMyTurn ? "active" : "idle"}`}>
+              <span>{turnTimeLeft}s</span>
+            </div>
+          )}
+
+          <div className="turn-divider" />
+
+          <div className="turn-section">
+            <span className="turn-label">STATUS</span>
+            <span className={`turn-value ${isMyTurn ? "my-turn" : "waiting"}`}>
+              {isMyTurn ? "Your Turn" : "Waiting..."}
+            </span>
+          </div>
+
+          <div className="turn-divider" />
+
+          <div className="turn-section" style={{ alignItems: "flex-end" }}>
+            <span className="turn-label">TURN</span>
+            <span className="turn-value">#{turnNo}</span>
+          </div>
+        </div>
+
+        {/* ── Board ── */}
+        <div className="board-wrapper">
+          <div className="bg-transparent p-6 rounded-3xl shadow-2xl">
+            <div className="grid gap-2 bg-transparent p-4 rounded-2xl"
+              // style={{ gridTemplateColumns: `repeat(${size}, 90px)`, gridTemplateRows: `repeat(${size}, 70px)` }}
+              style={{ gridTemplateColumns: `repeat(${size}, ${tileSize.w}px)`, gridTemplateRows: `repeat(${size}, ${tileSize.h}px)` }}
+            >
+              {border.map((cell, i) => {
+                const tilePlayers = optimisticPlayers.filter(p => p.position === i);
+                const layout = tileLayouts[Math.min(tilePlayers.length, 6)] || tileLayouts[6];
+                const key = tileData[i].toLowerCase().replace(/\s+/g, "-");
+                return (
+                  <div key={i}
+                    className={`border-cell weapon-tile ${tileData[i].toLowerCase().replace(/\s+/g, '-')}  ${explodingTiles.includes(i) ? 'bomb-exploding' : ''}`}
+                    style={{ gridRow: cell.r + 1, gridColumn: cell.c + 1 }}
+                    onClick={() => openCard(cardMap[key], false, key)}
+                  >
+                    <div className="ownership-container">
+                      {optimisticPlayers.flatMap((player) =>
+                        player.cards.map((cardObj, idx) => {
+                          const card = cardObj.cardId;
+                          if (!card) return null;
+
+                          if (card.position === i) {
+                            return (
+                              <div
+                                key={player.userId._id + idx}
+                                className={`flag ${getDirectionClass(i)}`}
+                              >
+                                <div className="flag-pole"></div>
+                                <div
+                                  className="flag-cloth"
+                                  style={{ backgroundColor: getPawnColor(player.pawn) }}
+                                ></div>
+                              </div>
+                            );
+                          }
+
+                          return null;
+                        })
+                      )}
+                    </div>
+                    {tileIcons[key] && <img className="tile-icon" src={tileIcons[key]} alt={tileData[i]} />}
+                    <div className="tile-label">{tileData[i]}</div>
+                    {tilePlayers.map((player, idx) => {
+                      const slot = layout[idx];
+                      return (
+                        <img key={player._id} src={pawnImg[player.pawn]} className="player-token"
+                          style={{ transform: `translate(${slot.x}px, ${slot.y}px) scale(${slot.scale})` }}
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              })}
+
+              {/* Center */}
+              <div className="bg-transparent center-area backdrop-blur-sm rounded-2xl"
+                style={{ gridRow: "2 / span 7", gridColumn: "2 / span 7" }}
+              >
+                <div className="center-grid">
+                  {optimisticPlayers.map((player, i) => {
+                    const hp = player.remainingParliamentHp;
+                    const shield = player.remainingShieldHp;
+                    const hpPct = (hp / maxHP) * 100;
+                    const shPct = (shield / maxShield) * 100;
+                    const isThisTurn = currentTurn?.toString() === player.userId._id?.toString();
                     return (
-                      <img key={player._id} src={pawnImg[player.pawn]} className="player-token"
-                        style={{ transform: `translate(${slot.x}px, ${slot.y}px) scale(${slot.scale})` }}
-                      />
+                      <div key={i} className={`player-cell ${hp <= 300 ? "low" : ""} ${isThisTurn ? "active-turn" : ""}`}>
+                        <div className={`image-parent ${hitEffect ? "parliament-hit" : ""}`}>
+                          <div className="name">
+                            <span className={player.pawn}>{player.userId.username}</span>
+                            {isThisTurn && <span className="text-xs text-green-400 ml-1">▶</span>}
+                          </div>
+                          <img src={logo} className="parl" alt={player.userId.username} />
+                          <div className={`hp-bar ${hpPct <= 30 ? "low" : ""}`}>
+                            <div className="hp-fill" style={{ width: `${hpPct}%` }} />
+                            <span className="hp-text">{hp} / {maxHP}</span>
+                          </div>
+                          <div className="shield-bar">
+                            <div className="shield-fill" style={{ width: `${shPct}%` }} />
+                            <span className="shield-text">{shield} / {maxShield}</span>
+                          </div>
+                          <div className="money-scientist">
+                            <div className="text-xs text-yellow-400 mt-1 money-tag cash-tag">₹{player.cashRemaining}</div>
+                            <div className="money-tag sceintist-tag">scientist-card:{player.scientist}</div>
+                          </div>
+                          <div className="flex gap-1 mt-1 justify-center flex-wrap">
+                            {player.agent && <span className="text-xs bg-blue-800 text-blue-200 px-1 rounded">Agent</span>}
+                            {player.scientist > 0 && <span className="text-xs bg-purple-800 text-purple-200 px-1 rounded">Sci ×{player.scientist}</span>}
+                            {!player.isActive && <span className="text-xs bg-red-900 text-red-300 px-1 rounded">Eliminated</span>}
+                          </div>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
-              );
-            })}
+              </div>
+            </div>
+          </div>
+        </div>
 
-            {/* Center */}
-            <div className="bg-transparent center-area backdrop-blur-sm rounded-2xl"
-              style={{ gridRow: "2 / span 7", gridColumn: "2 / span 7" }}
-            >
-              <div className="center-grid">
-                {optimisticPlayers.map((player, i) => {
-                  const hp = player.remainingParliamentHp;
-                  const shield = player.remainingShieldHp;
-                  const hpPct = (hp / maxHP) * 100;
-                  const shPct = (shield / maxShield) * 100;
-                  const isThisTurn = currentTurn?.toString() === player.userId._id?.toString();
-                  return (
-                    <div key={i} className={`player-cell ${hp <= 300 ? "low" : ""} ${isThisTurn ? "active-turn" : ""}`}>
-                      <div className={`image-parent ${hitEffect ? "parliament-hit" : ""}`}>
-                        <div className="name">
-                          <span className={player.pawn}>{player.userId.username}</span>
-                          {isThisTurn && <span className="text-xs text-green-400 ml-1">▶</span>}
-                        </div>
-                        <img src={logo} className="parl" alt={player.userId.username} />
-                        <div className={`hp-bar ${hpPct <= 30 ? "low" : ""}`}>
-                          <div className="hp-fill" style={{ width: `${hpPct}%` }} />
-                          <span className="hp-text">{hp} / {maxHP}</span>
-                        </div>
-                        <div className="shield-bar">
-                          <div className="shield-fill" style={{ width: `${shPct}%` }} />
-                          <span className="shield-text">{shield} / {maxShield}</span>
-                        </div>
-                        <div className="money-scientist">
-                          <div className="text-xs text-yellow-400 mt-1 money-tag cash-tag">₹{player.cashRemaining}</div>
-                          <div className="money-tag sceintist-tag">scientist-card:{player.scientist}</div>
-                        </div>
-                        <div className="flex gap-1 mt-1 justify-center flex-wrap">
-                          {player.agent && <span className="text-xs bg-blue-800 text-blue-200 px-1 rounded">Agent</span>}
-                          {player.scientist > 0 && <span className="text-xs bg-purple-800 text-purple-200 px-1 rounded">Sci ×{player.scientist}</span>}
-                          {!player.isActive && <span className="text-xs bg-red-900 text-red-300 px-1 rounded">Eliminated</span>}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+        {/* Right Panel */}
+        <div className="right-container">
+          <div className="right-grid">
+            {[
+              { key: "emergency-meeting", img: emergency },
+              { key: "wall-sena", img: wallSena },
+              { key: "wall-maria", img: wallMaria },
+              { key: "wall-rose", img: wallRose },
+            ].map((item, i) => (
+              <div key={i} className="right-cell" onClick={() => openCard(cardMap[item.key], true, item.key)}>
+                <img src={item.img} alt={item.key} />
+              </div>
+            ))}
+          </div>
+
+          <div
+            className={`dice-container ${sharedRolling ? "rolling" : "pop"} ${!isMyTurn || actionModal || bidModal ? "opacity-40 pointer-events-none" : ""}`}
+            onClick={!isDiceDisabled ? rollDice : null}
+          >
+            <div className="dice-display">
+              <div className={`dice-face face-${sharedDiceValue}`}>
+                {[...Array(9)].map((_, i) => <span key={i} className="pip" />)}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right Panel */}
-      <div className="right-container">
-        <div className="right-grid">
-          {[
-            { key: "emergency-meeting", img: emergency },
-            { key: "wall-sena", img: wallSena },
-            { key: "wall-maria", img: wallMaria },
-            { key: "wall-rose", img: wallRose },
-          ].map((item, i) => (
-            <div key={i} className="right-cell" onClick={() => openCard(cardMap[item.key], true, item.key)}>
-              <img src={item.img} alt={item.key} />
-            </div>
-          ))}
-        </div>
-
-        <div
-          className={`dice-container ${sharedRolling ? "rolling" : "pop"} ${!isMyTurn || actionModal || bidModal ? "opacity-40 pointer-events-none" : ""}`}
-          onClick={!isDiceDisabled ? rollDice : null}
-        >
-          <div className="dice-display">
-            <div className={`dice-face face-${sharedDiceValue}`}>
-              {[...Array(9)].map((_, i) => <span key={i} className="pip" />)}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Chat Drawer */} 
+      {/* Chat Drawer */}
       <div className={`chat-drawer ${isChatOpen ? 'open' : ''}`}>
         <GameChatContainer players={players} />
       </div>
@@ -1093,7 +1110,7 @@ const Board = () => {
         {isChatOpen ? '✕' : '💬'}
       </button>
 
-      </>
+    </>
 
 
   );

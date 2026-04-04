@@ -79,7 +79,7 @@ async function checkTimebombExplosions(game, io, gameCode) {
     // Build blast zone: 3 tiles before + bomb tile + 3 tiles after
     const blastPositions = new Set();
     for (let offset = -BLAST_RADIUS; offset <= BLAST_RADIUS; offset++) {
-      if(offset == 2) continue; //safe zone here
+      if (offset == 2) continue; //safe zone here
       blastPositions.add((bomb.position + offset + TOTAL_TILES) % TOTAL_TILES);
     }
 
@@ -111,7 +111,7 @@ async function checkTimebombExplosions(game, io, gameCode) {
     });
 
     io.to(gameCode).emit("receiveMessage", {
-      id: Date.now(),
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       sender: "System",
       content: `💣 Time Bomb EXPLODED! ${casualties.length} player(s) hit. Next blast in ${bomb.cycleLength} turns.`,
       type: "system",
@@ -214,7 +214,7 @@ export default function gameSocket(io, socket) {
         player.skippedChances = (player.skippedChances || 0) + 1;
 
         io.to(gameCode).emit("receiveMessage", {
-          id: Date.now(), sender: "System",
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
           content: `⏱️ ${username} skipped their turn (${player.skippedChances}/3)`,
           type: "system", time: new Date().toLocaleTimeString(),
         });
@@ -227,7 +227,7 @@ export default function gameSocket(io, socket) {
           const activePlayers = game.players.filter(p => p.isActive);
 
           io.to(gameCode).emit("receiveMessage", {
-            id: Date.now(), sender: "System",
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
             content: `🚫 ${username} was eliminated for skipping 3 turns!`,
             type: "system", time: new Date().toLocaleTimeString(),
           });
@@ -258,7 +258,7 @@ export default function gameSocket(io, socket) {
           return; // ← skip dice roll entirely
         }
 
-        await game.save(); 
+        await game.save();
       }
 
       const diceValue = Math.floor(Math.random() * 6) + 1;
@@ -279,7 +279,7 @@ export default function gameSocket(io, socket) {
 
       // System message in chat
       io.to(gameCode).emit("receiveMessage", {
-        id: Date.now(),
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         sender: "System",
         content: `${username} rolled ${diceValue}`,
         type: "system",
@@ -358,6 +358,13 @@ export default function gameSocket(io, socket) {
         case "public": {
           // Public tiles hit everyone, no shield consideration — raw parliament damage
           applyPublicDamage(player, card.weaponDamage);
+
+          console.log('time to hit pubic damaage');
+          socket.emit("damageTaken", {
+            amount: Math.floor(card.weaponDamage),
+            cardName: card.name,
+            shieldAbsorbed: false, // public damage hits both
+          });
           break;
         }
 
@@ -365,6 +372,14 @@ export default function gameSocket(io, socket) {
           if (!card.isPurchasable) {
             // Non-purchasable weapon — hits the player directly
             applyDamage(player, card.weaponDamage);
+
+            consolle.log('time to hit weapon damage');
+            socket.emit("damageTaken", {
+              amount: Math.floor(card.weaponDamage),
+              cardName: card.name,
+              shieldAbsorbed: player.remainingShieldHp > 0,
+            });
+
             break;
           }
 
@@ -407,6 +422,13 @@ export default function gameSocket(io, socket) {
             if (player.agent) dmg = dmg / 2;
 
             applyDamage(player, dmg);
+
+            console.log("time to frinds damage");
+            socket.emit("damageTaken", {
+              amount: Math.floor(dmg),
+              cardName: card.name,
+              shieldAbsorbed: player.remainingShieldHp > 0,
+            })
           }
           break;
         }
@@ -511,7 +533,7 @@ export default function gameSocket(io, socket) {
           });
 
           io.to(gameCode).emit("receiveMessage", {
-            id: Date.now(), sender: "System",
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
             content: `${username} can't afford ${actionPayload.card.name}! Auto-auction started.`,
             type: "system", time: new Date().toLocaleTimeString(),
           });
@@ -578,7 +600,7 @@ export default function gameSocket(io, socket) {
       });
 
       io.to(gameCode).emit("receiveMessage", {
-        id: Date.now(),
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         sender: "System",
         content: `${username} landed on ${card.name}`,
         type: "system",
@@ -641,7 +663,7 @@ export default function gameSocket(io, socket) {
 
 
         io.to(gameCode).emit("receiveMessage", {
-          id: Date.now(), sender: "System",
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
           content: `${username} purchased ${card.name}`,
           type: "system", time: new Date().toLocaleTimeString(),
         });
@@ -688,7 +710,7 @@ export default function gameSocket(io, socket) {
         });
 
         io.to(gameCode).emit("receiveMessage", {
-          id: Date.now(), sender: "System",
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
           content: `Auction started for ${card.name}! ${BID_DURATION}s to bid.`,
           type: "system", time: new Date().toLocaleTimeString(),
         });
@@ -769,7 +791,7 @@ export default function gameSocket(io, socket) {
       });
 
       io.to(gameCode).emit("receiveMessage", {
-        id: Date.now(),
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         sender: "System",
         content: `${username} called Emergency Meeting`,
         type: "system",
@@ -828,7 +850,7 @@ export default function gameSocket(io, socket) {
       });
 
       io.to(gameCode).emit("receiveMessage", {
-        id: Date.now(),
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         sender: "System",
         content: `${username} purchased ${card.name}`,
         type: "system",
@@ -885,7 +907,7 @@ export default function gameSocket(io, socket) {
         // });
 
         io.to(gameCode).emit("receiveMessage", {
-          id: Date.now(), sender: "System",
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
           content: `No bids for ${card.name}. Card remains unowned.`,
           type: "system", time: new Date().toLocaleTimeString(),
         });
@@ -924,7 +946,7 @@ export default function gameSocket(io, socket) {
         });
 
         io.to(gameCode).emit("receiveMessage", {
-          id: Date.now(), sender: "System",
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
           content: `${winner.player.userId?.username} won ${card.name} for ₹${winner.amount}`,
           type: "system", time: new Date().toLocaleTimeString(),
         });
