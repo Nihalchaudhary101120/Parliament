@@ -8,7 +8,8 @@ body,
   position: relative;
 
   /* instant fallback */
-  background: linear-gradient(135deg, #020617, #0f172a);
+  /* background: linear-gradient(135deg, #020617, #0f172a); */
+   background: #010912 url("bg.webp") center/cover no-repeat;
 
 }
 
@@ -2251,6 +2252,131 @@ body,
   border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
 }
 
+/* 🔥 FULL SCREEN CINEMATIC OVERLAY */
+.gameover-overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(circle at center,
+      rgba(0,0,0,0.6),
+      rgba(0,0,0,0.95));
+
+  backdrop-filter: blur(10px);
+
+  z-index: 999999;
+
+  animation: fadeIn 0.5s ease;
+}
+
+/* 💀 MAIN MODAL */
+.gameover-modal {
+  position: relative;
+
+  padding: 40px 50px;
+  border-radius: 24px;
+
+  background: linear-gradient(145deg, #0f172a, #020617);
+
+  border: 1px solid rgba(255,255,255,0.1);
+
+  text-align: center;
+
+  box-shadow:
+    0 0 40px rgba(255, 215, 0, 0.3),
+    0 0 80px rgba(255, 0, 0, 0.2),
+    inset 0 0 20px rgba(255,255,255,0.05);
+
+  animation: scaleIn 0.5s ease;
+}
+
+/* 🔥 GLOW ROTATION EFFECT */
+.gameover-modal::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+
+  background: conic-gradient(
+    transparent,
+    gold,
+    transparent,
+    red,
+    transparent
+  );
+
+  animation: rotateGlow 6s linear infinite;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* 🏆 TITLE */
+.gameover-modal h2 {
+  font-size: 42px;
+  font-weight: 900;
+  color: gold;
+
+  text-shadow:
+    0 0 20px gold,
+    0 0 40px orange;
+
+  margin-bottom: 20px;
+}
+
+/* 🎯 WINNER TEXT */
+.gameover-modal p {
+  font-size: 20px;
+  color: #e2e8f0;
+
+  margin-bottom: 25px;
+}
+
+/* 🔘 BUTTON */
+.gameover-modal button {
+  padding: 12px 28px;
+  border-radius: 12px;
+
+  background: linear-gradient(135deg, gold, orange);
+  color: black;
+
+  font-weight: bold;
+
+  box-shadow: 0 0 15px gold;
+
+  transition: 0.3s;
+}
+
+.gameover-modal button:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 0 30px gold,
+    0 0 60px orange;
+}
+
+/* 🎬 ANIMATIONS */
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes rotateGlow {
+  from { transform: rotate(0deg) }
+  to { transform: rotate(360deg) }
+}
 
 
 /* ============================================================
