@@ -373,12 +373,14 @@ export default function gameSocket(io, socket) {
             amount: Math.floor(card.weaponDamage),
             cardName: card.name,
             shieldAbsorbed: false, // public damage hits both
+            attacker: "System",              // ✅ ADD
+            victim: player.userId.username,
           });
           break;
         }
 
         case "weapon": {
-          owner = findCardOwner(game, card._id);
+
           if (!card.isPurchasable) {
             // Non-purchasable weapon — hits the player directly
             applyDamage(player, card.weaponDamage);
@@ -388,14 +390,14 @@ export default function gameSocket(io, socket) {
               amount: Math.floor(card.weaponDamage),
               cardName: card.name,
               shieldAbsorbed: player.remainingShieldHp > 0,
-              attacker: owner.userId.username,
+              attacker: "System",
               victim: player.userId.username
             });
 
             break;
           }
 
-          let owner = findCardOwner(game, card._id);
+          const owner = findCardOwner(game, card._id);
 
           if (!owner) {
             needsAction = true;
@@ -437,8 +439,8 @@ export default function gameSocket(io, socket) {
               socket.emit("damageTaken", {
                 amount: Math.floor(dmg),
                 cardName: card.name,
-                attacker: owner.userId.username,
-                victim: player.userId.username,
+                attacker: owner.userId?.username || "Unknown",
+                victim: player.userId?.username || "Unknown",
                 shieldAbsorbed: player.remainingShieldHp > 0,
               })
             }
@@ -587,7 +589,6 @@ export default function gameSocket(io, socket) {
         io.to(gameCode).emit("gameOver", { winner: game.winner, players: game.players });
         return;
       }
-
 
       // ── Normal turn end — advance to next player
       game.currentTurn = game.players[nextIndex].userId;
