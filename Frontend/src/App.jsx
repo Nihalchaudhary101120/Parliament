@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   const { user } = useAuth();
@@ -24,6 +25,7 @@ function App() {
         <Route path="/lobby" element={<Lobby />} />
         <Route path="/game" element={<Board />} />
       </Routes>
+      <Analytics />
     </>
   )
 }
