@@ -118,6 +118,8 @@ async function checkTimebombExplosions(game, io, gameCode) {
         amount: casualty.damage,
         cardName: "Time Bomb",
         shieldAbsorbed: hitPlayer ? hitPlayer.remainingShieldHp > 0 : false,
+        attacker: "Time Bomb",
+        victim: hitPlayer?.userId?.username
       });
     }
 
@@ -376,6 +378,7 @@ export default function gameSocket(io, socket) {
         }
 
         case "weapon": {
+          owner = findCardOwner(game, card._id);
           if (!card.isPurchasable) {
             // Non-purchasable weapon — hits the player directly
             applyDamage(player, card.weaponDamage);
@@ -392,7 +395,7 @@ export default function gameSocket(io, socket) {
             break;
           }
 
-          const owner = findCardOwner(game, card._id);
+          let owner = findCardOwner(game, card._id);
 
           if (!owner) {
             needsAction = true;
@@ -434,6 +437,8 @@ export default function gameSocket(io, socket) {
               socket.emit("damageTaken", {
                 amount: Math.floor(dmg),
                 cardName: card.name,
+                attacker: owner.userId.username,
+                victim: player.userId.username,
                 shieldAbsorbed: player.remainingShieldHp > 0,
               })
             }
