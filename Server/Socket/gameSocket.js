@@ -380,11 +380,13 @@ export default function gameSocket(io, socket) {
             // Non-purchasable weapon — hits the player directly
             applyDamage(player, card.weaponDamage);
 
-            consolle.log('time to hit weapon damage');
+            console.log('time to hit weapon damage');
             socket.emit("damageTaken", {
               amount: Math.floor(card.weaponDamage),
               cardName: card.name,
               shieldAbsorbed: player.remainingShieldHp > 0,
+              attacker: owner.userId.username,
+              victim: player.userId.username
             });
 
             break;
