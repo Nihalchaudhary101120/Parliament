@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import HowToPlay from './pages/how-to-play';
+import Home from './pages/Home';
 
 function App() {
   const { user } = useAuth();
@@ -17,7 +19,9 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" index element={<EntryPage />} />
+        <Route path="/" element={<Home/>}></Route>
+        <Route path="/how-to-play" element={<HowToPlay />} />
+        <Route path="/entry" index element={<EntryPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<DashBoard />} />
