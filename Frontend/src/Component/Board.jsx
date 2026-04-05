@@ -484,7 +484,7 @@ const Board = () => {
 
         setTimeout(() => {
           setActiveMystery(null);
-        }, 1500); // duration of animation
+        }, 7500); // duration of animation
       }
       setTimeout(() => setMysteryCase(null), 3500);
       setActionModal(null);
@@ -686,10 +686,10 @@ const Board = () => {
   const getPawnColor = (pawn) => {
     const map = {
       redPawn: "red",
-      bluePawn: "blue",
+      bluePawn: "pink",
       greenPawn: "green",
       yellowPawn: "yellow",
-      blackPawn: "black",
+      blackPawn: "orange",
       whitePawn: "white",
     };
     return map[pawn] || "#888";
@@ -749,7 +749,7 @@ const Board = () => {
         />
 
 
-        {activeMystery && createPortal(
+        {/* {activeMystery && createPortal(
           <div className="mystery-overlay">
             <div className="mystery-card">
               <img
@@ -768,7 +768,7 @@ const Board = () => {
             </div>
           </div>,
           document.body
-        )}
+        )} */}
 
 
 
@@ -803,7 +803,7 @@ const Board = () => {
           </div>
         }
 
-        {actionModal && actionModal.card && isMyTurn && (
+        {actionModal && actionModal.card && isMyTurn &&  createPortal (
           <div className="modal-overlay">
             <div className="buy-modal-premium">
               <div className="modal-glow"></div>
@@ -881,7 +881,7 @@ const Board = () => {
         )}
 
 
-        {bidModal && bidModal.card && (
+        {bidModal && bidModal.card && createPortal(
           <div className="bid-overlay">
             <div className="bid-modal-premium">
 
@@ -1080,6 +1080,23 @@ const Board = () => {
               <div className="bg-transparent center-area backdrop-blur-sm rounded-2xl"
                 style={{ gridRow: "2 / span 7", gridColumn: "2 / span 7" }}
               >
+
+                {activeMystery && (
+                  <div className="mystery-inline-overlay">
+                    <div className="mystery-inline-card">
+                      <img
+                        src={getMysteryVisual(activeMystery.statement).image}
+                        className="mystery-inline-img"
+                        alt=""
+                      />
+                      <p className="mystery-inline-title">{activeMystery.statement}</p>
+                      <p className="mystery-inline-amount">
+                        {activeMystery.amount > 0 ? "+" : ""}{activeMystery.amount}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="center-grid">
                   {optimisticPlayers.map((player, i) => {
                     const hp = player.remainingParliamentHp;
