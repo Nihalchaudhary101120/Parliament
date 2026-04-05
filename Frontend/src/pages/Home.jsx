@@ -38,6 +38,10 @@ export default function Home() {
                         How to Play
                     </Link>
                 </div>
+
+                <p style={{ marginTop: "20px", opacity: 0.7 }}>
+                  No signup required. Play instantly with friends.
+                </p>
             </div>
         </>
     );
