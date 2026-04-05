@@ -48,7 +48,6 @@ import { getSocket } from "../Component/socket";
 import { useLocation, useNavigate } from "react-router-dom";
 import emergencydefenceImg from "../assets/emergencydefence.png";
 import moneyImg from "../assets/money.png"; // add if needed
-import cyberImg from "../assets/cyber.png";
 import taxImg from "../assets/tax.png";
 import foreignImg from "../assets/foreign.png";
 import supportersImg from "../assets/supporters.png";
@@ -185,7 +184,7 @@ const Board = () => {
       color: "gold",
     },
     "Cyber attack repair cost": {
-      image: cyberImg,
+      image: cyberattackImg,
       color: "purple",
     },
     "Tax from citizens": {
@@ -222,6 +221,10 @@ const Board = () => {
     },
     "Defence Drone deployed": {
       image: droneImg,
+      color: "red",
+    },
+    "Bribe attempt caught": {
+      image: bribecaughtImg,
       color: "red",
     },
   };
