@@ -61,7 +61,7 @@ import bribecaughtImg from "../assets/bribecaught.png";
 import strikeImg from "../assets/strike.png";
 import droneImg from "../assets/drone.png";
 import { createPortal } from "react-dom";
-
+import ConfirmModal from './ConfirmModal.jsx';
 
 
 const Board = () => {
@@ -110,6 +110,9 @@ const Board = () => {
   const [activeMystery, setActiveMystery] = useState(null);
   const [tileSize, setTileSize] = useState({ w: 90, h: 70 });
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const showConfirm = (options) => setConfirm(options);
+  const closeConfirm = () => setConfirm(null);
 
   const isRollingRef = useRef(false)
   const { openCard } = useCardModal();
@@ -356,6 +359,21 @@ const Board = () => {
     socket.current.emit("rollDice", {
       gameCode: roomId,
       skippedChance: true
+    });
+  };
+
+
+  // Add this function near your other handlers
+  const handleQuit = () => {
+    showConfirm({
+      title: "Quit Game?",
+      message: "You'll be marked inactive and returned to the dashboard.",
+      variant: "danger",
+      confirmText: "Quit",
+      onConfirm: () => {
+        socket.current?.emit("quitGame", { gameCode: roomId });
+        navigate("/dashboard");
+      },
     });
   };
 
@@ -711,11 +729,24 @@ const Board = () => {
       )} */}
 
       <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
+        {/* ── Quit Button ── */}
+        <button className="quit-btn" onClick={handleQuit}>
+          <span className="quit-icon">✕</span>
+          <span className="quit-text">Quit</span>
+        </button>
 
-        <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
+        <CardModal showConfirm={showConfirm} socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
         {/* <GameChatContainer players={players} /> */}
 
-
+        <ConfirmModal
+          isOpen={!!confirm}
+          title={confirm?.title}
+          message={confirm?.message}
+          variant={confirm?.variant || "danger"}
+          confirmText={confirm?.confirmText || "Confirm"}
+          onConfirm={() => { confirm?.onConfirm?.(); closeConfirm(); }}
+          onCancel={closeConfirm}
+        />
 
 
         {activeMystery && createPortal(
