@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet";
+import "./howtoplay.css";
 
 export default function HowToPlay() {
     return (
@@ -11,7 +12,7 @@ export default function HowToPlay() {
                 />
             </Helmet>
 
-            <div style={{ padding: "20px", maxWidth: "800px", margin: "auto" }}>
+            <div className="guide-container">
                 <h1>How to Play Parliament Game</h1>
 
                 <p>
