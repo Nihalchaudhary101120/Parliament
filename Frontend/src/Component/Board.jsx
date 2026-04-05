@@ -48,7 +48,6 @@ import { getSocket } from "../Component/socket";
 import { useLocation, useNavigate } from "react-router-dom";
 import emergencydefenceImg from "../assets/emergencydefence.png";
 import moneyImg from "../assets/money.png"; // add if needed
-import cyberImg from "../assets/cyber.png";
 import taxImg from "../assets/tax.png";
 import foreignImg from "../assets/foreign.png";
 import supportersImg from "../assets/supporters.png";
@@ -88,7 +87,7 @@ const Board = () => {
   const [sharedDiceValue, setSharedDiceValue] = useState(1);
   const [mysteryCase, setMysteryCase] = useState(null);
   const [gameOver, setGameOver] = useState(null);
-  const [agentActivatedPlayer, setAgentActivatedPlayer] = useState(null);
+  // const [agentActivatedPlayer, setAgentActivatedPlayer] = useState(null);
   const [hitEffect, setHitEffect] = useState(false);
   const [turnTimeLeft, setTurnTimeLeft] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -104,7 +103,6 @@ const Board = () => {
   const [myBidSubmitted, setMyBidSubmitted] = useState(false);
   const [explodingTiles, setExplodingTiles] = useState([]);
 
-  // Bid result toast
   const [bidResult, setBidResult] = useState(null);
   // { winnerName, amount, cardName }
   const [activeMystery, setActiveMystery] = useState(null);
@@ -188,7 +186,7 @@ const Board = () => {
       color: "gold",
     },
     "Cyber attack repair cost": {
-      image: cyberImg,
+      image: cyberattackImg,
       color: "purple",
     },
     "Tax from citizens": {
@@ -225,6 +223,10 @@ const Board = () => {
     },
     "Defence Drone deployed": {
       image: droneImg,
+      color: "red",
+    },
+    "Bribe attempt caught": {
+      image: bribecaughtImg,
       color: "red",
     },
   };
@@ -319,7 +321,7 @@ const Board = () => {
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 2000);
   };
 
 
@@ -442,6 +444,12 @@ const Board = () => {
     socket.current.emit("joinLobby", ({ gameCode: roomId }));
 
 
+    socket.current.off("system");
+    socket.current.on("system", ({ message,type }) => {
+      showToast(message, type);
+    });
+
+
 
     socket.current.off("error");
     socket.current.on("error", ({ message }) => {
@@ -484,7 +492,7 @@ const Board = () => {
 
         setTimeout(() => {
           setActiveMystery(null);
-        }, 7500); // duration of animation
+        }, 2000); // duration of animation
       }
       setTimeout(() => setMysteryCase(null), 3500);
       setActionModal(null);
@@ -492,15 +500,15 @@ const Board = () => {
 
       const activeAgent = updated.find(p => p.agent === true);
 
-      if (activeAgent) {
-        // ✅ force new value every time
-        setAgentActivatedPlayer(Date.now());
+      // if (activeAgent) {
+      //   // ✅ force new value every time
+      //   setAgentActivatedPlayer(Date.now());
 
-        // remove after 2 sec
-        setTimeout(() => {
-          setAgentActivatedPlayer(null);
-        }, 2000);
-      }
+      //   // remove after 2 sec
+      //   setTimeout(() => {
+      //     setAgentActivatedPlayer(null);
+      //   }, 2000);
+      // }
       const prevPlayers = optimisticPlayersRef.current;
 
       updated.forEach((p) => {
@@ -593,6 +601,7 @@ const Board = () => {
       socket.current.off("actionRequired");
       socket.current.off("bidStarted");
       socket.current.off("bidResult");
+      socket.current.off("system");
       socket.current.off("gameOver");
       socket.current.off("timebombExploded");
       socket.current.off("newPositions");
@@ -794,16 +803,7 @@ const Board = () => {
           document.getElementById("modal-root") // 🔥 SAME ROOT
         )}
 
-
-
-        {
-          agentActivatedPlayer &&
-          <div className="agent-animated">
-            Agent Card Activated
-          </div>
-        }
-
-        {actionModal && actionModal.card && isMyTurn &&  (
+        {actionModal && actionModal.card && isMyTurn && (
           <div className="modal-overlay">
             <div className="buy-modal-premium">
               <div className="modal-glow"></div>
@@ -975,7 +975,6 @@ const Board = () => {
           </div>
         )}
 
-        {/* ── Bid Result Toast ── */}
         {bidResult && (
           <div className="bid-result-toast">
 

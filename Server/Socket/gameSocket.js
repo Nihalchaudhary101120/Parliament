@@ -166,7 +166,6 @@ export default function gameSocket(io, socket) {
 
       socket.emit("identity", { myUserId: socket.userId });
 
-      // ✅ Auto-start if room is now full
       if (game.status === "waiting" && game.players.length >= game.maxPlayer) {
         game.status = "active";
         game.currentTurn = game.players[0].userId._id;
@@ -463,29 +462,47 @@ export default function gameSocket(io, socket) {
         }
 
         case "terror": {
-          // Terror tiles cost cash
           player.cashRemaining = player.cashRemaining - card.price;
+          socket.emit("system", {
+            message: "you paid ₹100 to terrorrists",
+            type: "error"
+          })
           break;
         }
 
         case "safe": {
-          // Nothing happens
+          socket.emit("system", {
+            message: "you are safe",
+            type: "success"
+          })
           break;
         }
 
         case "agent": {
           // Agent buff activates — stays on until next non-agent tile
           player.agent = true;
+          socket.emit("system", {
+            message: `Agent card activated`,
+            type: "success"
+          })
           break;
         }
 
         case "scientist": {
           player.scientist += 1;
+          socket.emit("system", {
+            message: `you got +1 scientist card. Total: ${player.scientist}`,
+            type: "success"
+          })
           break;
         }
 
         case "engineer": {
           player.remainingParliamentHp = Math.min(1500, player.remainingParliamentHp + 100);
+          socket.emit("system", {
+            message: `you got engineer card. It recovers lost HP`,
+            type: "success"
+          })
           break;
         }
 
@@ -645,7 +662,7 @@ export default function gameSocket(io, socket) {
     }
   });
 
-  
+
   socket.on("quitGame", async ({ gameCode }) => {
     try {
       const game = await Game.findOne({ gameCode });
