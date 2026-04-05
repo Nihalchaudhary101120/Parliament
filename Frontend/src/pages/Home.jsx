@@ -42,7 +42,7 @@ export default function Home() {
                     </Link>
                 </div>
 
-                <p style={{ marginTop: "20px", opacity: 0.7 }}>
+                <p className="cta-text">
                   No signup required. Play instantly with friends.
                 </p>
             </div>
