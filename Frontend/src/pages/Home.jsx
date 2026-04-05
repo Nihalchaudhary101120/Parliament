@@ -19,6 +19,9 @@ export default function Home() {
                     name="keywords"
                     content="online board game, multiplayer game, strategy game, play with friends, browser game india"
                 />
+
+                <meta property="og:title" content="Parliament Battle Game" />
+                <meta property="og:description" content="Play multiplayer strategy game online with friends." />
             </Helmet>
 
             <div className="home-container">
