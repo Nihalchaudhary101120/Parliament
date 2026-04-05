@@ -7,9 +7,17 @@ export default function Home() {
         <>
             <Helmet>
                 <title>Parliament Battle - Play Online Strategy Game</title>
+
+                {/* ✅ Description (SEO BOOST) */}
                 <meta
                     name="description"
-                    content="Play Parliament Battle online. A multiplayer strategy board game with weapons, bidding system, and real-time gameplay."
+                    content="Play Parliament Battle online - multiplayer strategy board game with real-time battles, weapons, and tactical gameplay. Play with friends now!"
+                />
+
+                {/* ✅ Keywords (SEO HELP) */}
+                <meta
+                    name="keywords"
+                    content="online board game, multiplayer game, strategy game, play with friends, browser game india"
                 />
             </Helmet>
 
