@@ -126,3 +126,13 @@ body {
     font-size: 1.2rem;
   }
 }
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.cta-text {
+  margin-top: 20px;
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
