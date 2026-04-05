@@ -487,7 +487,7 @@ const Board = () => {
 
         setTimeout(() => {
           setActiveMystery(null);
-        }, 7500); // duration of animation
+        }, 2000); // duration of animation
       }
       setTimeout(() => setMysteryCase(null), 3500);
       setActionModal(null);
