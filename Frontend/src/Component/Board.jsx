@@ -60,7 +60,7 @@ import bribecaughtImg from "../assets/bribecaught.png";
 import strikeImg from "../assets/strike.png";
 import droneImg from "../assets/drone.png";
 import { createPortal } from "react-dom";
-
+import ConfirmModal from './ConfirmModal.jsx';
 
 
 const Board = () => {
@@ -109,6 +109,9 @@ const Board = () => {
   const [activeMystery, setActiveMystery] = useState(null);
   const [tileSize, setTileSize] = useState({ w: 90, h: 70 });
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const showConfirm = (options) => setConfirm(options);
+  const closeConfirm = () => setConfirm(null);
 
   const isRollingRef = useRef(false)
   const { openCard } = useCardModal();
@@ -363,6 +366,21 @@ const Board = () => {
   };
 
 
+  // Add this function near your other handlers
+  const handleQuit = () => {
+    showConfirm({
+      title: "Quit Game?",
+      message: "You'll be marked inactive and returned to the dashboard.",
+      variant: "danger",
+      confirmText: "Quit",
+      onConfirm: () => {
+        socket.current?.emit("quitGame", { gameCode: roomId });
+        navigate("/dashboard");
+      },
+    });
+  };
+
+
   const actionTimerRef = useRef(null);
   const [actionTimeLeft, setActionTimeLeft] = useState(0);
 
@@ -469,7 +487,7 @@ const Board = () => {
 
         setTimeout(() => {
           setActiveMystery(null);
-        }, 1500); // duration of animation
+        }, 7500); // duration of animation
       }
       setTimeout(() => setMysteryCase(null), 3500);
       setActionModal(null);
@@ -671,10 +689,10 @@ const Board = () => {
   const getPawnColor = (pawn) => {
     const map = {
       redPawn: "red",
-      bluePawn: "blue",
+      bluePawn: "pink",
       greenPawn: "green",
       yellowPawn: "yellow",
-      blackPawn: "black",
+      blackPawn: "orange",
       whitePawn: "white",
     };
     return map[pawn] || "#888";
@@ -714,14 +732,27 @@ const Board = () => {
       )} */}
 
       <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
+        {/* ── Quit Button ── */}
+        <button className="quit-btn" onClick={handleQuit}>
+          <span className="quit-icon">✕</span>
+          <span className="quit-text">Quit</span>
+        </button>
 
-        <CardModal socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
+        <CardModal showConfirm={showConfirm} socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
         {/* <GameChatContainer players={players} /> */}
 
+        <ConfirmModal
+          isOpen={!!confirm}
+          title={confirm?.title}
+          message={confirm?.message}
+          variant={confirm?.variant || "danger"}
+          confirmText={confirm?.confirmText || "Confirm"}
+          onConfirm={() => { confirm?.onConfirm?.(); closeConfirm(); }}
+          onCancel={closeConfirm}
+        />
 
 
-
-        {activeMystery && createPortal(
+        {/* {activeMystery && createPortal(
           <div className="mystery-overlay">
             <div className="mystery-card">
               <img
@@ -740,7 +771,7 @@ const Board = () => {
             </div>
           </div>,
           document.body
-        )}
+        )} */}
 
 
 
@@ -775,7 +806,7 @@ const Board = () => {
           </div>
         }
 
-        {actionModal && actionModal.card && isMyTurn && (
+        {actionModal && actionModal.card && isMyTurn &&  (
           <div className="modal-overlay">
             <div className="buy-modal-premium">
               <div className="modal-glow"></div>
@@ -1052,6 +1083,23 @@ const Board = () => {
               <div className="bg-transparent center-area backdrop-blur-sm rounded-2xl"
                 style={{ gridRow: "2 / span 7", gridColumn: "2 / span 7" }}
               >
+
+                {activeMystery && (
+                  <div className="mystery-inline-overlay">
+                    <div className="mystery-inline-card">
+                      <img
+                        src={getMysteryVisual(activeMystery.statement).image}
+                        className="mystery-inline-img"
+                        alt=""
+                      />
+                      <p className="mystery-inline-title">{activeMystery.statement}</p>
+                      <p className="mystery-inline-amount">
+                        {activeMystery.amount > 0 ? "+" : ""}{activeMystery.amount}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="center-grid">
                   {optimisticPlayers.map((player, i) => {
                     const hp = player.remainingParliamentHp;

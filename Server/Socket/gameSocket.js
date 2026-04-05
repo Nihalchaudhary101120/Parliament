@@ -114,17 +114,17 @@ async function checkTimebombExplosions(game, io, gameCode) {
       const hitPlayer = game.players.find(
         p => (p.userId._id || p.userId).toString() === targetUserId
       );
-      const attackerUser= await User.findById(bomb.ownerId)
+      const attackerUser = await User.findById(bomb.ownerId)
       const victimIds = casualties.map(c => c.userId);
 
-      const victims= await User.find({_id: {$in : victimIds}})
-      const victimNames=victims.map( v=> v.username).join(", ")
+      const victims = await User.find({ _id: { $in: victimIds } })
+      const victimNames = victims.map(v => v.username).join(", ")
       io.to(gameCode).emit("damageTaken", {
         amount: casualty.damage,
         cardName: "Time Bomb",
         shieldAbsorbed: hitPlayer ? hitPlayer.remainingShieldHp > 0 : false,
         attacker: attackerUser?.username || "Unknown",
-        victim:  victimNames || "Players",
+        victim: victimNames || "Players",
       });
     }
 
@@ -320,7 +320,7 @@ export default function gameSocket(io, socket) {
 
       if (!game || game.status !== "active") return;
 
-     // Must be this player's turn
+      // Must be this player's turn
       if (game.currentTurn.toString() !== userId.toString()) return;
 
       // Must have gone through rollDice (isProcessing flag proves it)
@@ -442,14 +442,14 @@ export default function gameSocket(io, socket) {
               applyDamage(player, dmg);
 
               console.log("time to frinds damage");
-              
-             
+
+
               console.log(player.userId)
               console.log(player.userId)
               console.log(player.userId.username)
 
-              const attackerUser= await User.findById(owner.userId);
-              const victimUser= await User.findById(player.userId)
+              const attackerUser = await User.findById(owner.userId);
+              const victimUser = await User.findById(player.userId)
               io.to(gameCode).emit("damageTaken", {
                 amount: Math.floor(dmg),
                 cardName: card.name,
@@ -645,7 +645,74 @@ export default function gameSocket(io, socket) {
     }
   });
 
-  // 1. In playerAction handler — replace the action === "bid" comment with this:
+  
+  socket.on("quitGame", async ({ gameCode }) => {
+    try {
+      const game = await Game.findOne({ gameCode });
+      if (!game || game.status !== "active") return;
+
+      const currentIndex = game.players.findIndex(
+        p => p.userId.toString() === userId.toString()
+      );
+      if (currentIndex === -1) return;
+
+      const player = game.players[currentIndex];
+      player.isActive = false;
+
+      io.to(gameCode).emit("receiveMessage", {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        sender: "System",
+        content: `🚪 ${username} left the game`,
+        type: "system",
+        time: new Date().toLocaleTimeString(),
+      });
+
+      const activePlayers = game.players.filter(p => p.isActive);
+
+      // Win condition
+      if (activePlayers.length <= 1) {
+        game.status = "finished";
+        game.winner = activePlayers[0]?.userId || null;
+        game.isProcessing = false;
+        game.pendingDice = null;
+        game.pendingAction = null;
+        await game.save();
+        await game.populate("players.userId");
+        await game.populate("players.cards.cardId");
+        io.to(gameCode).emit("gameOver", { winner: game.winner, players: game.players });
+        return;
+      }
+
+      // If it was their turn, advance to next player
+      if (game.currentTurn.toString() === userId.toString()) {
+        const nextIndex = getNextActiveIndex(game, currentIndex);
+        game.currentTurn = game.players[nextIndex].userId;
+        game.turnNo += 1;
+        game.isProcessing = false;
+        game.pendingDice = null;
+        game.pendingAction = null;
+
+        await game.save();
+        await game.populate("players.userId");
+        await game.populate("players.cards.cardId");
+
+        io.to(gameCode).emit("turnResult", {
+          players: game.players,
+          currentTurn: game.players[nextIndex].userId._id,
+          turnNo: game.turnNo,
+          mysteryCase: null,
+        });
+      } else {
+        await game.save();
+        await game.populate("players.userId");
+        await game.populate("players.cards.cardId");
+        io.to(gameCode).emit("newPositions", { players: game.players });
+      }
+
+    } catch (err) {
+      console.error("quitGame error:", err);
+    }
+  });
 
   socket.on("playerAction", async ({ gameCode, action }) => {
     try {
