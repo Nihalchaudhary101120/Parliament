@@ -803,7 +803,7 @@ const Board = () => {
           </div>
         }
 
-        {actionModal && actionModal.card && isMyTurn &&  createPortal (
+        {actionModal && actionModal.card && isMyTurn &&  (
           <div className="modal-overlay">
             <div className="buy-modal-premium">
               <div className="modal-glow"></div>
@@ -881,7 +881,7 @@ const Board = () => {
         )}
 
 
-        {bidModal && bidModal.card && createPortal(
+        {bidModal && bidModal.card && (
           <div className="bid-overlay">
             <div className="bid-modal-premium">
 
