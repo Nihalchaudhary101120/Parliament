@@ -1,31 +1,36 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import "./home.css";
 
 export default function Home() {
     return (
         <>
             <Helmet>
-                <title>Parliament Battle- Online Board Game</title>
+                <title>Parliament Battle - Play Online Strategy Game</title>
                 <meta
                     name="description"
-                    content="Play parliament battle online. Multiplayer board game with strategy and fun gameplay."
+                    content="Play Parliament Battle online. A multiplayer strategy board game with weapons, bidding system, and real-time gameplay."
                 />
             </Helmet>
 
-            <h1>Parliament Battle</h1>
+            <div className="home-container">
+                <h1 className="title">Parliament Battle</h1>
 
-            <p>
-                parliament battle is an exciting multiplayer board game where players compete
-                using strategy, luck, and smart moves. Play online with friends or join a lobby.
-            </p>
-            <p>
-                Includes weapons, bidding system, special cards like Scientist, Engineer,
-                and Agent, along with real-time multiplayer gameplay.
-            </p>
+                <p className="subtitle">
+                    Play real-time strategy battles with friends. Use smart moves,
+                    weapons, and tactics to defeat opponents.
+                </p>
 
-            <Link to="/entry">Start Playing</Link>
-            <br />
-            <Link to="/how-to-play">How to Play</Link>
+                <div className="buttons">
+                    <Link to="/entry" className="btn primary">
+                        Start Playing
+                    </Link>
+
+                    <Link to="/how-to-play" className="btn secondary">
+                        How to Play
+                    </Link>
+                </div>
+            </div>
         </>
     );
 }
