@@ -2587,6 +2587,10 @@ body,
   .chat-toggle-btn {
     display: flex !important;
   }
+  .nice{
+    --spacing:0.25rem;
+    --text-xs:0.75rem;
+  }
 
   .border-cell {
     border-radius: 5px;

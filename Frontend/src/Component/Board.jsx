@@ -1024,7 +1024,7 @@ const Board = () => {
         {/* ── Board ── */}
         <div className="board-wrapper">
           <div className="bg-transparent p-6 rounded-3xl shadow-2xl">
-            <div className="grid gap-2 bg-transparent p-4 rounded-2xl"
+            <div className="nice grid gap-2 bg-transparent p-4 rounded-2xl"
               // style={{ gridTemplateColumns: `repeat(${size}, 90px)`, gridTemplateRows: `repeat(${size}, 70px)` }}
               style={{ gridTemplateColumns: `repeat(${size}, ${tileSize.w}px)`, gridTemplateRows: `repeat(${size}, ${tileSize.h}px)` }}
             >
