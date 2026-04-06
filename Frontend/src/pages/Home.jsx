@@ -17,7 +17,7 @@ export default function Home() {
                 {/* ✅ Keywords (SEO HELP) */}
                 <meta
                     name="keywords"
-                    content="online board game, multiplayer game, strategy game, play with friends, browser game india"
+                    content="online board game, multiplayer game, strategy game, play with friends, browser game india , parliament , PARLIAMENT , battlegroundboard game , multiplayer board game , CrazyGames , Poki , MSN ,online game free , free online game ,pubg ,king , bgmi , epic games "
                 />
 
                 <meta property="og:title" content="Parliament Battle Game" />
