@@ -26,10 +26,7 @@ const io = new Server(server,
             credentials: true,
             methods: ["GET", "POST"]
         },
-        transports: ['polling', 'websocket'],
-        // ✅ FIX 5: Increase ping settings for iOS background survival
-        pingTimeout: 60000,   // wait 60s before declaring connection dead
-        pingInterval: 25000,  // ping every 25s to keep connection alive
+        transports: ['websocket', 'polling']
     }
 )
 io.use((socket, next) => {
