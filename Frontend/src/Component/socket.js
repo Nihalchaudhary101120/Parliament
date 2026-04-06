@@ -12,12 +12,14 @@ export function connectSocket() {
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5,
-      transports: ['websocket', 'polling'],
-      // Force websocket first for iOS compatibility
-      upgrade: true
+      reconnectionAttempts: 10,
+      transports: ['polling', 'websocket'],
+      upgrade: true,
     });
 
+     socket.on('connect', () => {
+      console.log('Socket connected, transport:', socket.io.engine.transport.name);
+    });
     // Connection error handling
     socket.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
