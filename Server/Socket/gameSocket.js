@@ -1,6 +1,6 @@
 import Game from "../models/GameSession.js";
 import Card from "../models/cards.js";
-import User from "../models/user.js"
+import User from "../models/user.js";
 
 
 function getMysteryCard() {
@@ -24,6 +24,12 @@ function getMysteryCard() {
 
 const getRandomPosition = () => {
   return Math.floor(Math.random() * 32);
+}
+
+async function startTurnTimer(game, gameCode) {
+  game.turnDeadline = new Date(Date.now() + 32_000);
+  game.actionDeadline = null;
+  await game.save();
 }
 
 function applyDamage(player, dmg) {
@@ -139,9 +145,214 @@ async function checkTimebombExplosions(game, io, gameCode) {
   // Bombs are NEVER removed — they keep cycling every N turns
 }
 
-// ─────────────────────────────────────────────
-// MAIN SOCKET HANDLER
-// ─────────────────────────────────────────────
+
+export async function executeTurn(gameCode, userId, io, socket = null) {
+  try {
+    const game = await Game.findOne({ gameCode });
+    if (!game || game.status !== "active") return;
+    if (game.currentTurn.toString() !== userId.toString()) return;
+    if (!game.isProcessing) return;
+
+    const dice = game.pendingDice;
+    if (!dice) return;
+
+    const currentIndex = game.players.findIndex(
+      p => p.userId.toString() === userId.toString()
+    );
+    if (currentIndex === -1) return;
+
+    const player = game.players[currentIndex];
+    const oldPosition = player.position;
+    const newPosition = (player.position + dice) % 32;
+    if (newPosition < oldPosition) player.cashRemaining += 200;
+    player.position = newPosition;
+
+    const card = await Card.findOne({ position: player.position });
+    if (!card) return;
+
+    let mysteryCase = null;
+    let needsAction = false;
+    let actionPayload = null;
+
+    switch (card.category) {
+      case "start": break;
+
+      case "mystery": {
+        mysteryCase = getMysteryCard();
+        player.cashRemaining += mysteryCase.amount;
+        break;
+      }
+
+      case "public": {
+        applyPublicDamage(player, card.weaponDamage);
+        const victimUser = await User.findById(player.userId);
+        io.to(gameCode).emit("damageTaken", {
+          amount: Math.floor(card.weaponDamage),
+          cardName: card.name,
+          shieldAbsorbed: false,
+          attacker: "System",
+          victim: victimUser?.username || "Unknown",
+        });
+        break;
+      }
+
+      case "weapon": {
+        if (!card.isPurchasable) {
+          applyDamage(player, card.weaponDamage);
+          io.to(gameCode).emit("damageTaken", {
+            amount: Math.floor(card.weaponDamage),
+            cardName: card.name,
+            shieldAbsorbed: player.remainingShieldHp > 0,
+            attacker: "System",
+            victim: player.userId?.username || "Unknown",
+          });
+          break;
+        }
+
+        const owner = findCardOwner(game, card._id);
+
+        if (!owner) {
+          // ← KEY: only show buy/bid modal if socket exists (player connected)
+          if (socket) {
+            needsAction = true;
+            if (player.cashRemaining < card.price) {
+              actionPayload = { type: "Bid", card: { id: card._id, name: card.name, price: card.price, weaponDamage: card.weaponDamage } };
+            } else {
+              actionPayload = { type: "buyOrBid", card: { id: card._id, name: card.name, price: card.price, weaponDamage: card.weaponDamage } };
+            }
+          }
+          // If socket is null (disconnected/watchdog) → skip buy/bid, card stays unowned, turn advances
+        } else if (owner.userId.toString() !== userId.toString()) {
+          if (newPosition !== 14) {
+            const scientistBonus = 1 + (owner.scientist * 0.03);
+            let dmg = card.weaponDamage * scientistBonus;
+            if (player.agent) dmg /= 2;
+            applyDamage(player, dmg);
+            const attackerUser = await User.findById(owner.userId);
+            const victimUser = await User.findById(player.userId);
+            io.to(gameCode).emit("damageTaken", {
+              amount: Math.floor(dmg),
+              cardName: card.name,
+              attacker: attackerUser?.username || "Unknown",
+              victim: victimUser?.username || "Unknown",
+              shieldAbsorbed: player.remainingShieldHp > 0,
+            });
+          }
+        }
+        break;
+      }
+
+      case "terror": {
+        player.cashRemaining -= card.price;
+        socket?.emit("system", { message: "you paid ₹100 to terrorists", type: "error" });
+        break;
+      }
+      case "safe": { socket?.emit("system", { message: "you are safe", type: "success" }); break; }
+      case "agent": { player.agent = true; socket?.emit("system", { message: "Agent card activated", type: "success" }); break; }
+      case "scientist": { player.scientist += 1; socket?.emit("system", { message: `+1 scientist. Total: ${player.scientist}`, type: "success" }); break; }
+      case "engineer": { player.remainingParliamentHp = Math.min(1500, player.remainingParliamentHp + 100); socket?.emit("system", { message: "Engineer recoveres lost HP", type: "success" }); break; }
+      default: break;
+    }
+
+    if (player.remainingParliamentHp <= 0) { player.remainingParliamentHp = 0; player.isActive = false; io.to(gameCode).emit("system", { message: `${username} died`, type: "error" }) }
+    if (card.category !== "agent") player.agent = false;
+
+    const nextIndex = getNextActiveIndex(game, currentIndex);
+    const activePlayers = game.players.filter(p => p.isActive);
+
+    if (activePlayers.length <= 1) {
+      game.status = "finished";
+      game.winner = activePlayers[0]?.userId || userId;
+      game.isProcessing = false;
+      game.pendingDice = null;
+      game.turnDeadline = null;
+      await game.save();
+      await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
+      io.to(gameCode).emit("gameOver", { winner: game.winner, players: game.players });
+      return;
+    }
+
+    // Pause for buy/bid — only if player is connected
+    if (needsAction) {
+      game.pendingAction = { type: actionPayload.type, cardId: card._id, playerId: player.userId };
+
+      if (actionPayload.type === "Bid") {
+        const BID_DURATION = 20;
+        game.pendingAction.type = "bidding";
+        game.pendingAction.bids = [];
+        game.pendingAction.bidDeadline = new Date(Date.now() + BID_DURATION * 1000);
+        game.turnDeadline = null;
+        game.actionDeadline = new Date(Date.now() + BID_DURATION * 1000 + 2000);
+        await game.save();
+        await game.populate("players.userId");
+        await game.populate("players.cards.cardId");
+        io.to(gameCode).emit("boardUpdate", { players: game.players });
+        io.to(gameCode).emit("bidStarted", { card: actionPayload.card, minBid: 1, duration: BID_DURATION });
+        setTimeout(async () => { await resolveBid(gameCode, card, io); }, BID_DURATION * 1000 + 500);
+        return;
+      }
+
+      game.turnDeadline = null;
+      game.actionDeadline = new Date(Date.now() + 17_000);
+      await game.save();
+      await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
+      io.to(gameCode).emit("boardUpdate", { players: game.players });
+      socket.emit("actionRequired", { type: actionPayload.type, card: actionPayload.card, playerCash: player.cashRemaining });
+      return;
+    }
+
+    game.turnNo += 1;
+    await checkTimebombExplosions(game, io, gameCode);
+
+    const activeAfterBombs = game.players.filter(p => p.isActive);
+    if (activeAfterBombs.length <= 1) {
+      game.status = "finished";
+      game.winner = activeAfterBombs[0]?.userId || userId;
+      game.isProcessing = false;
+      game.pendingDice = null;
+      game.pendingAction = null;
+      game.turnDeadline = null;
+      await game.save();
+      await game.populate("players.userId");
+      await game.populate("players.cards.cardId");
+      io.to(gameCode).emit("gameOver", { winner: game.winner, players: game.players });
+      return;
+    }
+
+    game.currentTurn = game.players[nextIndex].userId;
+    game.isProcessing = false;
+    game.pendingDice = null;
+    game.pendingAction = null;
+    game.turnDeadline = new Date(Date.now() + 32_000);
+    game.actionDeadline = null;
+
+    await game.save();
+    await game.populate("players.userId");
+    await game.populate("players.cards.cardId");
+
+    io.to(gameCode).emit("turnResult", {
+      players: game.players,
+      currentTurn: game.players[nextIndex].userId._id,
+      turnNo: game.turnNo,
+      mysteryCase, // still sent — connected players see mystery, disconnected player misses it (expected)
+      cardLanded: { name: card.name, category: card.category },
+    });
+
+    io.to(gameCode).emit("receiveMessage", {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      sender: "System",
+      content: `${player.userId?.username || "Player"} landed on ${card.name}`,
+      type: "system",
+      time: new Date().toLocaleTimeString(),
+    });
+
+  } catch (err) {
+    console.error("executeTurn error:", err);
+    await Game.findOneAndUpdate({ gameCode }, { $set: { isProcessing: false, pendingDice: null } });
+  }
+}
 
 export default function gameSocket(io, socket) {
 
@@ -154,7 +365,6 @@ export default function gameSocket(io, socket) {
     return;
   }
 
-  // ── JOIN LOBBY ──────────────────────────────
   socket.on("joinLobby", async ({ gameCode }) => {
     try {
       const game = await Game.findOne({ gameCode }).populate("players.userId");
@@ -162,13 +372,18 @@ export default function gameSocket(io, socket) {
 
       if (!game) return socket.emit("lobbyError", { message: "Game not found" });
 
+      socket.gameCode = gameCode;
       socket.join(gameCode);
+      socket.join(userId.toString());
 
       socket.emit("identity", { myUserId: socket.userId });
+
+      io.to(gameCode).emit("system", { message: `${username} connected`, type: "success" });
 
       if (game.status === "waiting" && game.players.length >= game.maxPlayer) {
         game.status = "active";
         game.currentTurn = game.players[0].userId._id;
+        game.turnDeadline = new Date(Date.now() + 32_000);
         await game.save();
       }
 
@@ -192,21 +407,58 @@ export default function gameSocket(io, socket) {
     }
   });
 
+
+
+  socket.on("disconnect", async () => {
+
+    const gameCode = socket.gameCode;
+
+    console.log(`${username} disconnected`);
+
+    io.to(gameCode).emit("receiveMessage", {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      sender: "System",
+      content: `${username} disconnected`,
+      type: "system",
+      time: new Date().toLocaleTimeString(),
+    });
+
+    io.to(gameCode).emit("error", {
+      message: `${username} disconnected`,
+    });
+
+    try {
+      const game = await Game.findOne({
+        status: "active",
+        "players.userId": userId,
+      });
+      if (!game) return;
+
+      // Release processing lock if they crashed mid-roll
+      if (game.isProcessing && game.currentTurn.toString() === userId.toString()) {
+        game.isProcessing = false;
+        game.pendingDice = null;
+      }
+
+      // ← KEY FIX: if it's their turn, set a short deadline
+      // so the watchdog picks it up in ~5s instead of waiting 32s
+      if (game.currentTurn.toString() === userId.toString()) {
+        game.turnDeadline = new Date(Date.now() + 6_000); // 6s — watchdog fires next poll
+      }
+
+      await game.save();
+    } catch (err) {
+      console.error("disconnect cleanup error:", err);
+    }
+  });
+
   socket.on("requestIdentity", () => {
     socket.emit("identity", { myUserId: socket.userId });
   });
 
-  // ── ROLL DICE ───────────────────────────────
-  //
-  // Flow:
-  //  1. Verify it's this player's turn
-  //  2. Lock with isProcessing (mutex — prevents double rolls)
-  //  3. Generate dice on server (client CANNOT fake this)
-  //  4. Store dice in game.pendingDice
-  //  5. Broadcast diceResult to room for animation
-  //  6. After animation client emits "playTurn" (no dice value sent)
-  //
+
   socket.on("rollDice", async ({ gameCode, skippedChance }) => {
+
     try {
       // ── Atomic lock: find game where it's this player's turn AND not already processing
       const game = await Game.findOneAndUpdate(
@@ -272,11 +524,15 @@ export default function gameSocket(io, socket) {
             turnNo: game.turnNo,
             mysteryCase: null,
           });
+
+          await startTurnTimer(game, gameCode);
+
           return; // ← skip dice roll entirely
         }
 
         await game.save();
       }
+
 
       const diceValue = Math.floor(Math.random() * 6) + 1;
 
@@ -306,14 +562,11 @@ export default function gameSocket(io, socket) {
     } catch (err) {
       console.error("rollDice error:", err);
     }
+
   });
 
-  // ── PLAY TURN ───────────────────────────────
-  //
-  // Called by client after dice animation finishes.
-  // Server uses its own pendingDice — client sends nothing critical.
-  //
   socket.on("playTurn", async ({ gameCode }) => {
+    /*
     try {
       const game = await Game.findOne({ gameCode })
 
@@ -372,13 +625,12 @@ export default function gameSocket(io, socket) {
           // Public tiles hit everyone, no shield consideration — raw parliament damage
           applyPublicDamage(player, card.weaponDamage);
 
-          console.log('time to hit pubic damaage');
           const victimUser = await User.findById(player.userId);
           io.to(gameCode).emit("damageTaken", {
             amount: Math.floor(card.weaponDamage),
             cardName: card.name,
-            shieldAbsorbed: false, // public damage hits both
-            attacker: "System",              // ✅ ADD
+            shieldAbsorbed: false,
+            attacker: "System",
             victim: victimUser?.username || "Unknown",
           });
           break;
@@ -439,13 +691,6 @@ export default function gameSocket(io, socket) {
               if (player.agent) dmg = dmg / 2;
 
               applyDamage(player, dmg);
-
-              console.log("time to frinds damage");
-
-
-              console.log(player.userId)
-              console.log(player.userId)
-              console.log(player.userId.username)
 
               const attackerUser = await User.findById(owner.userId);
               const victimUser = await User.findById(player.userId)
@@ -563,7 +808,6 @@ export default function gameSocket(io, socket) {
 
         io.to(gameCode).emit("boardUpdate", { players: game.players });
 
-        // ✅ If they can't afford it — skip the modal, auto-start bid immediately
         if (actionPayload.type === "Bid") {
           const BID_DURATION = 20;
 
@@ -585,13 +829,16 @@ export default function gameSocket(io, socket) {
           });
 
           setTimeout(async () => {
-            await resolveBid(gameCode, card);
+            await resolveBid(gameCode, card, io);
           }, BID_DURATION * 1000 + 500);
 
           return;
         }
 
-        // They CAN afford it — show buy or bid choice
+        game.turnDeadline = null;
+        game.actionDeadline = new Date(Date.now() + 17_000);
+        await game.save();
+
         socket.emit("actionRequired", {
           type: actionPayload.type,
           card: actionPayload.card,
@@ -600,8 +847,7 @@ export default function gameSocket(io, socket) {
         return;
       }
 
-      // ── Advance turn number BEFORE checking bombs
-      // (bomb checks against turnNo to know if Shlok's turn just completed)
+
       game.turnNo += 1;
 
       await checkTimebombExplosions(game, io, gameCode);
@@ -627,6 +873,9 @@ export default function gameSocket(io, socket) {
       game.isProcessing = false;
       game.pendingDice = null;
       game.pendingAction = null;
+
+      game.turnDeadline = new Date(Date.now() + 32_000);
+      game.actionDeadline = null;
 
       await game.save();
       await game.populate("players.userId");
@@ -660,6 +909,10 @@ export default function gameSocket(io, socket) {
         { $set: { isProcessing: false, pendingDice: null } }
       );
     }
+      */
+
+    executeTurn(gameCode, userId, io, socket);
+
   });
 
 
@@ -785,6 +1038,10 @@ export default function gameSocket(io, socket) {
         game.isProcessing = false;
         game.pendingDice = null;
         game.pendingAction = null;
+
+        game.turnDeadline = new Date(Date.now() + 32_000);
+        game.actionDeadline = null;
+
         await game.save();
         await game.populate("players.userId");
         await game.populate("players.cards.cardId");
@@ -828,7 +1085,7 @@ export default function gameSocket(io, socket) {
 
         // Auto-resolve after deadline
         setTimeout(async () => {
-          await resolveBid(gameCode, card);
+          await resolveBid(gameCode, card, io);
         }, BID_DURATION * 1000 + 500); // +500ms buffer
         return;
       }
@@ -981,112 +1238,7 @@ export default function gameSocket(io, socket) {
   });
 
 
-  async function resolveBid(gameCode, card) {
-    try {
-      const game = await Game.findOne({ gameCode }).populate("players.userId");
-      await game.populate("players.cards.cardId");
-      if (!game || game.status !== "active") return;
-      if (!game.pendingAction || game.pendingAction.type !== "bidding") return;
 
-      const bids = game.pendingAction.bids || [];
-
-      // Find highest bidder who still has enough cash
-      const validBids = bids
-        .map(b => {
-          const player = game.players.find(p => p.userId._id.toString() === b.userId.toString());
-          return player && player.cashRemaining >= b.amount && player.isActive
-            ? { player, amount: b.amount }
-            : null;
-        })
-        .filter(Boolean)
-        .sort((a, b) => b.amount - a.amount); // highest first
-
-      // Find the landing player's original index for turn advance
-      const landingPlayerId = game.pendingAction.playerId;
-      const currentIndex = game.players.findIndex(
-        p => p.userId._id.toString() === landingPlayerId.toString()
-      );
-
-      if (validBids.length === 0) {
-        game.turnNo += 1;
-        await checkTimebombExplosions(game, io, gameCode);
-        // Nobody bid — card stays unowned, turn just advances
-        // io.to(gameCode).emit("bidResult", {
-        //   winnerName: null,
-        //   amount: 0,
-        //   cardName: card.name,
-        // });
-
-        io.to(gameCode).emit("receiveMessage", {
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
-          content: `No bids for ${card.name}. Card remains unowned.`,
-          type: "system", time: new Date().toLocaleTimeString(),
-        });
-
-      } else {
-        const winner = validBids[0];
-        winner.player.cashRemaining -= winner.amount;
-        winner.player.cards.push({ cardId: card._id });
-
-        // const nextIndex = getNextActiveIndex(game, currentIndex);
-        game.turnNo += 1;
-        await checkTimebombExplosions(game, io, gameCode);
-
-        // ✅ If won card is Time Bomb — register it
-        if (card.name.toLowerCase().replace(/\s+/g, "-") === "time-bomb") {
-          const activeCount = game.players.filter(p => p.isActive).length;
-          if (!game.timebombs) game.timebombs = [];
-          game.timebombs.push({
-            cardId: card._id,
-            ownerId: winner.player.userId._id,
-            position: card.position,
-            purchasedAtTurn: game.turnNo,
-            explodeAtTurn: game.turnNo + activeCount,
-            cycleLength: activeCount,
-          });
-        }
-
-        // const winnerUsername = (await game.populate("players.userId"))
-        //   .players.find(p => p.userId._id.toString() === winner.player.userId.toString())
-        //   ?.userId?.username || "Unknown";
-
-        io.to(gameCode).emit("bidResult", {
-          winnerName: winner.player?.userId?.username,
-          amount: winner.amount,
-          cardName: card.name,
-        });
-
-        io.to(gameCode).emit("receiveMessage", {
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
-          content: `${winner.player.userId?.username} won ${card.name} for ₹${winner.amount}`,
-          type: "system", time: new Date().toLocaleTimeString(),
-        });
-      }
-
-      // Advance turn
-      const nextIndex = getNextActiveIndex(game, currentIndex);
-      game.currentTurn = game.players[nextIndex].userId;
-
-      game.isProcessing = false;
-      game.pendingDice = null;
-      game.pendingAction = null;
-
-      await game.save();
-      await game.populate("players.userId");
-      await game.populate("players.cards.cardId");
-
-      io.to(gameCode).emit("turnResult", {
-        players: game.players,
-        currentTurn: game.players[nextIndex].userId._id,
-        turnNo: game.turnNo,
-        mysteryCase: null,
-        cardLanded: { name: card.name, category: card.category },
-      });
-
-    } catch (err) {
-      console.error("resolveBid error:", err);
-    }
-  }
 
 
   // ── DISCONNECT ───────────────────────────────
@@ -1112,4 +1264,113 @@ export default function gameSocket(io, socket) {
       console.error("disconnect cleanup error:", err);
     }
   });
+}
+
+
+export async function resolveBid(gameCode, card, ioInstance) {
+  const io = ioInstance;
+  try {
+    const game = await Game.findOne({ gameCode }).populate("players.userId");
+    await game.populate("players.cards.cardId");
+    if (!game || game.status !== "active") return;
+    if (!game.pendingAction || game.pendingAction.type !== "bidding") return;
+
+    const bids = game.pendingAction.bids || [];
+
+    // Find highest bidder who still has enough cash
+    const validBids = bids
+      .map(b => {
+        const player = game.players.find(p => p.userId._id.toString() === b.userId.toString());
+        return player && player.cashRemaining >= b.amount && player.isActive
+          ? { player, amount: b.amount }
+          : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.amount - a.amount); // highest first
+
+    // Find the landing player's original index for turn advance
+    const landingPlayerId = game.pendingAction.playerId;
+    const currentIndex = game.players.findIndex(
+      p => p.userId._id.toString() === landingPlayerId.toString()
+    );
+
+    if (validBids.length === 0) {
+      game.turnNo += 1;
+      await checkTimebombExplosions(game, io, gameCode);
+      // Nobody bid — card stays unowned, turn just advances
+      // io.to(gameCode).emit("bidResult", {
+      //   winnerName: null,
+      //   amount: 0,
+      //   cardName: card.name,
+      // });
+
+      io.to(gameCode).emit("receiveMessage", {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
+        content: `No bids for ${card.name}. Card remains unowned.`,
+        type: "system", time: new Date().toLocaleTimeString(),
+      });
+
+    } else {
+      const winner = validBids[0];
+      winner.player.cashRemaining -= winner.amount;
+      winner.player.cards.push({ cardId: card._id });
+
+      // const nextIndex = getNextActiveIndex(game, currentIndex);
+      game.turnNo += 1;
+      await checkTimebombExplosions(game, io, gameCode);
+
+      // ✅ If won card is Time Bomb — register it
+      if (card.name.toLowerCase().replace(/\s+/g, "-") === "time-bomb") {
+        const activeCount = game.players.filter(p => p.isActive).length;
+        if (!game.timebombs) game.timebombs = [];
+        game.timebombs.push({
+          cardId: card._id,
+          ownerId: winner.player.userId._id,
+          position: card.position,
+          purchasedAtTurn: game.turnNo,
+          explodeAtTurn: game.turnNo + activeCount,
+          cycleLength: activeCount,
+        });
+      }
+
+      // const winnerUsername = (await game.populate("players.userId"))
+      //   .players.find(p => p.userId._id.toString() === winner.player.userId.toString())
+      //   ?.userId?.username || "Unknown";
+
+      io.to(gameCode).emit("bidResult", {
+        winnerName: winner.player?.userId?.username,
+        amount: winner.amount,
+        cardName: card.name,
+      });
+
+      io.to(gameCode).emit("receiveMessage", {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, sender: "System",
+        content: `${winner.player.userId?.username} won ${card.name} for ₹${winner.amount}`,
+        type: "system", time: new Date().toLocaleTimeString(),
+      });
+    }
+
+    // Advance turn
+    const nextIndex = getNextActiveIndex(game, currentIndex);
+    game.currentTurn = game.players[nextIndex].userId;
+
+    game.isProcessing = false;
+    game.pendingDice = null;
+    game.pendingAction = null;
+
+    await game.save();
+    await game.populate("players.userId");
+    await game.populate("players.cards.cardId");
+
+    io.to(gameCode).emit("turnResult", {
+      players: game.players,
+      currentTurn: game.players[nextIndex].userId._id,
+      turnNo: game.turnNo,
+      mysteryCase: null,
+      cardLanded: { name: card.name, category: card.category },
+    });
+
+  } catch (err) {
+    console.error("resolveBid error:", err);
+  }
 }
