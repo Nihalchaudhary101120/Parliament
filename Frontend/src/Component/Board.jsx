@@ -739,6 +739,8 @@ const Board = () => {
       )} */}
 
       <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
+
+        
         {/* ── Quit Button ── */}
         <ThreeBackgound/>
         <button className="quit-btn" onClick={handleQuit}>
