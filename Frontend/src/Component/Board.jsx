@@ -61,7 +61,7 @@ import strikeImg from "../assets/strike.png";
 import droneImg from "../assets/drone.png";
 import { createPortal } from "react-dom";
 import ConfirmModal from './ConfirmModal.jsx';
-
+import StormBackground from './StormBackground.jsx';
 
 const Board = () => {
   const location = useLocation();
@@ -738,6 +738,8 @@ const Board = () => {
       )} */}
 
       <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
+
+        
         {/* ── Quit Button ── */}
         <button className="quit-btn" onClick={handleQuit}>
           <span className="quit-icon">✕</span>
