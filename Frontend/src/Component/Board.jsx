@@ -61,6 +61,7 @@ import strikeImg from "../assets/strike.png";
 import droneImg from "../assets/drone.png";
 import { createPortal } from "react-dom";
 import ConfirmModal from './ConfirmModal.jsx';
+import MysticPurpleStorm from './MysticBackground.jsx';
 
 
 const Board = () => {
@@ -738,6 +739,9 @@ const Board = () => {
       )} */}
 
       <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
+        <MysticPurpleStorm/>
+
+        
         {/* ── Quit Button ── */}
         <button className="quit-btn" onClick={handleQuit}>
           <span className="quit-icon">✕</span>
@@ -1022,7 +1026,7 @@ const Board = () => {
         {/* ── Board ── */}
         <div className="board-wrapper">
           <div className="bg-transparent p-6 rounded-3xl shadow-2xl">
-            <div className="grid gap-2 bg-transparent p-4 rounded-2xl"
+            <div className="nice grid gap-2 bg-transparent p-4 rounded-2xl"
               // style={{ gridTemplateColumns: `repeat(${size}, 90px)`, gridTemplateRows: `repeat(${size}, 70px)` }}
               style={{ gridTemplateColumns: `repeat(${size}, ${tileSize.w}px)`, gridTemplateRows: `repeat(${size}, ${tileSize.h}px)` }}
             >

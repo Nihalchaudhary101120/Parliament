@@ -9,21 +9,12 @@ body,
 
   /* instant fallback */
   /* background: linear-gradient(135deg, #020617, #0f172a); */
-  background: #010912 url("bg.webp") center/cover no-repeat;
+  /* background: #010912 url("bg.webp") center/cover no-repeat; */
 
 }
 
 /* image layer with fade */
-.hero2::after {
-  content: "";
-  position: absolute;
-  inset: 0;
 
-  background: url('../assets/backofboard.png') center/cover no-repeat;
-
-  opacity: 0;
-  animation: bgFade 0.8s ease forwards;
-}
 
 /* keep content above */
 .hero2>* {
@@ -615,7 +606,7 @@ body,
   font-weight: 700;
   padding: 3px 6px;
   border-radius: 8px;
-  color: #ff6666;
+  color: #ffffff; 
   text-align: center;
   white-space: nowrap;
 
@@ -629,7 +620,7 @@ body,
 
 
   text-shadow:
-    0 0 6px cyan,
+    0 0 6px rgba(0, 255, 255, 0.8),
     1px 1px 2px black;
 
   pointer-events: none;
@@ -2586,6 +2577,10 @@ body,
 @media (max-width: 640px) {
   .chat-toggle-btn {
     display: flex !important;
+  }
+  .nice{
+    --spacing:0.25rem;
+    --text-xs:0.75rem;
   }
 
   .border-cell {
