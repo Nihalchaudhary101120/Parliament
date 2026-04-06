@@ -14,16 +14,7 @@ body,
 }
 
 /* image layer with fade */
-/* .hero2::after {
-  content: "";
-  position: absolute;
-  inset: 0;
 
-  background: url('../assets/backofboard.png') center/cover no-repeat;
-
-  opacity: 0;
-  animation: bgFade 0.8s ease forwards;
-} */
 
 /* keep content above */
 .hero2>* {
