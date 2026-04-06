@@ -61,7 +61,8 @@ import strikeImg from "../assets/strike.png";
 import droneImg from "../assets/drone.png";
 import { createPortal } from "react-dom";
 import ConfirmModal from './ConfirmModal.jsx';
-import StormBackground from './StormBackground.jsx';
+import ThreeBackgound from './StormBackground.jsx';
+
 
 const Board = () => {
   const location = useLocation();
@@ -741,6 +742,7 @@ const Board = () => {
 
         
         {/* ── Quit Button ── */}
+        <ThreeBackgound/>
         <button className="quit-btn" onClick={handleQuit}>
           <span className="quit-icon">✕</span>
           <span className="quit-text">Quit</span>

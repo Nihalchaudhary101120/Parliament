@@ -9,12 +9,12 @@ body,
 
   /* instant fallback */
   /* background: linear-gradient(135deg, #020617, #0f172a); */
-  background: #010912 url("bg.webp") center/cover no-repeat;
+  /* background: #010912 url("bg.webp") center/cover no-repeat; */
 
 }
 
 /* image layer with fade */
-.hero2::after {
+/* .hero2::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -23,7 +23,7 @@ body,
 
   opacity: 0;
   animation: bgFade 0.8s ease forwards;
-}
+} */
 
 /* keep content above */
 .hero2>* {
