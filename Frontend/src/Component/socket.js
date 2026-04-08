@@ -6,8 +6,8 @@ let socket = null;
 export function connectSocket() {
   if (!socket) {
     // socket = io("http://localhost:3000", {
-    socket = io("/", {
-       path: "/api/socket.io",
+    socket = io("https://parliamentbackend.onrender.com", {
+       
       withCredentials: true,
       autoConnect: true,
       reconnection: true,
