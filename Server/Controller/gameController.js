@@ -102,6 +102,9 @@ export const joinRoom = async (req, res) => {
       game.status = "active";
       game.turnNo = 1;
       game.currentTurn = game.players[0].userId;
+      game.turnDeadline = new Date(Date.now() + 32_000);
+      game.actionDeadline = null;
+      game.pendingAction = null;
     }
 
     await game.save();

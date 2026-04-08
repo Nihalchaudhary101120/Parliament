@@ -69,7 +69,10 @@ const GameSchema = new mongoose.Schema({
             cycleLength: Number,
             _id: false
         }
-    ]
+    ],
+
+    turnDeadline: { type: Date, default: null },
+    actionDeadline: { type: Date, default: null }, 
 
 }, { timestamps: true });
 
