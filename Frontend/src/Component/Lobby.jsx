@@ -15,7 +15,7 @@ export default function Lobby() {
     const [maxPlayers, setMaxPlayers] = useState(0);
     const [status, setStatus] = useState("waiting");
     const [connectionError, setConnectionError] = useState("");
-    const user = useAuth()
+    const {user} = useAuth()
     useEffect(() => {
         const socket = connectSocket(user);
         if (!socket) {
