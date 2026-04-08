@@ -409,48 +409,48 @@ export default function gameSocket(io, socket) {
 
 
 
-  // socket.on("disconnect", async () => {
+  socket.on("disconnect", async () => {
 
-  //   const gameCode = socket.gameCode;
+    const gameCode = socket.gameCode;
 
-  //   console.log(`${username} disconnected`);
+    console.log(`${username} disconnected`);
 
-  //   io.to(gameCode).emit("receiveMessage", {
-  //     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-  //     sender: "System",
-  //     content: `${username} disconnected`,
-  //     type: "system",
-  //     time: new Date().toLocaleTimeString(),
-  //   });
+    io.to(gameCode).emit("receiveMessage", {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      sender: "System",
+      content: `${username} disconnected`,
+      type: "system",
+      time: new Date().toLocaleTimeString(),
+    });
 
-  //   io.to(gameCode).emit("error", {
-  //     message: `${username} disconnected`,
-  //   });
+    io.to(gameCode).emit("error", {
+      message: `${username} disconnected`,
+    });
 
-  //   try {
-  //     const game = await Game.findOne({
-  //       status: "active",
-  //       "players.userId": userId,
-  //     });
-  //     if (!game) return;
+    try {
+      const game = await Game.findOne({
+        status: "active",
+        "players.userId": userId,
+      });
+      if (!game) return;
 
-  //     // Release processing lock if they crashed mid-roll
-  //     if (game.isProcessing && game.currentTurn.toString() === userId.toString()) {
-  //       game.isProcessing = false;
-  //       game.pendingDice = null;
-  //     }
+      // Release processing lock if they crashed mid-roll
+      if (game.isProcessing && game.currentTurn.toString() === userId.toString()) {
+        game.isProcessing = false;
+        game.pendingDice = null;
+      }
 
-  //     // ← KEY FIX: if it's their turn, set a short deadline
-  //     // so the watchdog picks it up in ~5s instead of waiting 32s
-  //     if (game.currentTurn.toString() === userId.toString()) {
-  //       game.turnDeadline = new Date(Date.now() + 6_000); // 6s — watchdog fires next poll
-  //     }
+      // ← KEY FIX: if it's their turn, set a short deadline
+      // so the watchdog picks it up in ~5s instead of waiting 32s
+      if (game.currentTurn.toString() === userId.toString()) {
+        game.turnDeadline = new Date(Date.now() + 6_000); // 6s — watchdog fires next poll
+      }
 
-  //     await game.save();
-  //   } catch (err) {
-  //     console.error("disconnect cleanup error:", err);
-  //   }
-  // });
+      await game.save();
+    } catch (err) {
+      console.error("disconnect cleanup error:", err);
+    }
+  });
 
   socket.on("requestIdentity", () => {
     socket.emit("identity", { myUserId: socket.userId });
