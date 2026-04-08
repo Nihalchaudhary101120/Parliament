@@ -6,6 +6,10 @@
     {
       "source": "/(.*)",
       "destination": "/"
+    },
+    {
+      "source": "/api/socket.io/:path*",
+      "destination": "https://parliamentbackend.onrender.com/socket.io/:path*"
     }
   ]
 }

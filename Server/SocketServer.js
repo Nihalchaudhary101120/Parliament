@@ -32,6 +32,7 @@ const io = new Server(server,
         transports: ['websocket', 'polling']
     }
 )
+
 io.use((socket, next) => {
     sessionMiddleWare(socket.request, {}, next);
 });
