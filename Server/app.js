@@ -70,4 +70,3 @@ app.use('/auth', authRoute);
 app.use('/friends', gameRoute);
 
 export { sessionMiddleWare, app };
-

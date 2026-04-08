@@ -44,7 +44,7 @@ const DashBoard = () => {
             }
 
             // Connect socket and wait for connection
-            const socket = connectSocket();
+            const socket = connectSocket(user);
             console.log("Socket connected:", socket?.connected);
 
             setShowCreateModal(false);

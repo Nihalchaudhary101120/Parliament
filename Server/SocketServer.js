@@ -38,7 +38,7 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
     console.log("Socket session:", socket.request.session);
-    const user = socket.request.session.user;
+    const user = socket.handshake.auth;;
     console.log("User: ", user);
 
     if (!user || !user.username) {
@@ -47,7 +47,7 @@ io.on("connection", (socket) => {
         return;
     }
 
-    socket.userId = user.id;
+    socket.userId = user.userId;
     socket.username = user.username;
 
     console.log("User connected:", user.username);

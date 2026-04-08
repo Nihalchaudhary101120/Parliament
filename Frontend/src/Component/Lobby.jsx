@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getSocket, connectSocket } from "./socket";
+import { useAuth } from "../context/AuthContext";
 import "./lobby.css";
+import { useAuth } from "../context/AuthContext";
 
 export default function Lobby() {
     const navigate = useNavigate();
@@ -13,9 +15,9 @@ export default function Lobby() {
     const [maxPlayers, setMaxPlayers] = useState(0);
     const [status, setStatus] = useState("waiting");
     const [connectionError, setConnectionError] = useState("");
-
+    const user = useAuth()
     useEffect(() => {
-        const socket = connectSocket();
+        const socket = connectSocket(user);
         if (!socket) {
             console.error("Failed to get socket instance");
             setConnectionError("Connection failed");
