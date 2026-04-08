@@ -8,18 +8,17 @@ export function connectSocket(user) {
     // socket = io("http://localhost:3000", {
     socket = io("https://parliamentbackend.onrender.com", {
       withCredentials: true,
-      autoConnect: true,
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5,
+     
       transports: ['websocket', 'polling'],
        auth: {
         userId: user?.id,
         username: user?.username
       },
-      // Force websocket first for iOS compatibility
-      upgrade: true
+      
+    });
+
+     socket.on("connect", () => {
+      console.log("Connected:", socket.id);
     });
 
     // Connection error handling
