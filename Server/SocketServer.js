@@ -48,7 +48,7 @@ io.on("connection", (socket) => {
         return;
     }
 
-    socket.userId = user.id;
+    socket.userId = user.userid;
     socket.username = user.username;
 
     console.log("User connected:", user.username);
