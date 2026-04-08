@@ -32,14 +32,13 @@ const io = new Server(server,
         transports: ['websocket', 'polling']
     }
 )
-
 io.use((socket, next) => {
     sessionMiddleWare(socket.request, {}, next);
 });
 
 io.on("connection", (socket) => {
     console.log("Socket session:", socket.request.session);
-    const user =  socket.handshake.auth;
+    const user = socket.request.session.user;
     console.log("User: ", user);
 
     if (!user || !user.username) {
@@ -48,7 +47,7 @@ io.on("connection", (socket) => {
         return;
     }
 
-    socket.userId = user.userid;
+    socket.userId = user.id;
     socket.username = user.username;
 
     console.log("User connected:", user.username);
