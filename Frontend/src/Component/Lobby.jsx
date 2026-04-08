@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getSocket, connectSocket } from "./socket";
 import { useAuth } from "../context/AuthContext";
 import "./lobby.css";
-import { useAuth } from "../context/AuthContext";
 
 export default function Lobby() {
     const navigate = useNavigate();
