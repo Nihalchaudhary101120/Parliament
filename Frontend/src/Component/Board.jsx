@@ -446,7 +446,7 @@ const Board = () => {
 
 
     socket.current.off("system");
-    socket.current.on("system", ({ message,type }) => {
+    socket.current.on("system", ({ message, type }) => {
       showToast(message, type);
     });
 
@@ -739,9 +739,9 @@ const Board = () => {
       )} */}
 
       <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
-        <MysticPurpleStorm/>
+        <MysticPurpleStorm />
 
-        
+
         {/* ── Quit Button ── */}
         <button className="quit-btn" onClick={handleQuit}>
           <span className="quit-icon">✕</span>
@@ -1069,11 +1069,13 @@ const Board = () => {
                     <div className="tile-label">{tileData[i]}</div>
                     {tilePlayers.map((player, idx) => {
                       const slot = layout[idx];
-                      return (
-                        <img key={player._id} src={pawnImg[player.pawn]} className="player-token"
-                          style={{ transform: `translate(${slot.x}px, ${slot.y}px) scale(${slot.scale})` }}
-                        />
-                      );
+                      if (player.isActive) {
+                        return (
+                          <img key={player._id} src={pawnImg[player.pawn]} className="player-token"
+                            style={{ transform: `translate(${slot.x}px, ${slot.y}px) scale(${slot.scale})` }}
+                          />
+                        );
+                      }
                     })}
                   </div>
                 );
