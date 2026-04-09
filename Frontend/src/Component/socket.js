@@ -1,17 +1,18 @@
 import { io } from "socket.io-client";
 
 let socket = null;
-
+const SOCKET_URL = "https://parliamentbackend.onrender.com";
 // call this AFTER login/guest API success
 export function connectSocket(user) {
-  if (!socket) {
+  if (socket && socket.connected) return socket;
+  
     // socket = io("http://localhost:3000", {
-    socket = io("https://parliamentbackend.onrender.com", {
+    socket = io(SOCKET_URL, {
       withCredentials: true,
      
       transports: ['websocket', 'polling'],
        auth: {
-        userId: user?.id,
+        userId:  user?._id || user?.id ,
         username: user?.username
       },
       
@@ -33,7 +34,7 @@ export function connectSocket(user) {
     socket.on('reconnect', () => {
       console.log('Socket reconnected');
     });
-  }
+  
   return socket;
 }
 

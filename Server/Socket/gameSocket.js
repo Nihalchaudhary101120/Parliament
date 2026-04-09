@@ -1242,28 +1242,28 @@ export default function gameSocket(io, socket) {
 
 
   // ── DISCONNECT ───────────────────────────────
-  socket.on("disconnect", async () => {
-    console.log(`${username} disconnected`);
+  // socket.on("disconnect", async () => {
+  //   console.log(`${username} disconnected`);
 
-    // Safety: if they disconnect mid-turn, release the lock
-    // so the game doesn't get permanently stuck
-    try {
-      const game = await Game.findOne({
-        currentTurn: userId,
-        isProcessing: true,
-      });
+  //   // Safety: if they disconnect mid-turn, release the lock
+  //   // so the game doesn't get permanently stuck
+  //   try {
+  //     const game = await Game.findOne({
+  //       currentTurn: userId,
+  //       isProcessing: true,
+  //     });
 
-      if (game) {
-        game.isProcessing = false;
-        game.pendingDice = null;
-        // Optionally skip their turn on disconnect
-        // game.currentTurn = game.players[nextIndex].userId;
-        await game.save();
-      }
-    } catch (err) {
-      console.error("disconnect cleanup error:", err);
-    }
-  });
+  //     if (game) {
+  //       game.isProcessing = false;
+  //       game.pendingDice = null;
+  //       // Optionally skip their turn on disconnect
+  //       // game.currentTurn = game.players[nextIndex].userId;
+  //       await game.save();
+  //     }
+  //   } catch (err) {
+  //     console.error("disconnect cleanup error:", err);
+  //   }
+  // });
 }
 
 
