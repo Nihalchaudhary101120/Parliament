@@ -146,7 +146,7 @@ async function checkTimebombExplosions(game, io, gameCode) {
 }
 
 
-export async function executeTurn(gameCode, userId, io, socket = null) {
+export async function executeTurn(gameCode, userId, username, io, socket = null) {
   try {
     const game = await Game.findOne({ gameCode });
     if (!game || game.status !== "active") return;
@@ -911,7 +911,7 @@ export default function gameSocket(io, socket) {
     }
       */
 
-    executeTurn(gameCode, userId, io, socket);
+    executeTurn(gameCode, userId, username, io, socket);
 
   });
 

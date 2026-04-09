@@ -160,7 +160,7 @@ setInterval(async () => {
 
             // Emit playTurn to server itself after animation delay
             setTimeout(async () => {
-                await executeTurn(game.gameCode, game.currentTurn.toString(), io, null);
+                await executeTurn(game.gameCode, game.currentTurn.toString(), player.userId.username.toString(), io, null);
             }, diceValue * 320 + 600);
         }
 
