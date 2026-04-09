@@ -1112,6 +1112,7 @@ const Board = () => {
                     return (
                       <div key={i} className={`player-cell ${hp <= 300 ? "low" : ""} ${isThisTurn ? "active-turn" : ""}`}>
                         <div className={`image-parent ${hitEffect ? "parliament-hit" : ""}`}>
+
                           <div className="name">
                             <span className={player.pawn}>{player.userId.username}</span>
                             {isThisTurn && <span className="text-xs text-green-400 ml-1">▶</span>}
@@ -1125,19 +1126,19 @@ const Board = () => {
                             <div className="shield-fill" style={{ width: `${shPct}%` }} />
                             <span className="shield-text">{shield} / {maxShield}</span>
                           </div>
+                          <div className="skip-dots">
+                            {[0, 1, 2].map((i) => (
+                              <span
+                                key={i}
+                                className={`dot ${i < (player.skippedChances || 0) ? "used" : "available"}`}
+                              />
+                            ))}
+                          </div>
                           <div className="money-scientist">
                             <div className="text-xs text-yellow-400 mt-1 money-tag cash-tag">₹{player.cashRemaining}</div>
                             <div className="money-tag sceintist-tag">scientist-card:{player.scientist}</div>
                           </div>
                           <div className="flex gap-1 mt-1 justify-center flex-wrap">
-                            <div className="skip-dots">
-                              {[0, 1, 2].map((i) => (
-                                <span
-                                  key={i}
-                                  className={`dot ${i < (player.skippedChances || 0) ? "used" : "available"}`}
-                                />
-                              ))}
-                            </div>
                             {player.agent && <span className="text-xs bg-blue-800 text-blue-200 px-1 rounded">Agent</span>}
                             {player.scientist > 0 && <span className="text-xs bg-purple-800 text-purple-200 px-1 rounded">Sci ×{player.scientist}</span>}
                             {!player.isActive && <span className="text-xs bg-red-900 text-red-300 px-1 rounded">Eliminated</span>}
