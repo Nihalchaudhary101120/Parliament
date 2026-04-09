@@ -1127,7 +1127,7 @@ const Board = () => {
                             <span className="shield-text">{shield} / {maxShield}</span>
                           </div>
                           <div className="skip-dots">
-                            {[0, 1, 2].map((i) => (
+                            {[2, 1, 0].map((i) => (
                               <span
                                 key={i}
                                 className={`dot ${i < (player.skippedChances || 0) ? "used" : "available"}`}

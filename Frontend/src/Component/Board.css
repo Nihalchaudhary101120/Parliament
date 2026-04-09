@@ -3267,67 +3267,85 @@ body,
   text-shadow: 0 0 12px gold, 0 0 24px orange;
   margin: 0;
 }
-
-/* === SKIP DOTS BELOW SHIELD === */
+/* === SKIP DOTS CONTAINER === */
 .skip-dots {
   position: absolute;
-  bottom: 10%;
-  /* 👈 below shield */
+  bottom: 8%;              /* adjusts better across screens */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 6px;
+  gap: 0.4rem;            /* responsive gap */
   z-index: 5;
 }
 
-/* Dot base */
+/* === DOT BASE === */
 .dot {
-  width: 8px;
-  height: 8px;
+  width: clamp(6px, 0.7vw, 10px);   /* responsive size */
+  height: clamp(6px, 0.7vw, 10px);
   border-radius: 50%;
   transition: all 0.3s ease;
 }
 
-/* GREEN (remaining chances) */
+/* === GREEN (AVAILABLE) === */
 .dot.available {
   background: #00ff88;
   box-shadow:
     0 0 6px #00ff88,
-    0 0 10px rgba(0, 255, 136, 0.6);
+    0 0 12px rgba(0, 255, 136, 0.6);
+  animation: dotPulse 1.8s infinite;
 }
 
-/* RED (used chances) */
+/* === RED (USED) === */
 .dot.used {
   background: #ff3c3c;
   box-shadow:
     0 0 6px red,
-    0 0 10px rgba(255, 60, 60, 0.6);
+    0 0 12px rgba(255, 60, 60, 0.7);
+  animation: dotBreak 0.4s ease, dotBlink 0.6s ease 2; /* 🔥 blink */
 }
 
+/* === GREEN PULSE === */
 @keyframes dotPulse {
-  0% {
-    box-shadow: 0 0 4px #00ff88;
-  }
-
-  50% {
-    box-shadow: 0 0 12px #00ff88;
-  }
-
-  100% {
-    box-shadow: 0 0 4px #00ff88;
-  }
+  0%   { box-shadow: 0 0 4px #00ff88; }
+  50%  { box-shadow: 0 0 12px #00ff88; }
+  100% { box-shadow: 0 0 4px #00ff88; }
 }
 
-.dot.used {
-  animation: dotBreak 0.4s ease;
-}
-
+/* === RED POP EFFECT === */
 @keyframes dotBreak {
-  0% {
-    transform: scale(1.4);
-  }
+  0%   { transform: scale(1.6); }
+  100% { transform: scale(1); }
+}
 
-  100% {
-    transform: scale(1);
+/* === RED BLINK EFFECT 🔥 */
+@keyframes dotBlink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .skip-dots {
+    bottom: 6%;
+    gap: 0.35rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .skip-dots {
+    bottom: 5%;
+    gap: 0.3rem;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .skip-dots {
+    bottom: 4%;
+    gap: 0.25rem;
   }
 }
