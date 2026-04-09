@@ -1130,6 +1130,14 @@ const Board = () => {
                             <div className="money-tag sceintist-tag">scientist-card:{player.scientist}</div>
                           </div>
                           <div className="flex gap-1 mt-1 justify-center flex-wrap">
+                            <div className="skip-dots">
+                              {[0, 1, 2].map((i) => (
+                                <span
+                                  key={i}
+                                  className={`dot ${i < (player.skippedChances || 0) ? "used" : "available"}`}
+                                />
+                              ))}
+                            </div>
                             {player.agent && <span className="text-xs bg-blue-800 text-blue-200 px-1 rounded">Agent</span>}
                             {player.scientist > 0 && <span className="text-xs bg-purple-800 text-purple-200 px-1 rounded">Sci ×{player.scientist}</span>}
                             {!player.isActive && <span className="text-xs bg-red-900 text-red-300 px-1 rounded">Eliminated</span>}

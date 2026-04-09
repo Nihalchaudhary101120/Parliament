@@ -3214,3 +3214,53 @@ body,
   margin: 0;
 }
 
+/* === SKIP DOTS === */
+.skip-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+/* GREEN (available) */
+.dot.available {
+  background: #00ff88;
+  box-shadow:
+    0 0 6px #00ff88,
+    0 0 12px #00ff88;
+}
+
+/* RED (used) */
+.dot.used {
+  background: #ff3c3c;
+  box-shadow:
+    0 0 6px red,
+    0 0 12px red;
+}
+
+/* optional glow pulse */
+.dot.available {
+  animation: dotPulse 1.5s infinite;
+}
+
+@keyframes dotPulse {
+  0% { box-shadow: 0 0 4px #00ff88; }
+  50% { box-shadow: 0 0 12px #00ff88; }
+  100% { box-shadow: 0 0 4px #00ff88; }
+}
+
+.dot.used {
+  animation: dotBreak 0.4s ease;
+}
+
+@keyframes dotBreak {
+  0% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
