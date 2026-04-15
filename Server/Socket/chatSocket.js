@@ -1,7 +1,8 @@
 
 
   export default function chatSocket(io, socket) {
-    const user = socket.request.session?.user;
+    // Get username from socket (set during auth handshake in SocketServer.js)
+    const username = socket.username;
 
     // socket.on("joinChat", ({ roomId }) => {
     //   socket.join(roomId);
@@ -10,7 +11,7 @@
     //   io.to(roomId).emit("receiveMessage", {
     //     id: Date.now(),
     //     sender: "System",
-    //     content: `${user?.username} joined the chat`,
+    //     content: `${username} joined the chat`,
     //     type: "system",
     //     time: new Date().toLocaleTimeString()
     //   });
@@ -19,7 +20,7 @@
     socket.on("sendMessage", ({ roomId, message ,type}) => {
       io.to(roomId).emit("receiveMessage", {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        sender:type === "system" ? "System" : user?.username || "Anonymous",
+        sender: type === "system" ? "System" : username,
         content: message,
         type,
         time: new Date().toLocaleTimeString()
@@ -27,7 +28,7 @@
     });
 
     socket.on("disconnect", () => {
-      console.log("User disconnected:", user?.username || "Anonymous");
+      console.log("User disconnected:", username);
     });
   }
 
