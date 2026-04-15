@@ -1,7 +1,7 @@
 
 
   export default function chatSocket(io, socket) {
-    const user = socket.request.session.user;
+    const user = socket.request.session?.user;
 
     // socket.on("joinChat", ({ roomId }) => {
     //   socket.join(roomId);
@@ -10,7 +10,7 @@
     //   io.to(roomId).emit("receiveMessage", {
     //     id: Date.now(),
     //     sender: "System",
-    //     content: `${user.username} joined the chat`,
+    //     content: `${user?.username} joined the chat`,
     //     type: "system",
     //     time: new Date().toLocaleTimeString()
     //   });
@@ -19,7 +19,7 @@
     socket.on("sendMessage", ({ roomId, message ,type}) => {
       io.to(roomId).emit("receiveMessage", {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        sender:type === "system" ? "System" : user.username,
+        sender:type === "system" ? "System" : user?.username || "Anonymous",
         content: message,
         type,
         time: new Date().toLocaleTimeString()
@@ -27,7 +27,7 @@
     });
 
     socket.on("disconnect", () => {
-      console.log("User disconnected:", user.username);
+      console.log("User disconnected:", user?.username || "Anonymous");
     });
   }
 
