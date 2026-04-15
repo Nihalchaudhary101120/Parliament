@@ -26,10 +26,36 @@ const CardModal = ({ showConfirm, socket, roomId, myUserIdRef, currentTurnRef })
   if (!isOpen) return null;
 
   return (
-    <div className="card-overlay" onClick={closeCard}>
+    // <div className="card-overlay" onClick={closeCard}>
 
-      <div className="card-modal-container" onClick={(e) => e.stopPropagation()}>
-        {/* ❌ Close Button */}
+    //   <div className="card-modal-container" onClick={(e) => e.stopPropagation()}>
+    //     {/* ❌ Close Button */}
+    //     <button
+    //       className="close-btn"
+    //       onClick={(e) => {
+    //         e.stopPropagation();
+    //         closeCard();
+    //       }}
+    //     >
+    //       ✖
+    //     </button>
+
+    //     <img
+    //       className="card-image"
+    //       src={card}
+    //       alt="card"
+    //     />
+    //     <button onClick={handleCardClick} className={purchasable ? 'show' : 'not-show'}>
+    //       Buy
+    //     </button>
+
+
+    //   </div>
+    // </div>
+
+    <div className="card-modal-container" onClick={(e) => e.stopPropagation()}>
+
+      <div className="card-wrapper">
         <button
           className="close-btn"
           onClick={(e) => {
@@ -40,17 +66,16 @@ const CardModal = ({ showConfirm, socket, roomId, myUserIdRef, currentTurnRef })
           ✖
         </button>
 
-        <img
-          className="card-image"
-          src={card}
-          alt="card"
-        />
-        <button onClick={handleCardClick} className={purchasable ? 'show' : 'not-show'}>
-          Buy
-        </button>
-
-
+        <img className="card-image" src={card} alt="card" />
       </div>
+
+      <button
+        onClick={handleCardClick}
+        className={purchasable ? "show" : "not-show"}
+      >
+        Buy
+      </button>
+
     </div>
   );
 };
