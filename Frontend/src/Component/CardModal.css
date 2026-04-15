@@ -114,3 +114,23 @@
     flex-direction:column !important;
   }
 }
+.card-modal-container {
+  position: relative;
+}
+
+/* Close button style */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: white;
+}
+
+/* Optional hover effect */
+.close-btn:hover {
+  color: red;
+}

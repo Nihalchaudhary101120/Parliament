@@ -29,6 +29,10 @@ const CardModal = ({ showConfirm, socket, roomId, myUserIdRef, currentTurnRef })
     <div className="card-overlay" onClick={closeCard}>
 
       <div className="card-modal-container" onClick={(e) => e.stopPropagation()}>
+        {/* ❌ Close Button */}
+        <button className="close-btn" onClick={closeCard}>
+          ✖
+        </button>
 
         <img
           className="card-image"
