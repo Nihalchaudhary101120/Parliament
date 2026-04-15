@@ -108,32 +108,35 @@
 .not-show{
   display: none;
 }
-@media(max-width: 640px){
-
-  .card-modal-container{
-    flex-direction:column !important;
-  }
+@media (max-width: 640px) {
 
   .card-modal-container {
+    flex-direction: column !important;
     width: 95%;
     padding: 15px;
     border-radius: 10px;
+    align-items: center;
+    gap: 8px; /* 🔥 reduce vertical space */
   }
 
   .card-image {
-    max-height: 60vh; /* prevent too tall */
+    width: 90%;
+    max-height: 55vh;
     object-fit: contain;
   }
 
-  .show, .not-show {
-    font-size: 18px;
-    padding: 12px;
+  /* 🔥 FIX BUTTON */
+  .card-overlay button {
+    width: auto;          /* don't stretch */
+    padding: 8px 14px;    /* smaller */
+    font-size: 14px;      /* smaller text */
+    margin-top: 5px;      /* less push */
   }
 
   .close-btn {
-    font-size: 26px;
-    top: 8px;
-    right: 8px;
+    font-size: 22px;
+    top: 6px;
+    right: 6px;
   }
 }
 .card-modal-container {
