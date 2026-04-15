@@ -30,7 +30,13 @@ const CardModal = ({ showConfirm, socket, roomId, myUserIdRef, currentTurnRef })
 
       <div className="card-modal-container" onClick={(e) => e.stopPropagation()}>
         {/* ❌ Close Button */}
-        <button className="close-btn" onClick={closeCard}>
+        <button
+          className="close-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            closeCard();
+          }}
+        >
           ✖
         </button>
 
