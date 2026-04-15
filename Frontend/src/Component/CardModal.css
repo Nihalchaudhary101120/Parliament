@@ -1,4 +1,4 @@
-.card-overlay {
+/* .card-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, .75);
@@ -91,7 +91,6 @@
   box-shadow: 0 0 12px cyan, inset 0 0 6px #00ffff55;
 }
 
-/* hover effect */
 .card-overlay button:hover {
   background: cyan;
   color: black;
@@ -99,7 +98,6 @@
   transform: scale(1.05);
 }
 
-/* click effect */
 .card-overlay button:active {
   transform: scale(.96);
   box-shadow: 0 0 10px cyan inset;
@@ -116,7 +114,7 @@
     padding: 15px;
     border-radius: 10px;
     align-items: center;
-    gap: 8px; /* 🔥 reduce vertical space */
+    gap: 8px; 
   }
 
   .card-image {
@@ -125,12 +123,11 @@
     object-fit: contain;
   }
 
-  /* 🔥 FIX BUTTON */
   .card-overlay button {
-    width: auto;          /* don't stretch */
-    padding: 8px 14px;    /* smaller */
-    font-size: 14px;      /* smaller text */
-    margin-top: 5px;      /* less push */
+    width: auto;          
+    padding: 8px 14px;    
+    font-size: 14px;     
+    margin-top: 5px;      
   }
 
   .close-btn {
@@ -143,7 +140,6 @@
   position: relative;
 }
 
-/* Close button style */
 .close-btn {
   position: absolute;
   top: 10px;
@@ -155,7 +151,117 @@
   color: white;
 }
 
-/* Optional hover effect */
 .close-btn:hover {
   color: red;
+} */
+
+
+/* //new   */
+
+/* ── OVERLAY ──────────────────────────────────────────────── */
+.card-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  color: white;
+}
+
+/* ── CONTAINER: row on desktop, column on mobile ─────────── */
+.card-modal-container {
+  display: flex;
+  flex-direction: row;       /* desktop: image + button side by side */
+  align-items: center;
+  gap: 20px;
+  animation: cardPop .3s ease;
+}
+
+/* ── CARD IMAGE ───────────────────────────────────────────── */
+.card-image {
+  width: clamp(160px, 30vw, 450px);   /* scales from phone → desktop */
+  max-height: 80svh;
+  object-fit: contain;
+  filter: drop-shadow(0 0 35px cyan);
+  cursor: pointer;
+  border-radius: 12px;
+  display: block;
+}
+
+/* ── BUY BUTTON (shared) ──────────────────────────────────── */
+.card-overlay button {
+  padding: 12px 28px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 2px solid cyan;
+  background: linear-gradient(135deg, #00ffff22, #000);
+  color: cyan;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all .25s ease;
+  box-shadow: 0 0 12px cyan, inset 0 0 6px #00ffff55;
+  flex-shrink: 0;
+}
+
+.card-overlay button:hover {
+  background: cyan;
+  color: black;
+  box-shadow: 0 0 25px cyan, 0 0 60px cyan;
+  transform: scale(1.05);
+}
+
+.card-overlay button:active {
+  transform: scale(.96);
+  box-shadow: 0 0 10px cyan inset;
+}
+
+/* ── HIDDEN BUY BUTTON ────────────────────────────────────── */
+.not-show {
+  display: none !important;
+}
+
+/* ── ANIMATION ────────────────────────────────────────────── */
+@keyframes cardPop {
+  from { transform: scale(.5); opacity: 0; }
+  to   { transform: scale(1);  opacity: 1; }
+}
+
+/* ── RESPONSIVE: tablet & mobile ─────────────────────────── */
+/* On touch devices the button is hidden off-screen to the right
+   in row layout — switch to column so it appears BELOW the card */
+@media (max-width: 1024px) {
+  .card-modal-container {
+    flex-direction: column;   /* stack: image on top, button below */
+    align-items: center;
+    gap: 16px;
+  }
+
+  .card-image {
+    width: clamp(180px, 60vw, 320px);
+    max-height: 60svh;
+  }
+
+  /* button always visible below card — remove any margin-top */
+  .card-overlay button {
+    margin-top: 0;
+    font-size: 16px;
+    padding: 11px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-image {
+    width: clamp(140px, 72vw, 260px);
+    max-height: 52svh;
+  }
+
+  .card-overlay button {
+    font-size: 14px;
+    padding: 10px 20px;
+    letter-spacing: 0.5px;
+  }
 }
