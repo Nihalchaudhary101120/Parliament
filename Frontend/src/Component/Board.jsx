@@ -442,7 +442,7 @@ const Board = () => {
     });
 
     // Re-join room — also triggers identity emit from server
-    socket.current.emit("joinLobby", ({ gameCode: roomId }));
+    socket.current.emit("joinLobby", { gameCode: roomId });
 
 
     socket.current.off("system");
