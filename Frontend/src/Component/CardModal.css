@@ -52,7 +52,7 @@
   width: 450px;
   animation: cardPop .3s ease;
   filter: drop-shadow(0 0 35px cyan);
-  cursor: pointer;
+  pointer-events: none
 }
 
 @keyframes cardPop {
@@ -108,7 +108,7 @@
 .not-show{
   display: none;
 }
-@media(max-width=640px){
+@media(max-width: 640px){
 
   .card-modal-container{
     flex-direction:column !important;
