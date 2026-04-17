@@ -64,6 +64,7 @@ import ConfirmModal from './ConfirmModal.jsx';
 import MysticPurpleStorm from './MysticBackground.jsx';
 import GameGuide from "./GameGuide.jsx";
 import { enableWakeLock, disableWakeLock } from '../utils/wakeLock';
+import { useVisibilityReconnect } from "./useVisibilityReconnect";
 
 
 const Board = () => {
@@ -639,6 +640,20 @@ const Board = () => {
       if (actionTimerRef.current) clearInterval(actionTimerRef.current);
     };
   }, []);
+
+  useVisibilityReconnect({
+    socket,        // your existing socket ref
+    roomId,        // your existing roomId
+    onResynced: () => {
+      // Reset local guards that may be stuck
+      hasEmittedPlayTurn.current = false;
+      isRollingRef.current = false;
+      setSharedRolling(false);
+      clearBidState();
+      clearActionTimer();
+    },
+  });
+
 
   useEffect(() => {
     Object.values(cardMap).forEach((src) => {
