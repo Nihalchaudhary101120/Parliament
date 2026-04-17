@@ -62,6 +62,7 @@ import droneImg from "../assets/drone.png";
 import { createPortal } from "react-dom";
 import ConfirmModal from './ConfirmModal.jsx';
 import MysticPurpleStorm from './MysticBackground.jsx';
+import { enableWakeLock, disableWakeLock } from '../utils/wakeLock';
 
 
 const Board = () => {
@@ -375,6 +376,8 @@ const Board = () => {
       variant: "danger",
       confirmText: "Quit",
       onConfirm: () => {
+        // Disable wake lock when quitting
+        disableWakeLock();
         socket.current?.emit("quitGame", { gameCode: roomId });
         navigate("/dashboard");
       },
@@ -433,6 +436,9 @@ const Board = () => {
     stepAudio.current.volume = 0.4;
 
     updateOptimisticPlayers(game.players);
+
+    // Enable wake lock to keep screen awake during gameplay
+    enableWakeLock();
 
     // identity
     socket.current.off("identity");
@@ -587,12 +593,24 @@ const Board = () => {
       setPlayers(final);
       updateOptimisticPlayers(final);
       setGameOver({ winner });
+      // Disable wake lock when game ends
+      disableWakeLock();
     });
 
     socket.current.off("timebombExploded");
     socket.current.on("timebombExploded", ({ position, casualties, nextBlastInTurns }) => {
       runTimeBombAnimation(position);
     });
+
+    // Handle tab visibility changes — re-enable wake lock when tab becomes visible
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === "visible") {
+        console.log("Tab visible — re-enabling wake lock");
+        await enableWakeLock();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       socket.current.off("identity");
@@ -608,6 +626,9 @@ const Board = () => {
       socket.current.off("timebombExploded");
       socket.current.off("newPositions");
       socket.current.off("damageTaken");
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      // Disable wake lock when leaving the board
+      disableWakeLock();
       if (autoRollTimerRef.current) {
         clearInterval(autoRollTimerRef.current);
         autoRollTimerRef.current = null;
