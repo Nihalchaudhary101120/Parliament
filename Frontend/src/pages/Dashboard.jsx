@@ -233,7 +233,7 @@ const DashBoard = () => {
                                 className="close-btn"
                                 onClick={() => setShowFriendOption(false)}
                             >
-                                Cancel
+                                X
                             </button>
                         </div>
                     </div>
