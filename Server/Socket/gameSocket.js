@@ -378,6 +378,31 @@ export default function gameSocket(io, socket) {
 
       socket.emit("identity", { myUserId: socket.userId });
 
+      // Re-sync active game state for reconnecting players
+      if (game.status === "active") {
+        // Re-send current turn state
+        socket.emit("turnResult", {
+          players: game.players,
+          currentTurn: game.currentTurn,
+          turnNo: game.turnNo,
+          mysteryCase: null,
+        });
+
+        if (game.pendingAction?.type === "bidding") {
+          const timeLeft = Math.max(0,
+            Math.floor((new Date(game.pendingAction.bidDeadline) - Date.now()) / 1000)
+          );
+          if (timeLeft > 0) {
+            const card = await Card.findById(game.pendingAction.cardId);
+            socket.emit("bidStarted", {
+              card: { id: card._id, name: card.name, price: card.price },
+              minBid: 1,
+              duration: timeLeft, // remaining time, not full 20s
+            });
+          }
+        }
+      }
+
       io.to(gameCode).emit("system", { message: `${username} connected`, type: "success" });
 
       if (game.status === "waiting" && game.players.length >= game.maxPlayer) {
