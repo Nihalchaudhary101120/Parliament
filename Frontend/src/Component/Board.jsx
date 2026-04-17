@@ -62,6 +62,7 @@ import droneImg from "../assets/drone.png";
 import { createPortal } from "react-dom";
 import ConfirmModal from './ConfirmModal.jsx';
 import MysticPurpleStorm from './MysticBackground.jsx';
+import GameGuide from "./GameGuide.jsx";
 import { enableWakeLock, disableWakeLock } from '../utils/wakeLock';
 
 
@@ -72,6 +73,7 @@ const Board = () => {
   const roomId = new URLSearchParams(location.search).get("room");
   const game = location.state?.game || null;
 
+  const [showGuide, setShowGuide] = useState(true);
   const socket = useRef(null);
   const audioRef = useRef(null);
   const stepAudio = useRef(null);
@@ -749,8 +751,20 @@ const Board = () => {
   return (
 
     <>
+      {showGuide && <GameGuide onDone={() => setShowGuide(false)} />}
 
-      {/* {damageToast && (
+      {!showGuide && isLoading && (
+        <div className="loading-screen">
+          <div className="loader">
+            <div className="spinner"></div>
+            <p>Entering Battlefield...</p>
+          </div>
+        </div>
+      )}
+
+      <div style={{ visibility: showGuide || isLoading ? "hidden" : "visible" }}>
+
+        {/* {damageToast && (
         <div className="attack-toast">
           ⚔️ <b>{damageToast.attacker}</b> attacked <b>{damageToast.victim}</b> using{" "}
           <span className="weapon">{damageToast.cardName}</span>
@@ -760,31 +774,32 @@ const Board = () => {
         </div>
       )} */}
 
-      <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
-        <MysticPurpleStorm />
+
+        <div className="hero2 min-h-screen bg-gradient-to-br from-indigo-950 to-black p-6">
+          <MysticPurpleStorm />
 
 
-        {/* ── Quit Button ── */}
-        <button className="quit-btn" onClick={handleQuit}>
-          <span className="quit-icon">✕</span>
-          <span className="quit-text">Quit</span>
-        </button>
+          {/* ── Quit Button ── */}
+          <button className="quit-btn" onClick={handleQuit}>
+            <span className="quit-icon">✕</span>
+            <span className="quit-text">Quit</span>
+          </button>
 
-        <CardModal showConfirm={showConfirm} socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
-        {/* <GameChatContainer players={players} /> */}
+          <CardModal showConfirm={showConfirm} socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
+          {/* <GameChatContainer players={players} /> */}
 
-        <ConfirmModal
-          isOpen={!!confirm}
-          title={confirm?.title}
-          message={confirm?.message}
-          variant={confirm?.variant || "danger"}
-          confirmText={confirm?.confirmText || "Confirm"}
-          onConfirm={() => { confirm?.onConfirm?.(); closeConfirm(); }}
-          onCancel={closeConfirm}
-        />
+          <ConfirmModal
+            isOpen={!!confirm}
+            title={confirm?.title}
+            message={confirm?.message}
+            variant={confirm?.variant || "danger"}
+            confirmText={confirm?.confirmText || "Confirm"}
+            onConfirm={() => { confirm?.onConfirm?.(); closeConfirm(); }}
+            onCancel={closeConfirm}
+          />
 
 
-        {/* {activeMystery && createPortal(
+          {/* {activeMystery && createPortal(
           <div className="mystery-overlay">
             <div className="mystery-card">
               <img
@@ -807,412 +822,413 @@ const Board = () => {
 
 
 
-        {gameOver && createPortal(
-          <div className="gameover-overlay">
-            <div className="gameover-modal">
-              <h2>Game Over</h2>
+          {gameOver && createPortal(
+            <div className="gameover-overlay">
+              <div className="gameover-modal">
+                <h2>Game Over</h2>
 
-              <p>
-                Winner:{" "}
-                {
-                  optimisticPlayers.find(
-                    p => p.userId._id?.toString() === gameOver.winner?.toString()
-                  )?.userId?.username || "Unknown"
-                }
-              </p>
+                <p>
+                  Winner:{" "}
+                  {
+                    optimisticPlayers.find(
+                      p => p.userId._id?.toString() === gameOver.winner?.toString()
+                    )?.userId?.username || "Unknown"
+                  }
+                </p>
 
-              <button onClick={() => navigate("/dashboard")}>
-                Back to Home
-              </button>
-            </div>
-          </div>,
-          document.getElementById("modal-root") // 🔥 SAME ROOT
-        )}
-
-        {actionModal && actionModal.card && isMyTurn && (
-          <div className="modal-overlay">
-            <div className="buy-modal-premium">
-              <div className="modal-glow"></div>
-
-              <div className="modal-card-preview">
-                <img
-                  src={cardMap[actionModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
-                  className="modal-card-img"
-                  alt={actionModal.card.name}
-                />
-                <div className="modal-card-info">
-                  <h3 className="modal-title">{actionModal.card.name}</h3>
-                  <p className="modal-subtext">Unowned Weapon</p>
-                  <div className="modal-stat">
-                    <span className="stat-label">💰 Price</span>
-                    <span className="stat-value price">₹{actionModal.card.price}</span>
-                  </div>
-                  {actionModal.card.weaponDamage > 0 && (
-                    <div className="modal-stat">
-                      <span className="stat-label">💥 Damage</span>
-                      <span className="stat-value damage">{actionModal.card.weaponDamage} HP</span>
-                    </div>
-                  )}
-                  <div className="modal-stat">
-                    <span className="stat-label">🪙 Your Cash</span>
-                    <span className="stat-value cash">₹{actionModal.playerCash}</span>
-                  </div>
-                </div>
+                <button onClick={() => navigate("/dashboard")}>
+                  Back to Home
+                </button>
               </div>
+            </div>,
+            document.getElementById("modal-root") // 🔥 SAME ROOT
+          )}
 
-              {actionTimeLeft > 0 && (
-                <div className="action-timer">
-                  <div className="action-timer-bar" style={{ width: `${(actionTimeLeft / 15) * 100}%` }} />
-                  <span className={`action-timer-text ${actionTimeLeft <= 5 ? "urgent" : ""}`}>
-                    Auto-auction in {actionTimeLeft}s
-                  </span>
-                </div>
-              )}
+          {actionModal && actionModal.card && isMyTurn && (
+            <div className="modal-overlay">
+              <div className="buy-modal-premium">
+                <div className="modal-glow"></div>
 
-              <div className="modal-actions">
-                {actionModal.playerCash >= actionModal.card.price && (
-                  <button className="buy-btn" onClick={handleBuy}>Buy Now</button>
-                )}
-                <button className="bid-btn" onClick={handleStartBid}>🔨 Auction</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-
-        {damageToast && (
-          <div className="damage-toast">
-            <div className="damage-toast-icon">💥</div>
-            <div className="damage-toast-body">
-              <span className="damage-toast-card">
-                ⚔️ <b>{damageToast.attacker || "System"}</b> attacked{" "}
-                <b>{damageToast.victim || "Player"}</b> using{" "}
-                <span className="weapon">{damageToast.cardName}</span>
-              </span>
-              <span className="damage-toast-amount">−{damageToast.amount} HP</span>
-              <span className="damage-toast-sub">
-                {damageToast.shieldAbsorbed ? "Shield absorbed damage" : "Parliament HP reduced"}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {toast && (
-          <div className={`wall-toast ${toast.type}`}>
-            <span className="toast-icon">
-              {toast.type === "success" ? "✅" : "❌"}
-            </span>
-            <span className="toast-message">{toast.message}</span>
-          </div>
-        )}
-
-
-        {bidModal && bidModal.card && (
-          <div className="bid-overlay">
-            <div className="bid-modal-premium">
-
-              {/* Header */}
-              <div className="bid-header">
-                <h3 className="bid-title"> {bidModal.card.name}</h3>
-                <span className={`bid-timer ${bidTimeLeft <= 5 ? "danger" : ""}`}>
-                  {bidTimeLeft}s
-                </span>
-              </div>
-
-              {/* Info */}
-              <p className="bid-info">
-                Min bid: <span className="highlight">₹{bidModal.minBid}</span>
-                {" · "}
-                Your cash: <span className="cash">₹{myPlayer?.cashRemaining ?? 0}</span>
-              </p>
-
-              {/* Card preview — add this right after the bid-header div */}
-              <div className="bid-card-preview">
-                <img
-                  src={cardMap[bidModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
-                  className="bid-card-img"
-                  alt={bidModal.card.name}
-                />
-                <div className="bid-card-stats">
-                  <div className="bid-stat">
-                    <span>💰 Price</span>
-                    <span className="highlight">₹{bidModal.card.price}</span>
-                  </div>
-                  {bidModal.card.weaponDamage > 0 && (
-                    <div className="bid-stat">
-                      <span>💥 Damage</span>
-                      <span style={{ color: "#f87171", fontWeight: "bold" }}>{bidModal.card.weaponDamage} HP</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Input */}
-              {!myBidSubmitted ? (
-                <>
-                  <input
-                    type="number"
-                    min={bidModal.minBid}
-                    max={myPlayer?.cashRemaining ?? 0}
-                    value={bidAmount}
-                    onChange={(e) => setBidAmount(e.target.value)}
-                    className="bid-input"
-                    placeholder={`Min ₹${bidModal.minBid}`}
+                <div className="modal-card-preview">
+                  <img
+                    src={cardMap[actionModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
+                    className="modal-card-img"
+                    alt={actionModal.card.name}
                   />
-
-                  <div className="bid-actions">
-                    <button
-                      className="bid-btn-main"
-                      disabled={
-                        !bidAmount ||
-                        Number(bidAmount) < bidModal.minBid ||
-                        Number(bidAmount) > (myPlayer?.cashRemaining ?? 0)
-                      }
-                      onClick={handleSubmitBid}
-                    >
-                      Place Bid
-                    </button>
-
-                    <button
-                      className="pass-btn"
-                      onClick={() => setMyBidSubmitted(true)}
-                    >
-                      Pass
-                    </button>
+                  <div className="modal-card-info">
+                    <h3 className="modal-title">{actionModal.card.name}</h3>
+                    <p className="modal-subtext">Unowned Weapon</p>
+                    <div className="modal-stat">
+                      <span className="stat-label">💰 Price</span>
+                      <span className="stat-value price">₹{actionModal.card.price}</span>
+                    </div>
+                    {actionModal.card.weaponDamage > 0 && (
+                      <div className="modal-stat">
+                        <span className="stat-label">💥 Damage</span>
+                        <span className="stat-value damage">{actionModal.card.weaponDamage} HP</span>
+                      </div>
+                    )}
+                    <div className="modal-stat">
+                      <span className="stat-label">🪙 Your Cash</span>
+                      <span className="stat-value cash">₹{actionModal.playerCash}</span>
+                    </div>
                   </div>
-                </>
-              ) : (
-                <p className="waiting-text">✅ Waiting for others...</p>
-              )}
+                </div>
 
-              {/* Players */}
-              <div className="bid-players">
-                <p className="players-title">Players:</p>
-
-                {optimisticPlayers.filter(p => p.isActive).map((p, i) => (
-                  <div key={i} className="bid-player">
-                    <span className="cash">{p.userId.username}</span>
-                    <span className="cash">₹{p.cashRemaining}</span>
+                {actionTimeLeft > 0 && (
+                  <div className="action-timer">
+                    <div className="action-timer-bar" style={{ width: `${(actionTimeLeft / 15) * 100}%` }} />
+                    <span className={`action-timer-text ${actionTimeLeft <= 5 ? "urgent" : ""}`}>
+                      Auto-auction in {actionTimeLeft}s
+                    </span>
                   </div>
-                ))}
+                )}
+
+                <div className="modal-actions">
+                  {actionModal.playerCash >= actionModal.card.price && (
+                    <button className="buy-btn" onClick={handleBuy}>Buy Now</button>
+                  )}
+                  <button className="bid-btn" onClick={handleStartBid}>🔨 Auction</button>
+                </div>
               </div>
-
-            </div>
-          </div>
-        )}
-
-        {bidResult && (
-          <div className="bid-result-toast">
-
-            <div className="result-glow"></div>
-
-            <p className="result-title">
-              🏆 {bidResult.winnerName} won {bidResult.cardName}
-            </p>
-
-            <p className="result-amount">
-              ₹{bidResult.amount}
-            </p>
-
-          </div>
-        )}
-
-
-
-        {/* ── Turn Indicator ── */}
-        <div className="turn-indicator">
-          {/* Countdown ring */}
-          {turnTimeLeft > 0 && (
-            <div className={`turn-ring ${turnTimeLeft <= 10 ? "urgent" : isMyTurn ? "active" : "idle"}`}>
-              <span>{turnTimeLeft}s</span>
             </div>
           )}
 
-          <div className="turn-divider" />
 
-          <div className="turn-section">
-            <span className="turn-label">STATUS</span>
-            <span className={`turn-value ${isMyTurn ? "my-turn" : "waiting"}`}>
-              {isMyTurn ? "Your Turn" : "Waiting..."}
-            </span>
-          </div>
+          {damageToast && (
+            <div className="damage-toast">
+              <div className="damage-toast-icon">💥</div>
+              <div className="damage-toast-body">
+                <span className="damage-toast-card">
+                  ⚔️ <b>{damageToast.attacker || "System"}</b> attacked{" "}
+                  <b>{damageToast.victim || "Player"}</b> using{" "}
+                  <span className="weapon">{damageToast.cardName}</span>
+                </span>
+                <span className="damage-toast-amount">−{damageToast.amount} HP</span>
+                <span className="damage-toast-sub">
+                  {damageToast.shieldAbsorbed ? "Shield absorbed damage" : "Parliament HP reduced"}
+                </span>
+              </div>
+            </div>
+          )}
 
-          <div className="turn-divider" />
+          {toast && (
+            <div className={`wall-toast ${toast.type}`}>
+              <span className="toast-icon">
+                {toast.type === "success" ? "✅" : "❌"}
+              </span>
+              <span className="toast-message">{toast.message}</span>
+            </div>
+          )}
 
-          <div className="turn-section" style={{ alignItems: "flex-end" }}>
-            <span className="turn-label">TURN</span>
-            <span className="turn-value">#{turnNo}</span>
-          </div>
-        </div>
 
-        {/* ── Board ── */}
-        <div className="board-wrapper">
-          <div className="bg-transparent p-6 rounded-3xl shadow-2xl">
-            <div className="nice grid gap-2 bg-transparent p-4 rounded-2xl"
-              // style={{ gridTemplateColumns: `repeat(${size}, 90px)`, gridTemplateRows: `repeat(${size}, 70px)` }}
-              style={{ gridTemplateColumns: `repeat(${size}, ${tileSize.w}px)`, gridTemplateRows: `repeat(${size}, ${tileSize.h}px)` }}
-            >
-              {border.map((cell, i) => {
-                const tilePlayers = optimisticPlayers.filter(p => p.position === i);
-                const layout = tileLayouts[Math.min(tilePlayers.length, 6)] || tileLayouts[6];
-                const key = tileData[i].toLowerCase().replace(/\s+/g, "-");
-                return (
-                  <div key={i}
-                    className={`border-cell weapon-tile ${tileData[i].toLowerCase().replace(/\s+/g, '-')}  ${explodingTiles.includes(i) ? 'bomb-exploding' : ''}`}
-                    style={{ gridRow: cell.r + 1, gridColumn: cell.c + 1 }}
-                    onClick={() => openCard(cardMap[key], false, key)}
-                  >
-                    <div className="ownership-container">
-                      {optimisticPlayers.flatMap((player) =>
-                        player.cards.map((cardObj, idx) => {
-                          const card = cardObj.cardId;
-                          if (!card) return null;
+          {bidModal && bidModal.card && (
+            <div className="bid-overlay">
+              <div className="bid-modal-premium">
 
-                          if (card.position === i) {
-                            return (
-                              <div
-                                key={player.userId._id + idx}
-                                className={`flag ${getDirectionClass(i)}`}
-                              >
-                                <div className="flag-pole"></div>
-                                <div
-                                  className="flag-cloth"
-                                  style={{ backgroundColor: getPawnColor(player.pawn) }}
-                                ></div>
-                              </div>
-                            );
-                          }
+                {/* Header */}
+                <div className="bid-header">
+                  <h3 className="bid-title"> {bidModal.card.name}</h3>
+                  <span className={`bid-timer ${bidTimeLeft <= 5 ? "danger" : ""}`}>
+                    {bidTimeLeft}s
+                  </span>
+                </div>
 
-                          return null;
-                        })
-                      )}
+                {/* Info */}
+                <p className="bid-info">
+                  Min bid: <span className="highlight">₹{bidModal.minBid}</span>
+                  {" · "}
+                  Your cash: <span className="cash">₹{myPlayer?.cashRemaining ?? 0}</span>
+                </p>
+
+                {/* Card preview — add this right after the bid-header div */}
+                <div className="bid-card-preview">
+                  <img
+                    src={cardMap[bidModal.card.name.toLowerCase().replace(/\s+/g, "-")]}
+                    className="bid-card-img"
+                    alt={bidModal.card.name}
+                  />
+                  <div className="bid-card-stats">
+                    <div className="bid-stat">
+                      <span>💰 Price</span>
+                      <span className="highlight">₹{bidModal.card.price}</span>
                     </div>
-                    {tileIcons[key] && <img className="tile-icon" src={tileIcons[key]} alt={tileData[i]} />}
-                    <div className="tile-label">{tileData[i]}</div>
-                    {tilePlayers.map((player, idx) => {
-                      const slot = layout[idx];
-                      if (player.isActive) {
-                        return (
-                          <img key={player._id} src={pawnImg[player.pawn]} className="player-token"
-                            style={{ transform: `translate(${slot.x}px, ${slot.y}px) scale(${slot.scale})` }}
-                          />
-                        );
-                      }
-                    })}
+                    {bidModal.card.weaponDamage > 0 && (
+                      <div className="bid-stat">
+                        <span>💥 Damage</span>
+                        <span style={{ color: "#f87171", fontWeight: "bold" }}>{bidModal.card.weaponDamage} HP</span>
+                      </div>
+                    )}
                   </div>
-                );
-              })}
+                </div>
 
-              {/* Center */}
-              <div className="bg-transparent center-area backdrop-blur-sm rounded-2xl"
-                style={{ gridRow: "2 / span 7", gridColumn: "2 / span 7" }}
-              >
+                {/* Input */}
+                {!myBidSubmitted ? (
+                  <>
+                    <input
+                      type="number"
+                      min={bidModal.minBid}
+                      max={myPlayer?.cashRemaining ?? 0}
+                      value={bidAmount}
+                      onChange={(e) => setBidAmount(e.target.value)}
+                      className="bid-input"
+                      placeholder={`Min ₹${bidModal.minBid}`}
+                    />
 
-                {activeMystery && (
-                  <div className="mystery-inline-overlay">
-                    <div className="mystery-inline-card">
-                      <img
-                        src={getMysteryVisual(activeMystery.statement).image}
-                        className="mystery-inline-img"
-                        alt=""
-                      />
-                      <p className="mystery-inline-title">{activeMystery.statement}</p>
-                      <p className="mystery-inline-amount">
-                        {activeMystery.amount > 0 ? "+" : ""}{activeMystery.amount}
-                      </p>
+                    <div className="bid-actions">
+                      <button
+                        className="bid-btn-main"
+                        disabled={
+                          !bidAmount ||
+                          Number(bidAmount) < bidModal.minBid ||
+                          Number(bidAmount) > (myPlayer?.cashRemaining ?? 0)
+                        }
+                        onClick={handleSubmitBid}
+                      >
+                        Place Bid
+                      </button>
+
+                      <button
+                        className="pass-btn"
+                        onClick={() => setMyBidSubmitted(true)}
+                      >
+                        Pass
+                      </button>
                     </div>
-                  </div>
+                  </>
+                ) : (
+                  <p className="waiting-text">✅ Waiting for others...</p>
                 )}
 
-                <div className="center-grid">
-                  {optimisticPlayers.map((player, i) => {
-                    const hp = player.remainingParliamentHp;
-                    const shield = player.remainingShieldHp;
-                    const hpPct = (hp / maxHP) * 100;
-                    const shPct = (shield / maxShield) * 100;
-                    const isThisTurn = currentTurn?.toString() === player.userId._id?.toString();
-                    return (
-                      <div key={i} className={`player-cell ${hp <= 300 ? "low" : ""} ${isThisTurn ? "active-turn" : ""}`}>
-                        <div className={`image-parent ${hitEffect ? "parliament-hit" : ""}`}>
+                {/* Players */}
+                <div className="bid-players">
+                  <p className="players-title">Players:</p>
 
-                          <div className="name">
-                            <span className={player.pawn}>{player.userId.username}</span>
-                            {isThisTurn && <span className="text-xs text-green-400 ml-1">▶</span>}
-                          </div>
-                          <img src={logo} className="parl" alt={player.userId.username} />
-                          <div className={`hp-bar ${hpPct <= 30 ? "low" : ""}`}>
-                            <div className="hp-fill" style={{ width: `${hpPct}%` }} />
-                            <span className="hp-text">{hp} / {maxHP}</span>
-                          </div>
-                          <div className="shield-bar">
-                            <div className="shield-fill" style={{ width: `${shPct}%` }} />
-                            <span className="shield-text">{shield} / {maxShield}</span>
-                          </div>
-                          <div className="skip-dots">
-                            {[2, 1, 0].map((i) => (
-                              <span
-                                key={i}
-                                className={`dot ${i < (player.skippedChances || 0) ? "used" : "available"}`}
-                              />
-                            ))}
-                          </div>
-                          <div className="money-scientist">
-                            <div className="text-xs text-yellow-400 mt-1 money-tag cash-tag">₹{player.cashRemaining}</div>
-                            <div className="money-tag sceintist-tag">scientist-card:{player.scientist}</div>
-                          </div>
-                          <div className="flex gap-1 mt-1 justify-center flex-wrap">
-                            {player.agent && <span className="text-xs bg-blue-800 text-blue-200 px-1 rounded">Agent</span>}
-                            {player.scientist > 0 && <span className="text-xs bg-purple-800 text-purple-200 px-1 rounded">Sci ×{player.scientist}</span>}
-                            {!player.isActive && <span className="text-xs bg-red-900 text-red-300 px-1 rounded">Eliminated</span>}
+                  {optimisticPlayers.filter(p => p.isActive).map((p, i) => (
+                    <div key={i} className="bid-player">
+                      <span className="cash">{p.userId.username}</span>
+                      <span className="cash">₹{p.cashRemaining}</span>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {bidResult && (
+            <div className="bid-result-toast">
+
+              <div className="result-glow"></div>
+
+              <p className="result-title">
+                🏆 {bidResult.winnerName} won {bidResult.cardName}
+              </p>
+
+              <p className="result-amount">
+                ₹{bidResult.amount}
+              </p>
+
+            </div>
+          )}
+
+
+
+          {/* ── Turn Indicator ── */}
+          <div className="turn-indicator">
+            {/* Countdown ring */}
+            {turnTimeLeft > 0 && (
+              <div className={`turn-ring ${turnTimeLeft <= 10 ? "urgent" : isMyTurn ? "active" : "idle"}`}>
+                <span>{turnTimeLeft}s</span>
+              </div>
+            )}
+
+            <div className="turn-divider" />
+
+            <div className="turn-section">
+              <span className="turn-label">STATUS</span>
+              <span className={`turn-value ${isMyTurn ? "my-turn" : "waiting"}`}>
+                {isMyTurn ? "Your Turn" : "Waiting..."}
+              </span>
+            </div>
+
+            <div className="turn-divider" />
+
+            <div className="turn-section" style={{ alignItems: "flex-end" }}>
+              <span className="turn-label">TURN</span>
+              <span className="turn-value">#{turnNo}</span>
+            </div>
+          </div>
+
+          {/* ── Board ── */}
+          <div className="board-wrapper">
+            <div className="bg-transparent p-6 rounded-3xl shadow-2xl">
+              <div className="nice grid gap-2 bg-transparent p-4 rounded-2xl"
+                // style={{ gridTemplateColumns: `repeat(${size}, 90px)`, gridTemplateRows: `repeat(${size}, 70px)` }}
+                style={{ gridTemplateColumns: `repeat(${size}, ${tileSize.w}px)`, gridTemplateRows: `repeat(${size}, ${tileSize.h}px)` }}
+              >
+                {border.map((cell, i) => {
+                  const tilePlayers = optimisticPlayers.filter(p => p.position === i);
+                  const layout = tileLayouts[Math.min(tilePlayers.length, 6)] || tileLayouts[6];
+                  const key = tileData[i].toLowerCase().replace(/\s+/g, "-");
+                  return (
+                    <div key={i}
+                      className={`border-cell weapon-tile ${tileData[i].toLowerCase().replace(/\s+/g, '-')}  ${explodingTiles.includes(i) ? 'bomb-exploding' : ''}`}
+                      style={{ gridRow: cell.r + 1, gridColumn: cell.c + 1 }}
+                      onClick={() => openCard(cardMap[key], false, key)}
+                    >
+                      <div className="ownership-container">
+                        {optimisticPlayers.flatMap((player) =>
+                          player.cards.map((cardObj, idx) => {
+                            const card = cardObj.cardId;
+                            if (!card) return null;
+
+                            if (card.position === i) {
+                              return (
+                                <div
+                                  key={player.userId._id + idx}
+                                  className={`flag ${getDirectionClass(i)}`}
+                                >
+                                  <div className="flag-pole"></div>
+                                  <div
+                                    className="flag-cloth"
+                                    style={{ backgroundColor: getPawnColor(player.pawn) }}
+                                  ></div>
+                                </div>
+                              );
+                            }
+
+                            return null;
+                          })
+                        )}
+                      </div>
+                      {tileIcons[key] && <img className="tile-icon" src={tileIcons[key]} alt={tileData[i]} />}
+                      <div className="tile-label">{tileData[i]}</div>
+                      {tilePlayers.map((player, idx) => {
+                        const slot = layout[idx];
+                        if (player.isActive) {
+                          return (
+                            <img key={player._id} src={pawnImg[player.pawn]} className="player-token"
+                              style={{ transform: `translate(${slot.x}px, ${slot.y}px) scale(${slot.scale})` }}
+                            />
+                          );
+                        }
+                      })}
+                    </div>
+                  );
+                })}
+
+                {/* Center */}
+                <div className="bg-transparent center-area backdrop-blur-sm rounded-2xl"
+                  style={{ gridRow: "2 / span 7", gridColumn: "2 / span 7" }}
+                >
+
+                  {activeMystery && (
+                    <div className="mystery-inline-overlay">
+                      <div className="mystery-inline-card">
+                        <img
+                          src={getMysteryVisual(activeMystery.statement).image}
+                          className="mystery-inline-img"
+                          alt=""
+                        />
+                        <p className="mystery-inline-title">{activeMystery.statement}</p>
+                        <p className="mystery-inline-amount">
+                          {activeMystery.amount > 0 ? "+" : ""}{activeMystery.amount}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="center-grid">
+                    {optimisticPlayers.map((player, i) => {
+                      const hp = player.remainingParliamentHp;
+                      const shield = player.remainingShieldHp;
+                      const hpPct = (hp / maxHP) * 100;
+                      const shPct = (shield / maxShield) * 100;
+                      const isThisTurn = currentTurn?.toString() === player.userId._id?.toString();
+                      return (
+                        <div key={i} className={`player-cell ${hp <= 300 ? "low" : ""} ${isThisTurn ? "active-turn" : ""}`}>
+                          <div className={`image-parent ${hitEffect ? "parliament-hit" : ""}`}>
+
+                            <div className="name">
+                              <span className={player.pawn}>{player.userId.username}</span>
+                              {isThisTurn && <span className="text-xs text-green-400 ml-1">▶</span>}
+                            </div>
+                            <img src={logo} className="parl" alt={player.userId.username} />
+                            <div className={`hp-bar ${hpPct <= 30 ? "low" : ""}`}>
+                              <div className="hp-fill" style={{ width: `${hpPct}%` }} />
+                              <span className="hp-text">{hp} / {maxHP}</span>
+                            </div>
+                            <div className="shield-bar">
+                              <div className="shield-fill" style={{ width: `${shPct}%` }} />
+                              <span className="shield-text">{shield} / {maxShield}</span>
+                            </div>
+                            <div className="skip-dots">
+                              {[2, 1, 0].map((i) => (
+                                <span
+                                  key={i}
+                                  className={`dot ${i < (player.skippedChances || 0) ? "used" : "available"}`}
+                                />
+                              ))}
+                            </div>
+                            <div className="money-scientist">
+                              <div className="text-xs text-yellow-400 mt-1 money-tag cash-tag">₹{player.cashRemaining}</div>
+                              <div className="money-tag sceintist-tag">scientist-card:{player.scientist}</div>
+                            </div>
+                            <div className="flex gap-1 mt-1 justify-center flex-wrap">
+                              {player.agent && <span className="text-xs bg-blue-800 text-blue-200 px-1 rounded">Agent</span>}
+                              {player.scientist > 0 && <span className="text-xs bg-purple-800 text-purple-200 px-1 rounded">Sci ×{player.scientist}</span>}
+                              {!player.isActive && <span className="text-xs bg-red-900 text-red-300 px-1 rounded">Eliminated</span>}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Panel */}
+          <div className="right-container">
+            <div className="right-grid">
+              {[
+                { key: "emergency-meeting", img: emergency },
+                { key: "wall-sena", img: wallSena },
+                { key: "wall-maria", img: wallMaria },
+                { key: "wall-rose", img: wallRose },
+              ].map((item, i) => (
+                <div key={i} className="right-cell" onClick={() => openCard(cardMap[item.key], true, item.key)}>
+                  <img src={item.img} alt={item.key} />
+                </div>
+              ))}
+            </div>
+
+            <div
+              className={`dice-container ${sharedRolling ? "rolling" : "pop"} ${!isMyTurn || actionModal || bidModal ? "opacity-40 pointer-events-none" : ""}`}
+              onClick={!isDiceDisabled ? rollDice : null}
+            >
+              <div className="dice-display">
+                <div className={`dice-face face-${sharedDiceValue}`}>
+                  {[...Array(9)].map((_, i) => <span key={i} className="pip" />)}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Panel */}
-        <div className="right-container">
-          <div className="right-grid">
-            {[
-              { key: "emergency-meeting", img: emergency },
-              { key: "wall-sena", img: wallSena },
-              { key: "wall-maria", img: wallMaria },
-              { key: "wall-rose", img: wallRose },
-            ].map((item, i) => (
-              <div key={i} className="right-cell" onClick={() => openCard(cardMap[item.key], true, item.key)}>
-                <img src={item.img} alt={item.key} />
-              </div>
-            ))}
-          </div>
-
-          <div
-            className={`dice-container ${sharedRolling ? "rolling" : "pop"} ${!isMyTurn || actionModal || bidModal ? "opacity-40 pointer-events-none" : ""}`}
-            onClick={!isDiceDisabled ? rollDice : null}
-          >
-            <div className="dice-display">
-              <div className={`dice-face face-${sharedDiceValue}`}>
-                {[...Array(9)].map((_, i) => <span key={i} className="pip" />)}
-              </div>
-            </div>
-          </div>
+        {/* Chat Drawer */}
+        <div className={`chat-drawer ${isChatOpen ? 'open' : ''}`}>
+          <GameChatContainer players={players} />
         </div>
+        <button
+          className="chat-toggle-btn"
+          onClick={() => setIsChatOpen(p => !p)}
+        >
+          {isChatOpen ? '✕' : '💬'}
+        </button>
       </div>
-
-      {/* Chat Drawer */}
-      <div className={`chat-drawer ${isChatOpen ? 'open' : ''}`}>
-        <GameChatContainer players={players} />
-      </div>
-      <button
-        className="chat-toggle-btn"
-        onClick={() => setIsChatOpen(p => !p)}
-      >
-        {isChatOpen ? '✕' : '💬'}
-      </button>
 
     </>
 
