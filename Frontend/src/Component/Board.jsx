@@ -65,6 +65,7 @@ import MysticPurpleStorm from './MysticBackground.jsx';
 
 
 const Board = () => {
+
   const location = useLocation();
   const navigate = useNavigate();
   const roomId = new URLSearchParams(location.search).get("room");
