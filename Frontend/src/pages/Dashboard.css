@@ -91,7 +91,7 @@ body {
 /* ===== TOP USER PANEL ===== */
 .top-user {
   position: absolute;
-  
+
   right: 16px;
   font-weight: bold;
   color: white;
@@ -307,10 +307,13 @@ body {
 
   display: flex;
   justify-content: center;
-  align-items: center;   /* 🔥 center vertically */
+  align-items: center;
+  /* 🔥 center vertically */
 
-  background: transparent;   /* 🔥 REMOVE BLACK LAYER */
-  backdrop-filter: none;     /* 🔥 REMOVE BLUR */
+  background: transparent;
+  /* 🔥 REMOVE BLACK LAYER */
+  backdrop-filter: none;
+  /* 🔥 REMOVE BLUR */
 
   z-index: 999;
 }
@@ -684,9 +687,9 @@ body {
 
   .glass-panel {
     /* max-width: 360px; */
-    position:fixed;
-    top:30vh;
-    left:30%;
+    position: fixed;
+    top: 30vh;
+    left: 30%;
     padding: 24px 22px;
   }
 
@@ -748,7 +751,7 @@ body {
     margin: 0;
     max-width: none;
   } */
-   .glass-panel {
+  .glass-panel {
     left: 80px;
     top: 50%;
     transform: translateY(-50%);
@@ -839,7 +842,8 @@ body {
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  width: fit-content;          /* ← THIS is the fix — was stretching full width */
+  width: fit-content;
+  /* ← THIS is the fix — was stretching full width */
   display: flex;
   gap: clamp(16px, 5vw, 30px);
   padding: clamp(10px, 3vw, 15px) clamp(18px, 5vw, 30px);
@@ -857,7 +861,8 @@ body {
   display: flex;
   align-items: center;
   flex-direction: column;
-  padding-top: 2rem;           /* was 6rem */
+  padding-top: 2rem;
+  /* was 6rem */
   padding-bottom: 0.5rem;
   text-align: center;
   padding-left: 1rem;
@@ -872,10 +877,34 @@ body {
   z-index: 2;
   pointer-events: none;
 }
-.corner.tl { top: 16px;    left: 16px;  border-top: 2px solid rgba(0,200,255,0.4); border-left: 2px solid rgba(0,200,255,0.4); }
-.corner.tr { top: 16px;    right: 16px; border-top: 2px solid rgba(0,200,255,0.4); border-right: 2px solid rgba(0,200,255,0.4); }
-.corner.bl { bottom: 16px; left: 16px;  border-bottom: 2px solid rgba(0,200,255,0.4); border-left: 2px solid rgba(0,200,255,0.4); }
-.corner.br { bottom: 16px; right: 16px; border-bottom: 2px solid rgba(0,200,255,0.4); border-right: 2px solid rgba(0,200,255,0.4); }
+
+.corner.tl {
+  top: 16px;
+  left: 16px;
+  border-top: 2px solid rgba(0, 200, 255, 0.4);
+  border-left: 2px solid rgba(0, 200, 255, 0.4);
+}
+
+.corner.tr {
+  top: 16px;
+  right: 16px;
+  border-top: 2px solid rgba(0, 200, 255, 0.4);
+  border-right: 2px solid rgba(0, 200, 255, 0.4);
+}
+
+.corner.bl {
+  bottom: 16px;
+  left: 16px;
+  border-bottom: 2px solid rgba(0, 200, 255, 0.4);
+  border-left: 2px solid rgba(0, 200, 255, 0.4);
+}
+
+.corner.br {
+  bottom: 16px;
+  right: 16px;
+  border-bottom: 2px solid rgba(0, 200, 255, 0.4);
+  border-right: 2px solid rgba(0, 200, 255, 0.4);
+}
 
 /* ── Desktop override ── */
 @media (min-width: 900px) {
@@ -887,5 +916,22 @@ body {
     margin: 0;
     max-width: none;
   }
-  .kuch { padding-top: 1.5em; }
+
+  .kuch {
+    padding-top: 1.5em;
+  }
+}
+
+.dashboard-page .modal-overlay {
+  padding: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Enter key hint text below modal buttons */
+.enter-hint {
+  margin-top: 10px;
+  font-size: 11px;
+  color: rgba(148, 163, 184, 0.5);
+  text-align: center;
+  letter-spacing: 0.05em;
 }
