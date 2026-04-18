@@ -499,6 +499,8 @@ export default function gameSocket(io, socket) {
 
       if (!game) return;
 
+      io.to(gameCode).emit("diceRolling", { rolledBy: userId });
+
       const currentIndex = game.players.findIndex(
         p => p.userId.toString() === userId.toString()
       );

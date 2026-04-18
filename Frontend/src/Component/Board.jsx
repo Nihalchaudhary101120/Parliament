@@ -487,7 +487,11 @@ const Board = () => {
       }
     });
 
-    // turnResult — normal turn end
+    socket.current.off("diceRolling");
+    socket.current.on("diceRolling", ({ rolledBy }) => {
+      setSharedRolling(true);
+    });
+
     socket.current.off("turnResult");
     socket.current.on("turnResult", ({ players: updated, currentTurn: nextTurn, turnNo: newTurnNo, mysteryCase: mc }) => {
       clearActionTimer();
@@ -590,7 +594,6 @@ const Board = () => {
       setTimeout(() => setBidResult(null), 3500);
     });
 
-    // gameOver
     socket.current.off("gameOver");
     socket.current.on("gameOver", ({ winner, players: final }) => {
       setPlayers(final);
@@ -625,6 +628,7 @@ const Board = () => {
       socket.current.off("bidStarted");
       socket.current.off("bidResult");
       socket.current.off("system");
+      socket.current.off("diceRolling");
       socket.current.off("gameOver");
       socket.current.off("timebombExploded");
       socket.current.off("newPositions");
