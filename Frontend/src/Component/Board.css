@@ -3267,20 +3267,24 @@ body,
   text-shadow: 0 0 12px gold, 0 0 24px orange;
   margin: 0;
 }
+
 /* === SKIP DOTS CONTAINER === */
 .skip-dots {
   position: absolute;
-  bottom: 8%;              /* adjusts better across screens */
+  bottom: 8%;
+  /* adjusts better across screens */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 0.4rem;            /* responsive gap */
+  gap: 0.4rem;
+  /* responsive gap */
   z-index: 5;
 }
 
 /* === DOT BASE === */
 .dot {
-  width: clamp(6px, 0.7vw, 10px);   /* responsive size */
+  width: clamp(6px, 0.7vw, 10px);
+  /* responsive size */
   height: clamp(6px, 0.7vw, 10px);
   border-radius: 50%;
   transition: all 0.3s ease;
@@ -3301,27 +3305,49 @@ body,
   box-shadow:
     0 0 6px red,
     0 0 12px rgba(255, 60, 60, 0.7);
-  animation: dotBreak 0.4s ease, dotBlink 0.6s ease 2; /* 🔥 blink */
+  animation: dotBreak 0.4s ease, dotBlink 0.6s ease 2;
+  /* 🔥 blink */
 }
 
 /* === GREEN PULSE === */
 @keyframes dotPulse {
-  0%   { box-shadow: 0 0 4px #00ff88; }
-  50%  { box-shadow: 0 0 12px #00ff88; }
-  100% { box-shadow: 0 0 4px #00ff88; }
+  0% {
+    box-shadow: 0 0 4px #00ff88;
+  }
+
+  50% {
+    box-shadow: 0 0 12px #00ff88;
+  }
+
+  100% {
+    box-shadow: 0 0 4px #00ff88;
+  }
 }
 
 /* === RED POP EFFECT === */
 @keyframes dotBreak {
-  0%   { transform: scale(1.6); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1.6);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* === RED BLINK EFFECT 🔥 */
 @keyframes dotBlink {
-  0%   { opacity: 1; }
-  50%  { opacity: 0.2; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.2;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 
@@ -3347,5 +3373,288 @@ body,
   .skip-dots {
     bottom: 4%;
     gap: 0.25rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   1. GUIDE OPEN BUTTON
+   ═══════════════════════════════════════════════════════════ */
+
+.guide-open-btn {
+  position: fixed;
+  top: 16px;
+  left: 90px;
+  /* sits to the right of quit-btn */
+  z-index: 50;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(0, 30, 60, 0.75);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 17px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.guide-open-btn:hover {
+  background: rgba(0, 80, 140, 0.9);
+  border-color: #00e5ff;
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.5);
+  transform: scale(1.08);
+}
+
+.guide-open-btn:active {
+  transform: scale(0.94);
+}
+
+@media (max-width: 640px) {
+  .guide-open-btn {
+    top: 8px;
+    left: 72px;
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+    border-radius: 7px;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   2. CENTER GRID — DYNAMIC LAYOUT BY PLAYER COUNT
+   
+   Matches how pawns are placed: compact for 2 players,
+   spread for 3-4, tight grid for 5-6.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Base — reset the old fixed 2-col × 3-row grid */
+.center-grid {
+  width: 100%;
+  height: 100%;
+  padding: 15px;
+  display: grid;
+  gap: 10px;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  justify-items: center;
+}
+
+/* ── 1 player: full center ── */
+.center-grid.players-1 {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  padding: 30px;
+}
+
+/* ── 2 players: side by side, both tall ── */
+.center-grid.players-2 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr;
+}
+
+/* ── 3 players: 2 on top, 1 centered below ── */
+.center-grid.players-3 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+/* 3rd cell — span full width and center */
+.center-grid.players-3 .player-cell:nth-child(3) {
+  grid-column: 1 / -1;
+  max-width: 55%;
+  justify-self: center;
+}
+
+/* ── 4 players: 2×2 ── */
+.center-grid.players-4 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+/* ── 5 players: 3 top + 2 bottom centered ── */
+.center-grid.players-5 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.center-grid.players-5 .player-cell:nth-child(4) {
+  grid-column: 1 / 2;
+  justify-self: end;
+}
+
+.center-grid.players-5 .player-cell:nth-child(5) {
+  grid-column: 3 / 4;
+  justify-self: start;
+}
+
+/* ── 6 players: 3×2 ── */
+.center-grid.players-6 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+/* All player cells — consistent sizing within each layout */
+.center-grid .player-cell {
+  width: 100%;
+  height: 100%;
+}
+
+/* Scale down min-height for 5-6 players so they all fit */
+.center-grid.players-5 .player-cell,
+.center-grid.players-6 .player-cell {
+  min-height: 130px;
+}
+
+.center-grid.players-1 .player-cell {
+  min-height: 260px;
+}
+
+.center-grid.players-2 .player-cell {
+  min-height: 220px;
+}
+
+/* ── Responsive scaling ── */
+@media (max-width: 900px) {
+
+  .center-grid.players-5 .player-cell,
+  .center-grid.players-6 .player-cell {
+    min-height: 90px;
+  }
+
+  .center-grid.players-1 .player-cell {
+    min-height: 180px;
+  }
+
+  .center-grid.players-2 .player-cell {
+    min-height: 140px;
+  }
+
+  .center-grid.players-3 .player-cell,
+  .center-grid.players-4 .player-cell {
+    min-height: 110px;
+  }
+}
+
+@media (max-width: 640px) {
+  .center-grid {
+    padding: 5px;
+    gap: 3px;
+  }
+
+  .center-grid.players-5 .player-cell,
+  .center-grid.players-6 .player-cell {
+    min-height: 60px;
+  }
+
+  .center-grid.players-3 .player-cell:nth-child(3) {
+    max-width: 65%;
+  }
+
+  .center-grid.players-1 .player-cell {
+    min-height: 120px;
+  }
+
+  .center-grid.players-2 .player-cell {
+    min-height: 90px;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   3. CHAT ON DESKTOP — accessible alongside bid modal
+   ═══════════════════════════════════════════════════════════
+
+   Strategy:
+   - Desktop (>1200px): chat is always visible as a fixed panel
+     on the LEFT side. It doesn't compete with the bid modal
+     which centers on screen.
+   - During bid (.bid-active): chat gets a higher z-index boost
+     so it renders above the blur but below the bid modal.
+   - Mobile: unchanged — stays as a drawer triggered by button.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Desktop chat — persistent left panel */
+@media (min-width: 1201px) {
+  .chat-drawer {
+    position: fixed;
+    left: 12px;
+    bottom: 12px;
+    top: auto;
+    width: 280px;
+    height: auto;
+    max-height: min(520px, 60vh);
+    z-index: 30;
+    /* above board, below modals */
+    display: flex !important;
+    /* always visible on desktop */
+    flex-direction: column;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(0, 229, 255, 0.12),
+      0 8px 32px rgba(0, 0, 0, 0.6);
+    background: rgba(2, 8, 20, 0.85);
+    backdrop-filter: blur(12px);
+    transition: z-index 0s;
+    /* instant z-index switch */
+  }
+
+  /* During bid — lift above the backdrop blur */
+  .chat-drawer.bid-active {
+    z-index: 200;
+    /* bid-overlay is z-index:100, so chat sits above it */
+    box-shadow:
+      0 0 0 1px rgba(0, 229, 255, 0.3),
+      0 0 20px rgba(0, 229, 255, 0.15),
+      0 8px 32px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Hide the mobile toggle button on desktop */
+  .chat-toggle-btn {
+    display: none !important;
+  }
+
+  /* Chat container inside the drawer — fill the panel */
+  .chat-drawer .chat-container {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    height: min(520px, 60vh);
+    border-radius: 16px;
+    border: none;
+  }
+}
+
+/* Bid overlay — slightly shift center so chat doesn't overlap */
+@media (min-width: 1201px) {
+  .bid-overlay {
+    /* offset center slightly right to avoid chat panel */
+    padding-left: 300px;
+  }
+
+  .modal-overlay {
+    padding-left: 300px;
+  }
+}
+
+/* ── Very wide screens — give chat more room ── */
+@media (min-width: 1600px) {
+  .chat-drawer {
+    width: 300px;
+    left: 20px;
+    bottom: 20px;
+  }
+
+  .bid-overlay,
+  .modal-overlay {
+    padding-left: 320px;
   }
 }

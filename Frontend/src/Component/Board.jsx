@@ -803,6 +803,9 @@ const Board = () => {
             <span className="quit-icon">✕</span>
             <span className="quit-text">Quit</span>
           </button>
+          <button className="guide-open-btn" onClick={() => setShowGuide(true)} title="Game Guide">
+            📖
+          </button>
 
           <CardModal showConfirm={showConfirm} socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
           {/* <GameChatContainer players={players} /> */}
@@ -1158,7 +1161,7 @@ const Board = () => {
                     </div>
                   )}
 
-                  <div className="center-grid">
+                  <div className={`center-grid players-${optimisticPlayers.length}`}>
                     {optimisticPlayers.map((player, i) => {
                       const hp = player.remainingParliamentHp;
                       const shield = player.remainingShieldHp;
@@ -1238,7 +1241,7 @@ const Board = () => {
         </div>
 
         {/* Chat Drawer */}
-        <div className={`chat-drawer ${isChatOpen ? 'open' : ''}`}>
+        <div className={`chat-drawer ${isChatOpen ? 'open' : ''} ${bidModal ? 'bid-active' : ''}`}>
           <GameChatContainer players={players} />
         </div>
         <button
