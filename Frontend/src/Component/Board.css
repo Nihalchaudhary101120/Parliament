@@ -3540,8 +3540,8 @@ body,
   .center-grid { padding: 5px; gap: 3px; }
  
   .center-grid.players-2 {
-    grid-template-columns: repeat(2, minmax(0, 175px)); /* was 140px */
-    grid-template-rows: minmax(0, 175px);
+    grid-template-columns: repeat(2, minmax(0, 190px)); /* was 140px */
+    grid-template-rows: minmax(0, 160px);
   }
  
   .center-grid .player-cell          { min-height: 80px; }
