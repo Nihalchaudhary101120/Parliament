@@ -3383,7 +3383,7 @@ body,
 .guide-open-btn {
   position: fixed;
   top: 16px;
-  left: 90px;
+  left: 90px;         /* desktop: right of quit button (quit is ~76px wide) */
   z-index: 50;
   width: 36px;
   height: 36px;
@@ -3400,261 +3400,153 @@ body,
   transition: all 0.2s ease;
   line-height: 1;
 }
-
+ 
 .guide-open-btn:hover {
   background: rgba(0, 80, 140, 0.9);
   border-color: #00e5ff;
   box-shadow: 0 0 14px rgba(0, 229, 255, 0.5);
   transform: scale(1.08);
 }
-
-.guide-open-btn:active {
-  transform: scale(0.94);
-}
-
+ 
+/* Tablet */
 @media (max-width: 1024px) {
   .guide-open-btn {
-    top: 52px;
-    /* below quit-btn */
-    left: 8px;
-    width: 32px;
-    height: 32px;
-    font-size: 15px;
-    border-radius: 8px;
+    top: 8px;           /* same row as quit */
+    left: 120px;        /* quit-btn on tablet: ~8px left + ~100px wide */
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
   }
 }
-
+ 
+/* Mobile */
 @media (max-width: 640px) {
   .guide-open-btn {
-    top: 42px;
-    left: 8px;
-    width: 28px;
-    height: 28px;
-    font-size: 13px;
+    top: 8px;           /* inline with quit */
+    left: 118px;        /* quit shrinks to ~100px on mobile */
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
     border-radius: 7px;
   }
 }
-
-
+ 
+@media (max-width: 400px) {
+  .guide-open-btn {
+    left: 108px;
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+}
+ 
+ 
 /* ═══════════════════════════════════════════════════════════
-   2. CENTER GRID — DYNAMIC LAYOUT BY PLAYER COUNT
+   FIX 2: CENTER GRID — revert to original player-cell sizes,
+   just fix the grid layout so 2 players look good
    
-   Matches how pawns are placed: compact for 2 players,
-   spread for 3-4, tight grid for 5-6.
+   Key insight: keep min-height: 180px (original) for all counts.
+   Only change the grid columns/rows, not the cell sizing.
+   For 2 players: don't stretch to fill — constrain width and center.
    ═══════════════════════════════════════════════════════════ */
-
-/* Base — reset the old fixed 2-col × 3-row grid */
+ 
 .center-grid {
   width: 100%;
   height: 100%;
   padding: 15px;
   display: grid;
   gap: 10px;
-  align-content: center;
-  justify-content: center;
-  align-items: center;
-  justify-items: center;
+  /* Default: no alignment overrides — let grid fill naturally */
 }
-
-/* 1 player */
+ 
+/* ── 1 player: centered single cell ── */
 .center-grid.players-1 {
-  grid-template-columns: minmax(0, 280px);
+  grid-template-columns: minmax(0, 320px);
   grid-template-rows: 1fr;
+  justify-content: center;
+  align-content: center;
 }
-
-/* 2 players — same cell size as 3-player layout, centered */
+ 
+/* ── 2 players: two columns, capped width, vertically centered ──
+   This is the key fix — don't let them stretch to the full 7-tile
+   center area width. Cap each cell and center the pair.          */
 .center-grid.players-2 {
-  grid-template-columns: repeat(2, minmax(0, 220px));
-  grid-template-rows: minmax(0, 260px);
-  /* single row, constrained width so they don't stretch */
+  grid-template-columns: repeat(2, minmax(0, 240px));
+  grid-template-rows: minmax(0, 320px);
+  justify-content: center;  /* centers the 2-col group horizontally */
+  align-content: center;    /* centers the single row vertically */
 }
-
-/* 3 players: 2 on top, 1 centered below */
+ 
+/* ── 3 players: 2 top, 1 centered below ── */
 .center-grid.players-3 {
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
+  justify-content: stretch;
+  align-content: stretch;
 }
-
+ 
 .center-grid.players-3 .player-cell:nth-child(3) {
   grid-column: 1 / -1;
-  max-width: 55%;
+  max-width: 52%;
   justify-self: center;
 }
-
-/* 4 players: 2×2 */
+ 
+/* ── 4 players: 2×2 ── */
 .center-grid.players-4 {
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
 }
-
-/* 5 players: 3 top + 2 bottom centered */
+ 
+/* ── 5 players: 3+2 ── */
 .center-grid.players-5 {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 1fr);
 }
-
-/* 6 players: 3×2 */
+ 
+/* ── 6 players: 3×2 ── */
 .center-grid.players-6 {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 1fr);
 }
-
-
-/* All player cells — consistent sizing within each layout */
-/* .center-grid .player-cell {
+ 
+/* Original min-height preserved for all */
+.center-grid .player-cell {
+  min-height: 180px;
+  position: relative;
   width: 100%;
   height: 100%;
-} */
-
-/* Scale down min-height for 5-6 players so they all fit */
+}
+ 
+/* 5-6 players need to be a bit smaller to fit */
 .center-grid.players-5 .player-cell,
 .center-grid.players-6 .player-cell {
   min-height: 130px;
 }
-
-.center-grid.players-1 .player-cell {
-  min-height: 260px;
-}
-
-.center-grid.players-2 .player-cell {
-  min-height: 200px;
-}
-
-/* ── Responsive scaling ── */
+ 
+/* ── Responsive ── */
 @media (max-width: 900px) {
   .center-grid.players-2 {
-    grid-template-columns: repeat(2, minmax(0, 160px));
-    grid-template-rows: minmax(0, 180px);
+    grid-template-columns: repeat(2, minmax(0, 180px));
+    grid-template-rows: minmax(0, 230px);
   }
-
-  .center-grid.players-2 .player-cell {
-    min-height: 130px;
-  }
-
+ 
+  .center-grid .player-cell          { min-height: 130px; }
   .center-grid.players-5 .player-cell,
-  .center-grid.players-6 .player-cell {
-    min-height: 90px;
-  }
-
-  .center-grid.players-1 .player-cell {
-    min-height: 180px;
-  }
-
-  .center-grid.players-3 .player-cell,
-  .center-grid.players-4 .player-cell {
-    min-height: 110px;
-  }
+  .center-grid.players-6 .player-cell { min-height: 90px; }
 }
-
+ 
 @media (max-width: 640px) {
-  .center-grid {
-    padding: 5px;
-    gap: 3px;
-  }
-
+  .center-grid { padding: 5px; gap: 3px; }
+ 
   .center-grid.players-2 {
-    grid-template-columns: repeat(2, minmax(0, 120px));
-    grid-template-rows: minmax(0, 130px);
+    grid-template-columns: repeat(2, minmax(0, 140px));
+    grid-template-rows: minmax(0, 175px);
   }
-
-  .center-grid.players-2 .player-cell {
-    min-height: 100px;
-  }
-
+ 
+  .center-grid .player-cell          { min-height: 80px; }
   .center-grid.players-5 .player-cell,
-  .center-grid.players-6 .player-cell {
-    min-height: 60px;
-  }
-
-  .center-grid.players-3 .player-cell:nth-child(3) {
-    max-width: 65%;
-  }
-
-  .center-grid.players-1 .player-cell {
-    min-height: 120px;
-  }
+  .center-grid.players-6 .player-cell { min-height: 60px; }
+ 
+  .center-grid.players-3 .player-cell:nth-child(3) { max-width: 65%; }
 }
-
-
-/* ═══════════════════════════════════════════════════════════
-   3. CHAT ON DESKTOP — accessible alongside bid modal
-   ═══════════════════════════════════════════════════════════
-
-   Strategy:
-   - Desktop (>1200px): chat is always visible as a fixed panel
-     on the LEFT side. It doesn't compete with the bid modal
-     which centers on screen.
-   - During bid (.bid-active): chat gets a higher z-index boost
-     so it renders above the blur but below the bid modal.
-   - Mobile: unchanged — stays as a drawer triggered by button.
-   ═══════════════════════════════════════════════════════════ */
-
-/* Desktop chat — persistent left panel */
-@media (min-width: 1201px) {
-
-  /* Chat: fixed left, vertically centered */
-  .chat-drawer {
-    position: fixed;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    bottom: auto;
-    width: 270px;
-    height: auto;
-    max-height: min(560px, 72vh);
-    z-index: 30;
-    display: flex !important;
-    flex-direction: column;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow:
-      0 0 0 1px rgba(0, 229, 255, 0.12),
-      0 8px 32px rgba(0, 0, 0, 0.6);
-    background: rgba(2, 8, 20, 0.85);
-    backdrop-filter: blur(12px);
-  }
-
-  /* During bid — lift above backdrop */
-  .chat-drawer.bid-active {
-    z-index: 200;
-    box-shadow:
-      0 0 0 1px rgba(0, 229, 255, 0.3),
-      0 0 20px rgba(0, 229, 255, 0.15),
-      0 8px 32px rgba(0, 0, 0, 0.8);
-  }
-
-  .chat-toggle-btn {
-    display: none !important;
-  }
-
-  .chat-drawer .chat-container {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    width: 100%;
-    height: min(560px, 72vh);
-    border-radius: 16px;
-    border: none;
-  }
-
-  /* Bid/buy overlays — TRUE center, NO padding offset */
-  .bid-overlay,
-  .modal-overlay {
-    padding-left: 0 !important;
-    padding: 0;
-  }
-}
-
-@media (min-width: 1600px) {
-  .chat-drawer {
-    width: 290px;
-    left: 16px;
-  }
-}
-
-.dashboard-page .modal-overlay,
-.hero .modal-overlay {
-  padding-left: 0 !important;
-  padding: 0 !important;
-}
+ 
