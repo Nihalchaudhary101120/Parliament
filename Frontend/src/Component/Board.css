@@ -3471,11 +3471,12 @@ body,
    This is the key fix — don't let them stretch to the full 7-tile
    center area width. Cap each cell and center the pair.          */
 .center-grid.players-2 {
-  grid-template-columns: repeat(2, minmax(0, 240px));
+  grid-template-columns: repeat(2, minmax(0, 340px)); /* was 240px */
   grid-template-rows: minmax(0, 320px);
-  justify-content: center;  /* centers the 2-col group horizontally */
-  align-content: center;    /* centers the single row vertically */
+  justify-content: center;
+  align-content: center;
 }
+
  
 /* ── 3 players: 2 top, 1 centered below ── */
 .center-grid.players-3 {
@@ -3526,7 +3527,7 @@ body,
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .center-grid.players-2 {
-    grid-template-columns: repeat(2, minmax(0, 180px));
+    grid-template-columns: repeat(2, minmax(0, 240px)); /* was 180px */
     grid-template-rows: minmax(0, 230px);
   }
  
@@ -3539,7 +3540,7 @@ body,
   .center-grid { padding: 5px; gap: 3px; }
  
   .center-grid.players-2 {
-    grid-template-columns: repeat(2, minmax(0, 140px));
+    grid-template-columns: repeat(2, minmax(0, 175px)); /* was 140px */
     grid-template-rows: minmax(0, 175px);
   }
  
