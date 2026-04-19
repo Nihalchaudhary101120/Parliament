@@ -3472,7 +3472,7 @@ body,
    center area width. Cap each cell and center the pair.          */
 .center-grid.players-2 {
   grid-template-columns: repeat(2, minmax(0, 340px)); /* was 240px */
-  grid-template-rows: minmax(0, 320px);
+  grid-template-rows: minmax(0, 350px);
   justify-content: center;
   align-content: center;
 }
