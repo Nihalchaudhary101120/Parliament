@@ -3471,8 +3471,8 @@ body,
    This is the key fix — don't let them stretch to the full 7-tile
    center area width. Cap each cell and center the pair.          */
 .center-grid.players-2 {
-  grid-template-columns: repeat(2, minmax(0, 340px)); /* was 240px */
-  grid-template-rows: minmax(0, 350px);
+  grid-template-columns: repeat(2, minmax(0, 310px)); /* was 240px */
+  grid-template-rows: minmax(0, 370px);
   justify-content: center;
   align-content: center;
 }
