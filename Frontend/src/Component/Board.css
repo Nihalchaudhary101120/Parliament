@@ -3527,8 +3527,8 @@ body,
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .center-grid.players-2 {
-    grid-template-columns: repeat(2, minmax(0, 240px)); /* was 180px */
-    grid-template-rows: minmax(0, 230px);
+    grid-template-columns: repeat(2, minmax(0, 245px)); /* was 180px */
+    grid-template-rows: minmax(0, 210px);
   }
  
   .center-grid .player-cell          { min-height: 130px; }
