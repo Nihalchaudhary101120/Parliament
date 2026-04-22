@@ -2745,22 +2745,31 @@ body,
 
 
   .quit-btn {
-    top: 8px;
-    left: 8px;
-    padding: 5px 10px;
-    font-size: 11px;
-    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 10px;
+    background: rgba(40, 5, 5, 0.75);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    color: #fca5a5;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
   }
 
   .quit-guide-combine {
-    position: absolute;
-    top: 10px;
-    left: 0;
-    width: 100%;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 50;
     display: flex;
-    justify-content: space-between;
-    /* push to edges */
-    padding: 0 10px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
   }
 
   .mystery-inline-img {
@@ -3392,11 +3401,6 @@ body,
    ═══════════════════════════════════════════════════════════ */
 
 .guide-open-btn {
-  position: fixed;
-  top: 16px;
-  left: 90px;
-  /* desktop: right of quit button (quit is ~76px wide) */
-  z-index: 50;
   width: 36px;
   height: 36px;
   border-radius: 10px;
@@ -3411,6 +3415,8 @@ body,
   justify-content: center;
   transition: all 0.2s ease;
   line-height: 1;
+  /* Remove any fixed positioning — parent handles placement */
+  position: static;
 }
 
 .guide-open-btn:hover {
@@ -3435,13 +3441,20 @@ body,
 
 /* Mobile */
 @media (max-width: 640px) {
-  .guide-open-btn {
+  .quit-guide-combine {
     top: 10px;
-    /* inline with quit */
-    left: auto;
-    /* quit shrinks to ~100px on mobile */
+    left: 10px;
+    gap: 6px;
+  }
+ 
+  .quit-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+ 
+  .guide-open-btn {
     width: 30px;
-    right:60px;
     height: 30px;
     font-size: 14px;
     border-radius: 7px;
@@ -3449,11 +3462,21 @@ body,
 }
 
 @media (max-width: 400px) {
+  .quit-guide-combine {
+    top: 8px;
+    left: 8px;
+    gap: 5px;
+  }
+ 
+  .quit-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+ 
   .guide-open-btn {
-    left: 108px;
-    width: 28px;
-    height: 28px;
-    font-size: 13px;
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
   }
 }
 

@@ -84,6 +84,7 @@ const GameGuide = ({ onDone }) => {
     setVisible(false);
     setTimeout(() => onDone?.(), 400);
   };
+  
 
   if (!visible) return null;
 
