@@ -565,7 +565,7 @@ body,
 /* active tile */
 .player-3d {
   transform: scale(1.18) translateY(-10px);
-  z-index: 50;
+  z-index: 49;
   box-shadow:
     0 20px 35px rgba(0, 0, 0, 0.9),
     inset 0 0 10px rgba(255, 255, 255, 0.3);
@@ -2763,18 +2763,27 @@ body,
     padding: 0 10px;
   }
 
+  .mystery-inline-overlay {
+    padding: 6px;
+  }
+ 
+  .mystery-inline-card {
+    margin-top: 6px;
+    gap: 3px;
+  }
+ 
   .mystery-inline-img {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
   }
-
+ 
   .mystery-inline-title {
-    font-size: 10px;
-    max-width: 120px;
+    font-size: 8px;
+    max-width: 95%;
   }
-
+ 
   .mystery-inline-amount {
-    font-size: 20px;
+    font-size: 16px;
   }
 }
 
@@ -3232,47 +3241,58 @@ body,
 .mystery-inline-overlay {
   position: absolute;
   inset: 0;
-  z-index: 10;
+  z-index: 50;
+  /* was 10 — now above name badges */
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(5px);
   border-radius: inherit;
   pointer-events: none;
-  /* ← key: clicks pass through to dice/board */
   animation: fadeIn 0.3s ease;
+  padding: 12px;
+  /* prevent text touching edges */
 }
 
 .mystery-inline-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   text-align: center;
   animation: zoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* push down slightly so it clears any top name badges */
+  margin-top: 16px;
 }
 
 .mystery-inline-img {
-  width: 70px;
-  height: 70px;
+  width: clamp(40px, 6vw, 70px);
+  /* scales with screen */
+  height: clamp(40px, 6vw, 70px);
   object-fit: contain;
   filter: drop-shadow(0 0 14px rgba(255, 80, 80, 0.8));
   animation: pulseGlow 1s infinite alternate;
+  flex-shrink: 0;
 }
 
 .mystery-inline-title {
-  font-size: 13px;
+  font-size: clamp(9px, 1.1vw, 13px);
   font-weight: 700;
   color: #fca5a5;
   text-shadow: 0 0 8px red;
-  max-width: 180px;
+  max-width: 90%;
+  /* don't overflow the cell */
   line-height: 1.3;
   margin: 0;
+  word-break: break-word;
+  /* hard outline so it's readable over any background */
+  -webkit-text-stroke: 0.3px rgba(0, 0, 0, 0.8);
 }
 
 .mystery-inline-amount {
-  font-size: 26px;
+  font-size: clamp(18px, 2.5vw, 28px);
   font-weight: 900;
   color: gold;
   text-shadow: 0 0 12px gold, 0 0 24px orange;
@@ -3441,7 +3461,7 @@ body,
     left: auto;
     /* quit shrinks to ~100px on mobile */
     width: 30px;
-    right:60px;
+    right: 60px;
     height: 30px;
     font-size: 14px;
     border-radius: 7px;
@@ -3557,6 +3577,11 @@ body,
   .center-grid.players-5 .player-cell,
   .center-grid.players-6 .player-cell {
     min-height: 90px;
+  }
+
+  .mystery-inline-card {
+    margin-top: 10px;
+    gap: 4px;
   }
 }
 
