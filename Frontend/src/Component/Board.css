@@ -3436,11 +3436,12 @@ body,
 /* Mobile */
 @media (max-width: 640px) {
   .guide-open-btn {
-    top: 8px;
+    top: 10px;
     /* inline with quit */
-    left: 118px;
+    left: auto;
     /* quit shrinks to ~100px on mobile */
     width: 30px;
+    right:60px;
     height: 30px;
     font-size: 14px;
     border-radius: 7px;
