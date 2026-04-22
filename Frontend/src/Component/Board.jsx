@@ -799,13 +799,15 @@ const Board = () => {
 
 
           {/* ── Quit Button ── */}
-          <button className="quit-btn" onClick={handleQuit}>
-            <span className="quit-icon">✕</span>
-            <span className="quit-text">Quit</span>
-          </button>
-          <button className="guide-open-btn" onClick={() => setShowGuide(true)} title="Game Guide">
-            📖
-          </button>
+          <div className="quit-guide-combine">
+            <button className="quit-btn" onClick={handleQuit}>
+              <span className="quit-icon">✕</span>
+              <span className="quit-text">Quit</span>
+            </button>
+            <button className="guide-open-btn" onClick={() => setShowGuide(true)} title="Game Guide">
+              📖
+            </button>
+          </div>
 
           <CardModal showConfirm={showConfirm} socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
           {/* <GameChatContainer players={players} /> */}

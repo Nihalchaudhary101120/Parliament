@@ -2752,6 +2752,17 @@ body,
     border-radius: 8px;
   }
 
+  .quit-guide-combine {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    /* push to edges */
+    padding: 0 10px;
+  }
+
   .mystery-inline-img {
     width: 48px;
     height: 48px;
@@ -3383,7 +3394,8 @@ body,
 .guide-open-btn {
   position: fixed;
   top: 16px;
-  left: 90px;         /* desktop: right of quit button (quit is ~76px wide) */
+  left: 90px;
+  /* desktop: right of quit button (quit is ~76px wide) */
   z-index: 50;
   width: 36px;
   height: 36px;
@@ -3400,37 +3412,41 @@ body,
   transition: all 0.2s ease;
   line-height: 1;
 }
- 
+
 .guide-open-btn:hover {
   background: rgba(0, 80, 140, 0.9);
   border-color: #00e5ff;
   box-shadow: 0 0 14px rgba(0, 229, 255, 0.5);
   transform: scale(1.08);
 }
- 
+
 /* Tablet */
 @media (max-width: 1024px) {
   .guide-open-btn {
-    top: 8px;           /* same row as quit */
-    left: 120px;        /* quit-btn on tablet: ~8px left + ~100px wide */
+    top: 8px;
+    /* same row as quit */
+    left: 120px;
+    /* quit-btn on tablet: ~8px left + ~100px wide */
     width: 34px;
     height: 34px;
     font-size: 16px;
   }
 }
- 
+
 /* Mobile */
 @media (max-width: 640px) {
   .guide-open-btn {
-    top: 8px;           /* inline with quit */
-    left: 118px;        /* quit shrinks to ~100px on mobile */
+    top: 8px;
+    /* inline with quit */
+    left: 118px;
+    /* quit shrinks to ~100px on mobile */
     width: 30px;
     height: 30px;
     font-size: 14px;
     border-radius: 7px;
   }
 }
- 
+
 @media (max-width: 400px) {
   .guide-open-btn {
     left: 108px;
@@ -3439,8 +3455,8 @@ body,
     font-size: 13px;
   }
 }
- 
- 
+
+
 /* ═══════════════════════════════════════════════════════════
    FIX 2: CENTER GRID — revert to original player-cell sizes,
    just fix the grid layout so 2 players look good
@@ -3449,7 +3465,7 @@ body,
    Only change the grid columns/rows, not the cell sizing.
    For 2 players: don't stretch to fill — constrain width and center.
    ═══════════════════════════════════════════════════════════ */
- 
+
 .center-grid {
   width: 100%;
   height: 100%;
@@ -3458,7 +3474,7 @@ body,
   gap: 10px;
   /* Default: no alignment overrides — let grid fill naturally */
 }
- 
+
 /* ── 1 player: centered single cell ── */
 .center-grid.players-1 {
   grid-template-columns: minmax(0, 320px);
@@ -3466,18 +3482,19 @@ body,
   justify-content: center;
   align-content: center;
 }
- 
+
 /* ── 2 players: two columns, capped width, vertically centered ──
    This is the key fix — don't let them stretch to the full 7-tile
    center area width. Cap each cell and center the pair.          */
 .center-grid.players-2 {
-  grid-template-columns: repeat(2, minmax(0, 350px)); /* was 240px */
+  grid-template-columns: repeat(2, minmax(0, 350px));
+  /* was 240px */
   grid-template-rows: minmax(0, 312px);
   justify-content: center;
   align-content: center;
 }
 
- 
+
 /* ── 3 players: 2 top, 1 centered below ── */
 .center-grid.players-3 {
   grid-template-columns: repeat(2, 1fr);
@@ -3485,31 +3502,31 @@ body,
   justify-content: stretch;
   align-content: stretch;
 }
- 
+
 .center-grid.players-3 .player-cell:nth-child(3) {
   grid-column: 1 / -1;
   max-width: 52%;
   justify-self: center;
 }
- 
+
 /* ── 4 players: 2×2 ── */
 .center-grid.players-4 {
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
 }
- 
+
 /* ── 5 players: 3+2 ── */
 .center-grid.players-5 {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 1fr);
 }
- 
+
 /* ── 6 players: 3×2 ── */
 .center-grid.players-6 {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 1fr);
 }
- 
+
 /* Original min-height preserved for all */
 .center-grid .player-cell {
   min-height: 180px;
@@ -3517,37 +3534,53 @@ body,
   width: 100%;
   height: 100%;
 }
- 
+
 /* 5-6 players need to be a bit smaller to fit */
 .center-grid.players-5 .player-cell,
 .center-grid.players-6 .player-cell {
   min-height: 130px;
 }
- 
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .center-grid.players-2 {
-    grid-template-columns: repeat(2, minmax(0, 245px)); /* was 180px */
+    grid-template-columns: repeat(2, minmax(0, 245px));
+    /* was 180px */
     grid-template-rows: minmax(0, 210px);
   }
- 
-  .center-grid .player-cell          { min-height: 130px; }
+
+  .center-grid .player-cell {
+    min-height: 130px;
+  }
+
   .center-grid.players-5 .player-cell,
-  .center-grid.players-6 .player-cell { min-height: 90px; }
+  .center-grid.players-6 .player-cell {
+    min-height: 90px;
+  }
 }
- 
+
 @media (max-width: 640px) {
-  .center-grid { padding: 5px; gap: 3px; }
- 
+  .center-grid {
+    padding: 5px;
+    gap: 3px;
+  }
+
   .center-grid.players-2 {
-    grid-template-columns: repeat(2, minmax(0, 190px)); /* was 140px */
+    grid-template-columns: repeat(2, minmax(0, 190px));
+    /* was 140px */
     grid-template-rows: minmax(0, 160px);
   }
- 
-  .center-grid .player-cell          { min-height: 80px; }
+
+  .center-grid .player-cell {
+    min-height: 80px;
+  }
+
   .center-grid.players-5 .player-cell,
-  .center-grid.players-6 .player-cell { min-height: 60px; }
- 
-  .center-grid.players-3 .player-cell:nth-child(3) { max-width: 65%; }
+  .center-grid.players-6 .player-cell {
+    min-height: 60px;
+  }
+
+  .center-grid.players-3 .player-cell:nth-child(3) {
+    max-width: 65%;
+  }
 }
- 
