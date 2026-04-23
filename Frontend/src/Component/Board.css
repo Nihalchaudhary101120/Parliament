@@ -3642,16 +3642,3 @@ body,
   }
 }
 
-@media (min-width: 1201px) {
-  .wall-toast {
-    /* chat panel is bottom: 12px + ~520px height = ~532px from bottom */
-    bottom: 540px;
-    left: 155px;
-    /* align with chat panel center (panel is 270px wide, left: 12px) */
-    transform: none;
-    /* remove the translateX(-50%) centering */
-    width: 270px;
-    /* match chat panel width */
-    min-width: unset;
-  }
-}
