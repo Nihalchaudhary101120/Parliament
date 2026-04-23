@@ -2840,11 +2840,35 @@ body,
 
 
   .damage-toast {
-    min-width: 92vw;
-    max-width: 96vw;
+    min-width: 90vw;
+    max-width: 95vw;
     left: 50%;
-    transform: translateX(-50%);
-    top: 30%;
+    top: 28%;
+    animation: damageSlideInMobile 0.35s ease forwards,
+      damageSlideOutMobile 0.4s ease 3.1s forwards;
+  }
+
+  @keyframes damageSlideInMobile {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-24px) scale(0.88);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+  }
+
+  @keyframes damageSlideOutMobile {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-12px);
+    }
   }
 
   .damage-toast-amount {
@@ -3728,3 +3752,4 @@ body,
     max-width: 65%;
   }
 }
+
