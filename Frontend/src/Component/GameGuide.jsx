@@ -56,7 +56,7 @@ const RULES = [
 
 const DURATION = 5;
 
-const GameGuide = ({ onDone }) => {
+const GameGuide = ({ onDone, manualOpen = false }) => {
   const [countdown, setCountdown] = useState(DURATION);
   const [visible, setVisible] = useState(true);
   const [page, setPage] = useState(0);
@@ -67,6 +67,7 @@ const GameGuide = ({ onDone }) => {
   const pageRules = RULES.slice(page * RULES_PER_PAGE, page * RULES_PER_PAGE + RULES_PER_PAGE);
 
   useEffect(() => {
+    if (manualOpen) return;
     timerRef.current = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
@@ -78,13 +79,13 @@ const GameGuide = ({ onDone }) => {
       });
     }, 1000);
     return () => clearInterval(timerRef.current);
-  }, []);
+  }, [manualOpen]);
 
   const dismiss = () => {
     setVisible(false);
     setTimeout(() => onDone?.(), 400);
   };
-  
+
 
   if (!visible) return null;
 
@@ -104,18 +105,22 @@ const GameGuide = ({ onDone }) => {
           </div>
 
           {/* Countdown ring */}
-          <button className="guide-close-ring" onClick={dismiss} title="Skip">
-            <svg viewBox="0 0 40 40" className="ring-svg">
-              <circle cx="20" cy="20" r="18" className="ring-bg" />
-              <circle
-                cx="20" cy="20" r="18"
-                className="ring-progress"
-                strokeDasharray={circumference}
-                strokeDashoffset={circumference - (circumference * pct) / 100}
-              />
-            </svg>
-            <span className="ring-num">{countdown}</span>
-          </button>
+          {!manualOpen ? (
+            <button className="guide-close-ring" onClick={dismiss} title="Skip">
+              <svg viewBox="0 0 40 40" className="ring-svg">
+                <circle cx="20" cy="20" r="18" className="ring-bg" />
+                <circle
+                  cx="20" cy="20" r="18"
+                  className="ring-progress"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={circumference - (circumference * pct) / 100}
+                />
+              </svg>
+              <span className="ring-num">{countdown}</span>
+            </button>
+          ) : (
+            <button className="guide-close-x" onClick={dismiss} title="Close">✕</button>
+          )}
         </div>
 
         {/* ── Divider ── */}
@@ -152,7 +157,9 @@ const GameGuide = ({ onDone }) => {
           <button className="guide-play-btn" onClick={dismiss}>
             Enter Battlefield →
           </button>
-          <p className="guide-hint">Auto-closing in {countdown}s · tap anywhere to skip</p>
+          {!manualOpen && (
+            <p className="guide-hint">Auto-closing in {countdown}s · tap anywhere to skip</p>
+          )}
         </div>
 
       </div>

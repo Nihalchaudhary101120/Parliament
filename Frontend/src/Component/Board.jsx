@@ -75,6 +75,7 @@ const Board = () => {
   const game = location.state?.game || null;
 
   const [showGuide, setShowGuide] = useState(true);
+  const [guideManual, setGuideManual] = useState(false);
   const socket = useRef(null);
   const audioRef = useRef(null);
   const stepAudio = useRef(null);
@@ -770,7 +771,12 @@ const Board = () => {
   return (
 
     <>
-      {showGuide && <GameGuide onDone={() => setShowGuide(false)} />}
+      {showGuide && (
+        <GameGuide
+          manualOpen={guideManual}
+          onDone={() => { setShowGuide(false); setGuideManual(false); }}
+        />
+      )}
 
       {!showGuide && isLoading && (
         <div className="loading-screen">
@@ -804,7 +810,7 @@ const Board = () => {
               <span className="quit-icon">✕</span>
               <span className="quit-text">Quit</span>
             </button>
-            <button className="guide-open-btn" onClick={() => setShowGuide(true)} title="Game Guide">
+            <button className="guide-open-btn" onClick={() => { setGuideManual(true); setShowGuide(true); }} title="Game Guide">
               📖
             </button>
           </div>
