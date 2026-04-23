@@ -2729,11 +2729,35 @@ body,
 
 
   .damage-toast {
-    min-width: 92vw;
-    max-width: 96vw;
+    min-width: 90vw;
+    max-width: 95vw;
     left: 50%;
-    transform: translateX(-50%);
-    top: 30%;
+    top: 28%;
+    animation: damageSlideInMobile 0.35s ease forwards,
+      damageSlideOutMobile 0.4s ease 3.1s forwards;
+  }
+
+  @keyframes damageSlideInMobile {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-24px) scale(0.88);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+  }
+
+  @keyframes damageSlideOutMobile {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-12px);
+    }
   }
 
   .damage-toast-amount {
@@ -3615,5 +3639,19 @@ body,
 
   .center-grid.players-3 .player-cell:nth-child(3) {
     max-width: 65%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .wall-toast {
+    /* chat panel is bottom: 12px + ~520px height = ~532px from bottom */
+    bottom: 540px;
+    left: 155px;
+    /* align with chat panel center (panel is 270px wide, left: 12px) */
+    transform: none;
+    /* remove the translateX(-50%) centering */
+    width: 270px;
+    /* match chat panel width */
+    min-width: unset;
   }
 }
