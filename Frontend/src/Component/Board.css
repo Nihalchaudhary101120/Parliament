@@ -2262,42 +2262,28 @@ body,
 .gameover-overlay {
   position: fixed;
   inset: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background:
-    radial-gradient(circle at center,
-      rgba(0, 0, 0, 0.6),
-      rgba(0, 0, 0, 0.95));
-
-  backdrop-filter: blur(10px);
-
+  background: radial-gradient(ellipse at center, rgba(10, 5, 30, 0.85), rgba(0, 0, 0, 0.97));
+  backdrop-filter: blur(12px);
   z-index: 999999;
-
   animation: fadeIn 0.5s ease;
 }
 
 /* 💀 MAIN MODAL */
 .gameover-modal {
   position: relative;
-
-  padding: 40px 50px;
+  width: 400px;
+  max-width: 92vw;
+  padding: 36px 32px 28px;
   border-radius: 24px;
-
-  background: linear-gradient(145deg, #0f172a, #020617);
-
-  border: 1px solid rgba(255, 255, 255, 0.1);
-
+  background: linear-gradient(160deg, #0f172a 60%, #1e1030 100%);
+  border: 1px solid rgba(250, 204, 21, 0.22);
+  box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.06), 0 30px 80px rgba(0, 0, 0, 0.8);
   text-align: center;
-
-  box-shadow:
-    0 0 40px rgba(255, 215, 0, 0.3),
-    0 0 80px rgba(255, 0, 0, 0.2),
-    inset 0 0 20px rgba(255, 255, 255, 0.05);
-
-  animation: scaleIn 0.5s ease;
+  animation: gameoverPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  overflow: hidden;
 }
 
 /* 🔥 GLOW ROTATION EFFECT */
@@ -2305,94 +2291,219 @@ body,
   content: "";
   position: absolute;
   inset: -40%;
-
-  background: conic-gradient(transparent,
-      gold,
-      transparent,
-      red,
-      transparent);
-
-  animation: rotateGlow 6s linear infinite;
-  opacity: 0.3;
-  z-index: -1;
+  background: conic-gradient(transparent, rgba(250, 204, 21, 0.25), transparent, rgba(200, 80, 255, 0.15), transparent);
+  animation: rotateGlow 10s linear infinite;
+  opacity: 0.4;
+  z-index: 0;
+  pointer-events: none;
 }
+.gameover-modal > * { position: relative; z-index: 1; }
+
+.gameover-crown {
+  display: block;
+  font-size: 54px;
+  margin: 0 auto 6px;
+  line-height: 1;
+  animation: crownBob 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(250, 204, 21, 0.9));
+}
+
+@keyframes crownBob {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50%       { transform: translateY(-8px) rotate(4deg); }
+}
+
+.gameover-sublabel {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: rgba(250, 204, 21, 0.5);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
 
 /* 🏆 TITLE */
 .gameover-modal h2 {
-  font-size: 42px;
+  font-size: 40px;
   font-weight: 900;
-  color: gold;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b, #fde68a, #f59e0b, #fbbf24);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerText 3s linear infinite;
+  line-height: 1.1;
+  margin: 0 0 18px;
+}
 
-  text-shadow:
-    0 0 20px gold,
-    0 0 40px orange;
+@keyframes shimmerText {
+  to { background-position: 200% center; }
+}
 
+.gameover-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(250, 204, 21, 0.3), transparent);
+  margin-bottom: 18px;
+}
+
+.gameover-winner-box {
+  background: rgba(250, 204, 21, 0.06);
+  border: 1px solid rgba(250, 204, 21, 0.2);
+  border-radius: 14px;
+  padding: 14px 20px;
+  margin-bottom: 18px;
+  animation: glowPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(250, 204, 21, 0.1); }
+  50%       { box-shadow: 0 0 28px rgba(250, 204, 21, 0.28); }
+}
+
+.gameover-winner-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.gameover-winner-name {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fde68a;
+  text-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
+}
+
+.gameover-stats {
+  display: flex;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
-/* 🎯 WINNER TEXT */
-.gameover-modal p {
+.gameover-stat {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 10px 8px;
+}
+
+.gameover-stat-val {
   font-size: 20px;
+  font-weight: 700;
   color: #e2e8f0;
-
-  margin-bottom: 25px;
+  line-height: 1;
+  margin-bottom: 3px;
 }
 
-/* 🔘 BUTTON */
-.gameover-modal button {
-  padding: 12px 28px;
+.gameover-stat-val.green { color: #4ade80; text-shadow: 0 0 10px rgba(74,222,128,0.5); }
+.gameover-stat-val.gold  { color: #fbbf24; text-shadow: 0 0 10px rgba(251,191,36,0.5); }
+.gameover-stat-val.blue  { color: #60a5fa; text-shadow: 0 0 10px rgba(96,165,250,0.5); }
+
+.gameover-stat-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.28);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.gameover-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.gameover-btn-main {
+  flex: 1;
+  padding: 13px;
   border-radius: 12px;
-
-  background: linear-gradient(135deg, gold, orange);
-  color: black;
-
-  font-weight: bold;
-
-  box-shadow: 0 0 15px gold;
-
-  transition: 0.3s;
+  background: linear-gradient(135deg, #d97706, #f59e0b, #fbbf24);
+  color: #1a0a00;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+  transition: all 0.2s ease;
 }
 
-.gameover-modal button:hover {
-  transform: scale(1.1);
-  box-shadow:
-    0 0 30px gold,
-    0 0 60px orange;
+.gameover-btn-main:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 35px rgba(250, 204, 21, 0.7);
 }
 
-/* 🎬 ANIMATIONS */
-@keyframes fadeIn {
-  from {
-    opacity: 0
-  }
-
-  to {
-    opacity: 1
-  }
+.gameover-btn-secondary {
+  flex: 1;
+  padding: 13px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.2s ease;
 }
 
-@keyframes scaleIn {
-  from {
-    transform: scale(0.6);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+.gameover-btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.85);
 }
 
-@keyframes rotateGlow {
-  from {
-    transform: rotate(0deg)
-  }
-
-  to {
-    transform: rotate(360deg)
-  }
+.gameover-elim-section {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 14px;
 }
 
+.gameover-elim-title {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.22);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.gameover-elim-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+}
+
+.gameover-elim-row:last-child { border-bottom: none; }
+
+.gameover-elim-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.gameover-rank {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  font-weight: 600;
+}
+
+@keyframes gameoverPop {
+  0% { opacity: 0; transform: scale(0.55) translateY(40px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+/* 🎯 WINNER TEXT */
 
 /* ============================================================
    RESPONSIVE BREAKPOINTS

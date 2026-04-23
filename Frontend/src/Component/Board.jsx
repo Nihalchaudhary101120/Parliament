@@ -852,7 +852,7 @@ const Board = () => {
 
 
 
-          {gameOver && createPortal(
+          {/* {gameOver && createPortal(
             <div className="gameover-overlay">
               <div className="gameover-modal">
                 <h2>Game Over</h2>
@@ -872,6 +872,73 @@ const Board = () => {
               </div>
             </div>,
             document.getElementById("modal-root") // 🔥 SAME ROOT
+          )} */}
+          {gameOver && createPortal(
+            <div className="gameover-overlay">
+              <div className="gameover-modal">
+                <span className="gameover-crown">👑</span>
+                <p className="gameover-sublabel">Victory Declared</p>
+                <h2>Game Over</h2>
+                <div className="gameover-divider" />
+
+                <div className="gameover-winner-box">
+                  <p className="gameover-winner-label">Winner</p>
+                  <p className="gameover-winner-name">
+                    {optimisticPlayers.find(
+                      p => p.userId._id?.toString() === gameOver.winner?.toString()
+                    )?.userId?.username || "Unknown"}
+                  </p>
+                </div>
+
+                <div className="gameover-stats">
+                  {(() => {
+                    const winner = optimisticPlayers.find(
+                      p => p.userId._id?.toString() === gameOver.winner?.toString()
+                    );
+                    return (<>
+                      <div className="gameover-stat">
+                        <div className="gameover-stat-val green">{winner?.remainingParliamentHp ?? "—"}</div>
+                        <div className="gameover-stat-label">Final HP</div>
+                      </div>
+                      <div className="gameover-stat">
+                        <div className="gameover-stat-val blue">{turnNo}</div>
+                        <div className="gameover-stat-label">Turns</div>
+                      </div>
+                      <div className="gameover-stat">
+                        <div className="gameover-stat-val gold">₹{winner?.cashRemaining ?? "—"}</div>
+                        <div className="gameover-stat-label">Cash Left</div>
+                      </div>
+                    </>);
+                  })()}
+                </div>
+
+                <div className="gameover-actions">
+                  <button className="gameover-btn-main" onClick={() => navigate("/dashboard")}>
+                    🏠 Back to Home
+                  </button>
+                  <button className="gameover-btn-secondary">
+                    📊 Stats
+                  </button>
+                </div>
+
+                <div className="gameover-elim-section">
+                  <p className="gameover-elim-title">Eliminated Players</p>
+                  {optimisticPlayers
+                    .filter(p => p.userId._id?.toString() !== gameOver.winner?.toString())
+                    .map((p, i) => (
+                      <div key={i} className="gameover-elim-row">
+                        <span>
+                          <span className="gameover-rank">{i + 2}</span>
+                          <span className="gameover-elim-dot" style={{ background: getPawnColor(p.pawn) }} />
+                          {p.userId.username}
+                        </span>
+                        <span style={{ color: "rgba(248,113,113,0.55)", fontSize: 12 }}>0 HP</span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>,
+            document.getElementById("modal-root")
           )}
 
           {actionModal && actionModal.card && isMyTurn && (
