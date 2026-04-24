@@ -915,10 +915,7 @@ const Board = () => {
                 <div className="gameover-actions">
                   <button className="gameover-btn-main" onClick={() => navigate("/dashboard")}>
                     🏠 Back to Home
-                  </button>
-                  <button className="gameover-btn-secondary">
-                    📊 Stats
-                  </button>
+                  </button>                
                 </div>
 
                 <div className="gameover-elim-section">
