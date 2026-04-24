@@ -144,6 +144,13 @@ setInterval(async () => {
                     turnNo: game.turnNo,
                     mysteryCase: null,
                 });
+
+                io.to(gameCode).emit("diceResult", {
+                    diceValue: 1,          
+                    rolledBy: null,        
+                    players: game.players,
+                });
+
                 continue;
             }
 

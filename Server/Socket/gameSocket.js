@@ -552,6 +552,13 @@ export default function gameSocket(io, socket) {
             mysteryCase: null,
           });
 
+          //to stop dice rolling animation
+          io.to(gameCode).emit("diceResult", {
+            diceValue: 1,          
+            rolledBy: null,        
+            players: game.players,
+          });
+
           await startTurnTimer(game, gameCode);
 
           return; // ← skip dice roll entirely

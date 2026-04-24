@@ -1019,7 +1019,7 @@ const Board = () => {
           )}
 
 
-          {bidModal && bidModal.card && (
+          {bidModal && bidModal.card && myPlayer?.isActive && (
             <div className="bid-overlay">
               <div className="bid-modal-premium">
 
