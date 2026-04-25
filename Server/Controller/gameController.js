@@ -1,10 +1,10 @@
 import Game from "../models/GameSession.js";
 import Card from "../models/cards.js";
-const pawnColor = ['blackPawn', 'whitePawn', 'bluePawn', 'yellowPawn', 'greenPawn']
+
+const pawnColor = ['redPawn', 'blackPawn', 'whitePawn', 'bluePawn', 'yellowPawn', 'greenPawn'];
+
 export const createRoom = async (req, res) => {
   try {
-
-
     if (!req.session.user) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
@@ -37,7 +37,6 @@ export const createRoom = async (req, res) => {
       ],
       currentTurn: null,
       status: "waiting"
-
     });
     res.status(200).json({
       gameSchema: game,
@@ -46,7 +45,6 @@ export const createRoom = async (req, res) => {
       gameCode: game.gameCode,
       gameId: game._id
     })
-
   }
 
   catch (err) {
@@ -56,10 +54,9 @@ export const createRoom = async (req, res) => {
 }
 
 
+
 export const joinRoom = async (req, res) => {
   try {
-
-
     const { gameCode } = req.body;
 
     if (!req.session.user) {
@@ -69,53 +66,116 @@ export const joinRoom = async (req, res) => {
     const user = req.session.user;
     const userId = user.id;
 
-    const game = await Game.findOne({ gameCode });
+    // const game = await Game.findOne({ gameCode });
 
-    if (!game) {
-      return res.status(404).json({ error: "Room not found" });
-    }
+    // if (!game) {
+    //   return res.status(404).json({ error: "Room not found" });
+    // }
 
-    const alreadyJoined = game.players.some(p =>
-      p.userId.equals(userId)
+    // const alreadyJoined = game.players.some(p =>
+    //   p.userId.equals(userId)
+    // );
+
+    // if (!alreadyJoined) {
+    //   if (game.players.length >= game.maxPlayer) {
+    //     return res.status(400).json({ error: "Room is full" });
+    //   }
+
+    //   game.players.push({
+    //     userId,
+    //     cards: [],
+    //     isBot: false,
+    //     remainingParliamentHp: 1500,
+    //     remainingShieldHp: 0,
+    //     cashRemaining: 1200,
+    //     position: 0,
+    //     skippedChances: 0,
+    //     isActive: true,
+    //     pawn: pawnColor[game.players.length - 1]
+    //   });
+    // }
+
+    // if (game.players.length === game.maxPlayer) {
+    //   game.status = "active";
+    //   game.turnNo = 1;
+    //   game.currentTurn = game.players[0].userId;
+    //   game.turnDeadline = new Date(Date.now() + 32_000);
+    //   game.actionDeadline = null;
+    //   game.pendingAction = null;
+    // }
+
+    // await game.save();
+
+    // Step 1: Read current game to get player count for pawn color
+    const currentGame = await Game.findOne({ gameCode });
+    if (!currentGame) return res.status(404).json({ error: "Room not found" });
+
+    const alreadyIn = currentGame.players.some(p => p.userId.equals(userId));
+    const pawnIndex = currentGame.players.length; // snapshot before atomic push
+    const assignedPawn = pawnColor[pawnIndex] || pawnColor[0]; // fallback
+
+    // Step 2: Atomic push — only succeeds if room has space and user not already in
+    const updatedGame = await Game.findOneAndUpdate(
+      {
+        gameCode,
+        status: "waiting",
+        $expr: { $lt: [{ $size: "$players" }, "$maxPlayer"] },  // atomic check
+        "players.userId": { $ne: userId }                        // not already in
+      },
+      {
+        $push: {
+          players: {
+            userId,
+            cards: [],
+            isBot: false,
+            remainingParliamentHp: 1500,
+            remainingShieldHp: 0,
+            cashRemaining: 1200,
+            position: 0,
+            skippedChances: 0,
+            isActive: true,
+            // pawn: pawnColors[game.players.length - 1]  // use pre-read length for color
+            pawn: assignedPawn
+          }
+        }
+      },
+      { new: true }
     );
 
-    if (!alreadyJoined) {
-      if (game.players.length >= game.maxPlayer) {
-        return res.status(400).json({ error: "Room is full" });
+    // Step 3: Handle failure cases
+    if (!updatedGame) {
+      if (alreadyIn) {
+        // Player rejoining — return current game state
+        return res.json({
+          success: true,
+          gameId: currentGame._id,
+          gameCode: currentGame.gameCode,
+          maxPlayer: currentGame.maxPlayer,
+          status: currentGame.status,
+          players: currentGame.players
+        });
       }
-
-      game.players.push({
-        userId,
-        cards: [],
-        isBot: false,
-        remainingParliamentHp: 1500,
-        remainingShieldHp: 0,
-        cashRemaining: 1200,
-        position: 0,
-        skippedChances: 0,
-        isActive: true,
-        pawn: pawnColor[game.players.length - 1]
-      });
+      return res.status(400).json({ error: "Room is full" });
     }
 
-    if (game.players.length === game.maxPlayer) {
-      game.status = "active";
-      game.turnNo = 1;
-      game.currentTurn = game.players[0].userId;
-      game.turnDeadline = new Date(Date.now() + 32_000);
-      game.actionDeadline = null;
-      game.pendingAction = null;
+    // Step 4: If room just filled, activate game
+    if (updatedGame.players.length === updatedGame.maxPlayer) {
+      updatedGame.status = "active";
+      updatedGame.turnNo = 1;
+      updatedGame.currentTurn = updatedGame.players[0].userId;
+      updatedGame.turnDeadline = new Date(Date.now() + 32_000);
+      updatedGame.actionDeadline = null;
+      updatedGame.pendingAction = null;
+      await updatedGame.save();
     }
-
-    await game.save();
 
     res.json({
       success: true,
-      gameId: game._id,
-      gameCode: game.gameCode,
-      maxPlayer: game.maxPlayer,
-      status: game.status,
-      players: game.players
+      gameId: updatedGame._id,
+      gameCode: updatedGame.gameCode,
+      maxPlayer: updatedGame.maxPlayer,
+      status: updatedGame.status,
+      players: updatedGame.players
     });
 
   } catch (err) {
@@ -123,6 +183,9 @@ export const joinRoom = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+
 
 const getMysteryCard = () => {
   const getRand = () => Math.floor(Math.random() * MysteryBox.length);
@@ -182,9 +245,6 @@ const getMysteryCard = () => {
   return MysteryBox[getRand()];
 
 }
-
-
-
 
 export const turn = async (req, res) => {
   try {
