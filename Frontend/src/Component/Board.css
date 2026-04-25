@@ -2929,39 +2929,249 @@ body,
   }
 }
 
+
 /* ── Very small phones (iPhone SE etc) ── */
 @media (max-width: 400px) {
   .chat-toggle-btn {
     display: flex !important;
   }
 
+  .nice {
+    --spacing: 0.25rem;
+    --text-xs: 0.75rem;
+  }
+
+  .border-cell {
+    border-radius: 5px;
+  }
+
+  .hero2 {
+    padding-top: 20vh;
+    gap: 7vh;
+  }
+
+  .tile-icon {
+    width: 12px;
+    height: 20px;
+    animation: none;
+  }
+
   .tile-label {
-    font-size: 6px;
+    font-size: 4px;
+    padding: 1px 3px;
+    bottom: 2px;
   }
 
   .player-token {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 25px;
+  }
+
+  .hp-bar {
+    height: 9px;
+    width: 80%;
+    bottom: 33%;
+  }
+
+  .shield-bar {
+    height: 8px;
+    width: 65%;
+    bottom: 18%;
+  }
+
+  .hp-text,
+  .shield-text {
+    font-size: 8px;
+  }
+
+  .money-scientist {
+    gap: 8px;
+  }
+
+  .player-cell {
+    min-height: 80px;
+  }
+
+  .center-grid {
+    padding: 5px;
+    gap: 3px;
+  }
+
+  .name {
+    font-size: 6.5px;
+    padding: 1px 5px;
+    top: -7px;
+  }
+
+  .money-tag {
+    width:8vw;
+    font-size: 7px;
+    padding: 2px 5px;
+  }
+
+  .cash-tag {
+    width: 8vw;
+  }
+
+  .sceintist-tag {
+    width: 17vw;
+    font-size: 6px;
   }
 
   .right-grid {
-    max-width: 180px;
-    height: 54px;
+    max-width: 220px;
+    height: 80px;
   }
 
   .dice-container {
-    width: 54px;
-    height: 54px;
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
   }
 
   .dice-face {
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
   }
 
   .pip {
-    width: 7px;
-    height: 7px;
+    width: 9px;
+    height: 9px;
+  }
+
+
+
+  /* Modals full-width */
+  .buy-modal-premium,
+  .bid-modal-premium {
+    width: 92vw;
+    padding: 18px 14px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+  }
+
+  .price-box h2 {
+    font-size: 26px;
+  }
+
+  /* Turn indicator compact */
+  .turn-indicator {
+    top: 30px;
+    right: 8px;
+    padding: 5px 10px;
+    gap: 6px;
+  }
+
+  .turn-ring {
+    width: 28px;
+    height: 28px;
+  }
+
+  .turn-ring span {
+    font-size: 10px;
+  }
+
+  .turn-value {
+    font-size: 11px;
+  }
+
+  .turn-label {
+    font-size: 9px;
+  }
+
+  .turn-divider {
+    height: 22px;
+  }
+
+
+  .damage-toast {
+    min-width: 90vw;
+    max-width: 95vw;
+    left: 50%;
+    top: 28%;
+    animation: damageSlideInMobile 0.35s ease forwards,
+      damageSlideOutMobile 0.4s ease 3.1s forwards;
+  }
+
+  @keyframes damageSlideInMobile {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-24px) scale(0.88);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+  }
+
+  @keyframes damageSlideOutMobile {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-12px);
+    }
+  }
+
+  .damage-toast-amount {
+    font-size: 28px;
+  }
+
+  .damage-toast-card {
+    font-size: 12px;
+  }
+
+
+  .quit-btn {
+    top: 8px;
+    left: 8px;
+    padding: 5px 10px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  .quit-guide-combine {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+
+  .mystery-inline-overlay {
+    padding: 6px;
+  }
+
+  .mystery-inline-card {
+    margin-top: 6px;
+    gap: 3px;
+  }
+
+  .mystery-inline-img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mystery-inline-title {
+    font-size: 8px;
+    max-width: 95%;
+  }
+
+  .mystery-inline-amount {
+    font-size: 16px;
+  }
+
+  .bid-result-toast {
+    min-width: 88vw;
+    max-width: 94vw;
+    padding: 14px 20px;
   }
 }
 
