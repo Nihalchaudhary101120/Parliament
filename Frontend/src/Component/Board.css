@@ -2685,7 +2685,7 @@ body,
 }
 
 /* ── Mobile ── */
-@media (max-width: 640px) {
+@media (min-width: 401px) and (max-width: 640px) {
   .chat-toggle-btn {
     display: flex !important;
   }
