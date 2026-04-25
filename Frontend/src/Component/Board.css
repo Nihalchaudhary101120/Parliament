@@ -3585,9 +3585,9 @@ body,
 /* Tablet */
 @media (max-width: 1024px) {
   .guide-open-btn {
-    top: 8px;
+    top: 15px;
     /* same row as quit */
-    left: 120px;
+    left: 100px;
     /* quit-btn on tablet: ~8px left + ~100px wide */
     width: 34px;
     height: 34px;
@@ -3598,9 +3598,9 @@ body,
 /* Mobile */
 @media (max-width: 640px) {
   .guide-open-btn {
-    top: 10px;
+    top: 18px;
     /* inline with quit */
-    left: auto;
+    left: 100px;
     /* quit shrinks to ~100px on mobile */
     width: 30px;
     right: 60px;
@@ -3612,7 +3612,7 @@ body,
 
 @media (max-width: 400px) {
   .guide-open-btn {
-    left: 108px;
+    left: 95px;
     width: 28px;
     height: 28px;
     font-size: 13px;
