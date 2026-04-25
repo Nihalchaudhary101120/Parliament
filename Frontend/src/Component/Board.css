@@ -2705,8 +2705,8 @@ body,
   }
 
   .tile-icon {
-    width: 12px;
-    height: 20px;
+    width: 15px;
+    height: 12px;
     animation: none;
   }
 
@@ -2717,18 +2717,18 @@ body,
   }
 
   .player-token {
-    width: 10px;
-    height: 22px;
+    width: 20px;
+    height: 25px;
   }
 
   .hp-bar {
-    height: 9px;
+    height: 12px;
     width: 80%;
     bottom: 33%;
   }
 
   .shield-bar {
-    height: 8px;
+    height: 10px;
     width: 65%;
     bottom: 18%;
   }
@@ -2758,12 +2758,12 @@ body,
   }
 
   .money-tag {
-    font-size: 9px;
+    font-size: 8px;
     padding: 2px 5px;
   }
 
   .cash-tag {
-    width: 8vw;
+    width: 12vw;
   }
 
   .sceintist-tag {
