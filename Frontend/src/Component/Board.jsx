@@ -806,13 +806,40 @@ const Board = () => {
 
           {/* ── Quit Button ── */}
           <div className="quit-guide-combine">
-            <button className="quit-btn" onClick={handleQuit}>
-              <span className="quit-icon">✕</span>
-              <span className="quit-text">Quit</span>
-            </button>
-            <button className="guide-open-btn" onClick={() => { setGuideManual(true); setShowGuide(true); }} title="Game Guide">
-              📖
-            </button>
+            <div className="seperator">
+              <button className="quit-btn" onClick={handleQuit}>
+                <span className="quit-icon">✕</span>
+                <span className="quit-text">Quit</span>
+              </button>
+              <button className="guide-open-btn" onClick={() => { setGuideManual(true); setShowGuide(true); }} title="Game Guide">
+                📖
+              </button>
+            </div>
+            {/* ── Turn Indicator ── */}
+            <div className="turn-indicator">
+              {/* Countdown ring */}
+              {turnTimeLeft > 0 && (
+                <div className={`turn-ring ${turnTimeLeft <= 10 ? "urgent" : isMyTurn ? "active" : "idle"}`}>
+                  <span>{turnTimeLeft}s</span>
+                </div>
+              )}
+
+              <div className="turn-divider" />
+
+              <div className="turn-section">
+                <span className="turn-label">STATUS</span>
+                <span className={`turn-value ${isMyTurn ? "my-turn" : "waiting"}`}>
+                  {isMyTurn ? "Your Turn" : "Waiting..."}
+                </span>
+              </div>
+
+              <div className="turn-divider" />
+
+              <div className="turn-section" style={{ alignItems: "flex-end" }}>
+                <span className="turn-label">TURN</span>
+                <span className="turn-value">#{turnNo}</span>
+              </div>
+            </div>
           </div>
 
           <CardModal showConfirm={showConfirm} socket={socket.current} roomId={roomId} myUserIdRef={myUserIdRef} currentTurnRef={currentTurnRef.current} />
@@ -915,7 +942,7 @@ const Board = () => {
                 <div className="gameover-actions">
                   <button className="gameover-btn-main" onClick={() => navigate("/dashboard")}>
                     🏠 Back to Home
-                  </button>                
+                  </button>
                 </div>
 
                 <div className="gameover-elim-section">
@@ -1128,31 +1155,7 @@ const Board = () => {
 
 
 
-          {/* ── Turn Indicator ── */}
-          <div className="turn-indicator">
-            {/* Countdown ring */}
-            {turnTimeLeft > 0 && (
-              <div className={`turn-ring ${turnTimeLeft <= 10 ? "urgent" : isMyTurn ? "active" : "idle"}`}>
-                <span>{turnTimeLeft}s</span>
-              </div>
-            )}
 
-            <div className="turn-divider" />
-
-            <div className="turn-section">
-              <span className="turn-label">STATUS</span>
-              <span className={`turn-value ${isMyTurn ? "my-turn" : "waiting"}`}>
-                {isMyTurn ? "Your Turn" : "Waiting..."}
-              </span>
-            </div>
-
-            <div className="turn-divider" />
-
-            <div className="turn-section" style={{ alignItems: "flex-end" }}>
-              <span className="turn-label">TURN</span>
-              <span className="turn-value">#{turnNo}</span>
-            </div>
-          </div>
 
           {/* ── Board ── */}
           <div className="board-wrapper">

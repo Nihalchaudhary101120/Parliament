@@ -1,6 +1,6 @@
 const names = [
     "Jon Snow", "Aan", "chishiya",
-    "Tony Stark", "Martha", "Dustin", "Mike", "El", "Kira",
+    "Tony Stark", "Martha", "BulldojerBABA", "Parliament Crusher", "Missile Dropper", "Punisher", "Gun Man", "Ghost"
 ];
 
 const generateGuestUsername = () => {

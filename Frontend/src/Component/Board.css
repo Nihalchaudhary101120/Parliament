@@ -2895,7 +2895,6 @@ body,
     width: 100%;
     display: flex;
     justify-content: space-between;
-    /* push to edges */
     padding: 0 10px;
   }
 
