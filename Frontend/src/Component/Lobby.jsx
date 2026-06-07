@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import "./lobby.css";
 import { FaWhatsapp } from "react-icons/fa";
 
+
 export default function Lobby() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -17,6 +18,7 @@ export default function Lobby() {
     const [connectionError, setConnectionError] = useState("");
     const { user } = useAuth()
     useEffect(() => {
+        if(!user) return;
         const socket = connectSocket(user);
         if (!socket) {
             console.error("Failed to get socket instance");
