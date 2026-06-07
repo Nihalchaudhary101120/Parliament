@@ -1,28 +1,36 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/api";
-import { Navigate , useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const navigate = useNavigate();
-    
-    const location=useLocation();
-    const [user, setUser] = useState({});
+
+    const location = useLocation();
+
+    const [user, setUser] = useState(null);
+    const [authLoading, setAuthLoading] = useState(true);
 
     const checkSession = async () => {
         try {
             const res = await api.get("/auth/me");
-            setUser(res.data.user);
-            console.log(res.data);
-            
-            if (res.data.success  ) {
-                navigate("/dashboard");
+
+
+            if (res.data.success) {
+                setUser(res.data.user);
+
+                console.log(res.data);
+                const intended = location.state?.from || "/dashboard";
+                navigate(intended, { replace: true });
             }
         } catch (err) {
             console.log("error in authme", err);
+            setUser(null);
             navigate("/");
+        } finally {
+            setAuthLoading(false);
         }
     };
 
@@ -33,7 +41,8 @@ export function AuthProvider({ children }) {
             // server now returns { success, user: { id, username, isGuest } }
             if (res.data.user) {
                 setUser(res.data.user);
-                navigate("/dashboard");
+                const intended = location.state?.from || "/dashboard";
+                navigate(intended, { replace: true });
             }
         } catch (err) {
             console.log("Guest login failed", err);
@@ -44,7 +53,8 @@ export function AuthProvider({ children }) {
         try {
             const res = await api.post('/auth/signup', { email, password });
             setUser(res.data.user);
-            navigate('/dashboard');
+            const intended = location.state?.from || "/dashboard";
+            navigate(intended, { replace: true });
             return { success: true };
         } catch (err) {
             console.error('Signup error', err?.response?.data || err.message);
@@ -56,7 +66,8 @@ export function AuthProvider({ children }) {
         try {
             const res = await api.post('/auth/signin', { email, password });
             setUser(res.data.user);
-            navigate('/dashboard');
+            const intended = location.state?.from || "/dashboard"; // ← go back to lobby if that's where they came from
+            navigate(intended, { replace: true });
             return { success: true };
         } catch (err) {
             console.error('Signin error', err?.response?.data || err.message);
@@ -81,7 +92,7 @@ export function AuthProvider({ children }) {
         } catch (err) {
             // ignore
         } finally {
-            setUser({});
+            setUser(null);
             navigate('/');
         }
     };

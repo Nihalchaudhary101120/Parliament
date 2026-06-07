@@ -100,7 +100,7 @@ export default function Lobby() {
             socket.off("disconnect", handleDisconnect);
         };
 
-    }, [roomCode]);
+    }, [roomCode ,user]);
 
     const [copied, setCopied] = useState(false);
     const copyCode = async () => {
