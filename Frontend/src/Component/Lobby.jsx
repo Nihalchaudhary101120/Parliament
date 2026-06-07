@@ -31,7 +31,7 @@ export default function Lobby() {
 
             // Step 1: Add player to game via REST API
             try {
-                const res = await api.post('/game/join', { gameCode: roomCode });
+                const res = await api.post('/friends/join', { gameCode: roomCode });
                 if (!res.data.success) {
                     setConnectionError(res.data.error || "Failed to join room");
                     return;
