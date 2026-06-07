@@ -20,15 +20,16 @@ export function AuthProvider({ children }) {
 
             if (res.data.success) {
                 setUser(res.data.user);
-
-                console.log(res.data);
-                const intended = location.state?.from || "/dashboard";
-                navigate(intended, { replace: true });
+                const publicPaths = ["/", "/login", "/signup", "/entry"];
+                if (publicPaths.includes(location.pathname)) {
+                    const intended = location.state?.from || "/dashboard";
+                    navigate(intended, { replace: true });
+                }
             }
         } catch (err) {
             console.log("error in authme", err);
             setUser(null);
-            navigate("/");
+            // navigate("/");
         } finally {
             setAuthLoading(false);
         }
@@ -102,7 +103,7 @@ export function AuthProvider({ children }) {
     }, [])
 
     return (
-        <AuthContext.Provider value={{ checkSession, user, handleGuest, signup, signin, setUsername, signout }}>
+        <AuthContext.Provider value={{ checkSession, user, handleGuest, signup,authLoading, signin, setUsername, signout }}>
             {children}
         </AuthContext.Provider>
     );
