@@ -3,7 +3,6 @@ import { io } from "socket.io-client";
 let socket = null;
 const SOCKET_URL = "https://parliamentbackend.onrender.com";
 // const SOCKET_URL = "http://localhost:3000";
-// call this AFTER login/guest API success
 export function connectSocket(user) {
   if (socket && socket.connected) return socket;
 
