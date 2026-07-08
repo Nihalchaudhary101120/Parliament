@@ -309,7 +309,7 @@ const DashBoard = () => {
                 <div className="glass-panel">
                     <h2 className="panel-title">GAME MODE</h2>
                     <button className="glass-btn sharp-btn" onClick={() => setShowFriendOption(true)}>👥 Play with Friends</button>
-                    <button className="glass-btn sharp-btn matchmaking-btn" onClick={() => setShowMatchmakingModal(true)}>🌐 Find Global Match</button>
+                    <button className="glass-btn sharp-btn matchmaking-btn" onClick={() => setShowMatchmakingModal(true)}>🌐 Play Online</button>
                 </div>
 
                 {/* ── Friend option modal (existing) ── */}

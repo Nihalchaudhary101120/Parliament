@@ -4,7 +4,7 @@ import { app, sessionMiddleWare } from "./app.js";
 import chatSocket from "./Socket/chatSocket.js";
 import Game from "./models/GameSession.js";
 import Card from './models/cards.js';
-import { executeTurn, resolveBid, recordGameResult } from './Socket/gameSocket.js';
+import gameSocket, { executeTurn, resolveBid, recordGameResult } from './Socket/gameSocket.js';
 import { startMatchmakingEngine } from './utils/matchmakingEngine.js';
 
 const server = http.createServer(app);
